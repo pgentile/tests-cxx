@@ -20,6 +20,8 @@ int main(void) {
 	loggerManager.log("Test d'un log 2");
 	loggerManager.log("Test d'un log 3");
 	loggerManager.log("Test d'un log 4");
+	loggerManager.log("Test d'un log 5");
+	loggerManager.log("Test d'un log 6");
 	loggerManager.log("Encore du log...");
 	
 	unsigned int duration = 10;
