@@ -20,6 +20,7 @@ int main(void) {
 	loggerManager.log("Test d'un log 2");
 	loggerManager.log("Test d'un log 3");
 	loggerManager.log("Test d'un log 4");
+	loggerManager.log("Test d'un log 5");
 	
 	unsigned int duration = 10;
 	cout << "On dort..." << endl;
