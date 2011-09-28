@@ -9,10 +9,10 @@ extern "C" {
 #include <sstream>
 #include <stdexcept>
 
-using namespace std;
-
 namespace threading
 {
+	
+	using namespace std;
 	
 	// Class Mutex
 	
@@ -35,16 +35,14 @@ namespace threading
 	}
 
 	void Mutex::lock(void) {
-		pthread_t threadId = pthread_self();
-		cout << "Locking mutex " << &_ptMutex << " for thread ID " << threadId << endl;
+		cout << "Locking mutex " << &_ptMutex << endl;
 
 		int result = pthread_mutex_lock(&_ptMutex);
 		_checkRC(result);
 	}
 	
 	bool Mutex::tryLock(void) {
-		pthread_t threadId = pthread_self();
-		cout << "Trying to lock mutex " << &_ptMutex << " for thread ID " << threadId << endl;
+		cout << "Trying to lock mutex " << &_ptMutex << endl;
 		
 		bool locked = false;
 		int result = pthread_mutex_trylock(&_ptMutex);
@@ -63,8 +61,7 @@ namespace threading
 	}
 
 	void Mutex::release(void) {
-		pthread_t threadId = pthread_self();
-		cout << "Releasing mutex " << &_ptMutex << " for thread ID " << threadId << endl;
+		cout << "Releasing mutex " << &_ptMutex << endl;
 
 		int result = pthread_mutex_unlock(&_ptMutex);
 		_checkRC(result);
@@ -100,7 +97,7 @@ namespace threading
 	}
 	
 	void Condition::wait(void) {
-		cout << "Wating on mutex " << &_mutex._ptMutex << endl;
+		cout << "Waiting on mutex " << &_mutex._ptMutex << endl;
 		pthread_cond_wait(&_cond, &_mutex._ptMutex);
 	}
 	

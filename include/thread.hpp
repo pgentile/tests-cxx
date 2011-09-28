@@ -21,6 +21,10 @@ namespace threading {
 		void cancel(void);
 		
 		void join(void);
+		
+		inline unsigned long id(void) {
+			return _id;
+		}
 	
 	protected:
 		
@@ -33,6 +37,8 @@ namespace threading {
 		Thread(const Thread&);
 		
 		Thread& operator=(const Thread&);
+		
+		unsigned long _id;
 		
 		pthread_t _thread;
 		

@@ -7,10 +7,10 @@
 #include "thread.hpp"
 #include "mutex.hpp"
 
-using namespace threading;
-
 namespace logger
 {
+	
+	using namespace threading;
 
 	class LogEvent
 	{

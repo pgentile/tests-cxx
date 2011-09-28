@@ -7,11 +7,11 @@ extern "C" {
 #include <iostream>
 #include <memory>
 
-using namespace std;
-using namespace logger;
-
 namespace logger
 {
+
+	using namespace std;
+	using namespace logger;
 
 	void LogEventConsumer::run() {
 		cout << "Consuming logs..." << endl;

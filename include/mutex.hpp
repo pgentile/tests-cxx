@@ -8,9 +8,9 @@ extern "C" {
 #include <iostream>
 #include <stdexcept>
 
-using namespace std;
-
 namespace threading {
+
+	using namespace std;
 	
 	class MutexLock;
 	class Condition;
