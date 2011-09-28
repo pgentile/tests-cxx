@@ -1,6 +1,7 @@
 #include <iostream>
 
-extern "C" {
+extern "C"
+{
 #include <unistd.h>
 }
 
@@ -10,7 +11,8 @@ using namespace std;
 using namespace logger;
 using namespace threading;
 
-int main(void) {
+int main(void)
+{
 	int rc = 0;
 	
 	cout << "Demarrage du programme" << endl;

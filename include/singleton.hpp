@@ -8,15 +8,15 @@ namespace patterns
 	class Singleton
 	{
 	
-	public:
+		public:
 
-		static T& instance(void) {
-			return _instance;
-		}
+			static T& instance(void) {
+				return _instance;
+			}
 	
-	private:
+		private:
 		
-		static T _instance;	
+			static T _instance;	
 	
 	};
 	

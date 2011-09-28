@@ -3,22 +3,24 @@
 
 #include "mutex.hpp"
 
-namespace threading {
+namespace threading
+{
 	
 	template <typename T>
 	class AtomicCounter
 	{
-	public:
+		public:
 
-		T incrementAndGet(void);
+			T incrementAndGet(void);
 
-	private:
-		T _counter;
-		Mutex _counterMutex;
+		private:
+			T _counter;
+			Mutex _counterMutex;
 	};
 	
 	template<typename T>
-	T AtomicCounter<T>::incrementAndGet(void) {
+	T AtomicCounter<T>::incrementAndGet(void)
+	{
 		MutexLock lock(_counterMutex);
 		return ++_counter;
 	}

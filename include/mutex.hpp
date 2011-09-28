@@ -33,24 +33,24 @@ namespace threading {
 	class Mutex
 	{
 		
-	public:
-		Mutex(void);
+		public:
+			Mutex(void);
 		
-		void lock(void);
+			void lock(void);
 		
-		bool tryLock(void);
+			bool tryLock(void);
 		
-		void release(void);
+			void release(void);
 		
-		virtual ~Mutex(void);
+			virtual ~Mutex(void);
 		
-	private:
-		void _checkRC(int result);
+		private:
+			void _checkRC(int result);
 		
-		pthread_mutex_t _ptMutex;
+			pthread_mutex_t _ptMutex;
 		
-		friend class MutexLock;
-		friend class Condition;
+			friend class MutexLock;
+			friend class Condition;
 		
 	};
 	
@@ -60,38 +60,38 @@ namespace threading {
 	class MutexLock
 	{
 		
-	public:
-		MutexLock(Mutex& mutex);
+		public:
+			MutexLock(Mutex& mutex);
 		
-		virtual ~MutexLock();
+			virtual ~MutexLock();
 
-	private:
-		Mutex& _mutex;
+		private:
+			Mutex& _mutex;
 		
 	};
 	
 	class Condition
 	{
 	
-	public:
-		Condition(Mutex& mutex);
+		public:
+			Condition(Mutex& mutex);
 		
-		void wait(void);
+			void wait(void);
 		
-		void signal(void);
+			void signal(void);
 		
-		void broadcast(void);
+			void broadcast(void);
 		
-		virtual ~Condition();
+			virtual ~Condition();
 		
-		inline Mutex& mutex(void) {
-			return _mutex;
-		}
+			inline Mutex& mutex(void) {
+				return _mutex;
+			}
 		
-	private:
+		private:
 		
-		Mutex& _mutex;
-		pthread_cond_t _cond;
+			Mutex& _mutex;
+			pthread_cond_t _cond;
 		
 	};
 	

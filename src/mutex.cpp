@@ -1,6 +1,7 @@
 #include "mutex.hpp"
 
-extern "C" {
+extern "C"
+{
 #include <pthread.h>
 #include <errno.h>
 }
@@ -16,14 +17,16 @@ namespace threading
 	
 	// Class Mutex
 	
-	Mutex::Mutex(void) {
+	Mutex::Mutex(void)
+	{
 		cout << "Creating mutex " << &_ptMutex << endl;
 		
 		int result = pthread_mutex_init(&_ptMutex, NULL);
 		_checkRC(result);
 	}
 	
-	Mutex::~Mutex(void) {
+	Mutex::~Mutex(void)
+	{
 		int result = pthread_mutex_destroy(&_ptMutex);
 		try {
 			_checkRC(result);
@@ -34,14 +37,16 @@ namespace threading
 		cout << "Destructing mutex " << &_ptMutex << endl;
 	}
 
-	void Mutex::lock(void) {
+	void Mutex::lock(void)
+	{
 		cout << "Locking mutex " << &_ptMutex << endl;
 
 		int result = pthread_mutex_lock(&_ptMutex);
 		_checkRC(result);
 	}
 	
-	bool Mutex::tryLock(void) {
+	bool Mutex::tryLock(void)
+	{
 		cout << "Trying to lock mutex " << &_ptMutex << endl;
 		
 		bool locked = false;
@@ -60,14 +65,16 @@ namespace threading
 		return locked;
 	}
 
-	void Mutex::release(void) {
+	void Mutex::release(void)
+	{
 		cout << "Releasing mutex " << &_ptMutex << endl;
 
 		int result = pthread_mutex_unlock(&_ptMutex);
 		_checkRC(result);
 	}
 	
-	void Mutex::_checkRC(int result) {
+	void Mutex::_checkRC(int result)
+	{
 		if (result != 0) {
 			ostringstream message;
 			char* specificMessage = strerror(result);
@@ -78,11 +85,13 @@ namespace threading
 	
 	// Class MutexLock
 	
-	MutexLock::MutexLock(Mutex& mutex): _mutex(mutex) {
+	MutexLock::MutexLock(Mutex& mutex): _mutex(mutex)
+	{
 		_mutex.lock();
 	}
 	
-	MutexLock::~MutexLock() {
+	MutexLock::~MutexLock()
+	{
 		try {
 			_mutex.release();
 		} catch (const exception& e) {
@@ -92,25 +101,31 @@ namespace threading
 	
 	// Class Condition
 	
-	Condition::Condition(Mutex& mutex): _mutex(mutex) {
+	Condition::Condition(Mutex& mutex):
+			_mutex(mutex)
+	{
 		pthread_cond_init(&_cond, NULL);
 	}
 	
-	void Condition::wait(void) {
+	void Condition::wait(void)
+	{
 		cout << "Waiting on mutex " << &_mutex._ptMutex << endl;
 		pthread_cond_wait(&_cond, &_mutex._ptMutex);
 	}
 	
-	void Condition::signal(void) {
+	void Condition::signal(void)
+	{
 		cout << "Signaling mutex " << &_mutex._ptMutex << endl;
 		pthread_cond_signal(&_cond);
 	}
 		
-	void Condition::broadcast(void) {
+	void Condition::broadcast(void)
+	{
 		pthread_cond_broadcast(&_cond);
 	}
 
-	Condition::~Condition() {
+	Condition::~Condition()
+	{
 		pthread_cond_destroy(&_cond);
 	}
 	
