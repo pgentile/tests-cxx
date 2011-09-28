@@ -2,7 +2,6 @@
 #include "singleton.hpp"
 #include "atomic-counter.hpp"
 
-#include <iostream>
 #include <sstream>
 #include <stdexcept>
 
@@ -49,8 +48,6 @@ namespace threading {
 		void* threadArg = (void*) this;
 		int result = pthread_create(&_thread, &_threadAttrs, _runThread, threadArg);
 		_checkRC(result);
-		
-		cout << "Thread #" << _id << " started" << endl;
 	}
 	
 	void Thread::join(void) {
