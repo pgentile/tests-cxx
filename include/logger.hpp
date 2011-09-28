@@ -11,7 +11,30 @@ namespace logger
 {
 	
 	using namespace threading;
+	
+	class Level
+	{
+		public:
+			inline Level(unsigned int value)
+			{
+				_value = value;
+			}
+		
+			inline unsigned int value(void) const {
+				return _value;
+			}
+			
+			static const Level debug;
+			static const Level info;
+			static const Level warn;
+			static const Level error;
+			static const Level fatal;
 
+		private:
+			unsigned int _value;
+		
+	};
+	
 	class LogEvent
 	{
 		public:

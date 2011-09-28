@@ -22,7 +22,8 @@ namespace threading
 	T AtomicCounter<T>::incrementAndGet(void)
 	{
 		MutexLock lock(_counterMutex);
-		return ++_counter;
+		_counter++;
+		return _counter;
 	}
 	
 }

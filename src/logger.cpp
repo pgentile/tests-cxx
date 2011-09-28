@@ -13,6 +13,12 @@ namespace logger
 
 	using namespace std;
 	using namespace logger;
+	
+	const Level Level::debug(0);
+	const Level Level::info(500);
+	const Level Level::warn(1000);
+	const Level Level::error(1500);
+	const Level Level::fatal(2000);
 
 	void LogEventConsumer::run()
 	{

@@ -23,7 +23,7 @@ namespace threading
 		
 			void join(void);
 		
-			inline unsigned long id(void) {
+			inline unsigned long id(void) const {
 				return _id;
 			}
 	
@@ -39,7 +39,7 @@ namespace threading
 		
 			Thread& operator=(const Thread&);
 		
-			unsigned long _id;
+			const unsigned long _id;
 		
 			pthread_t _thread;
 		
