@@ -5,10 +5,14 @@ extern "C" {
 #include <pthread.h>
 }
 
+#include "non-copyable.hpp"
+
 namespace threading
 {
 	
-	class Thread
+	using namespace patterns;
+	
+	class Thread: private NonCopyable
 	{
 		public:
 			Thread(void);
@@ -34,11 +38,7 @@ namespace threading
 		private:
 		
 			void _checkRC(int result);
-		
-			Thread(const Thread&);
-		
-			Thread& operator=(const Thread&);
-		
+
 			const unsigned long _id;
 		
 			pthread_t _thread;

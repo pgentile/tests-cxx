@@ -8,8 +8,11 @@ extern "C" {
 #include <iostream>
 #include <stdexcept>
 
-namespace threading {
+#include "non-copyable.hpp"
 
+namespace threading {
+	
+	using namespace patterns;
 	using namespace std;
 	
 	class MutexLock;
@@ -30,7 +33,7 @@ namespace threading {
 	 *
 	 * @see MutexLock
 	 */
-	class Mutex
+	class Mutex: private NonCopyable
 	{
 		
 		public:
@@ -57,7 +60,7 @@ namespace threading {
 	/**
 	 * Lock on a mutex
 	 */
-	class MutexLock
+	class MutexLock: private NonCopyable
 	{
 		
 		public:
@@ -70,7 +73,7 @@ namespace threading {
 		
 	};
 	
-	class Condition
+	class Condition: private NonCopyable
 	{
 	
 		public:

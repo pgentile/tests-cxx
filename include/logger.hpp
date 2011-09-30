@@ -6,13 +6,15 @@
 
 #include "thread.hpp"
 #include "mutex.hpp"
+#include "non-copyable.hpp"
 
 namespace logger
 {
 	
+	using namespace patterns;
 	using namespace threading;
 	
-	class Level
+	class Level: private NonCopyable
 	{
 		public:
 			inline Level(const string& name, unsigned int value):
@@ -36,7 +38,7 @@ namespace logger
 		
 	};
 	
-	class Event
+	class Event: private NonCopyable
 	{
 		
 		public:
@@ -71,7 +73,7 @@ namespace logger
 			}
 
 		private:
-			Level _level;
+			const Level& _level;
 			string _message;
 	};
 	
@@ -95,7 +97,7 @@ namespace logger
 			Condition& _publishedCond;
 	};
 
-	class LoggerManager
+	class LoggerManager: private NonCopyable
 	{
 		public:
 			LoggerManager(void);

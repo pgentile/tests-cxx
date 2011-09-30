@@ -1,11 +1,13 @@
 #ifndef SINGLETON_H
 #define SINGLETON_H
 
+#include "non-copyable.hpp"
+
 namespace patterns
 {
 
-	template<typename T>
-	class Singleton
+	template<class T>
+	class Singleton: private NonCopyable
 	{
 	
 		public:

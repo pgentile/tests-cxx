@@ -18,6 +18,7 @@ int main(void)
 	cout << "Demarrage du programme" << endl;
 
 	LoggerManager loggerManager;
+	//LoggerManager loggerManager2 = loggerManager;
 	
 	loggerManager.log(Level::info, "Test d'un log 1");
 	loggerManager.log(Level::info, "Test d'un log 2");
