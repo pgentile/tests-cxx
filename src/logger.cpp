@@ -16,11 +16,11 @@ namespace logger
 	
 	// Class Level
 	
-	const Level Level::debug(0);
-	const Level Level::info(500);
-	const Level Level::warn(1000);
-	const Level Level::error(1500);
-	const Level Level::fatal(2000);
+	const Level Level::debug("DEBUG", 0);
+	const Level Level::info("INFO", 500);
+	const Level Level::warn("WARN", 1000);
+	const Level Level::error("ERROR", 1500);
+	const Level Level::fatal("FATAL", 2000);
 	
 	// Class Consumer
 
@@ -93,16 +93,10 @@ namespace logger
 		_consumer.join();
 	}
 	
-	void LoggerManager::log(const Level& level, string& message)
+	void LoggerManager::log(const Level& level, const string& message)
 	{
 		Event* event = new LogEvent(level, message);
 		_publishEvent(event);
-	}
-	
-	void LoggerManager::log(const Level& level, const char* message)
-	{
-		string messageStr = message;
-		log(level, messageStr);
 	}
 	
 	void LoggerManager::_publishEvent(Event* event)

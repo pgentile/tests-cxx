@@ -15,9 +15,9 @@ namespace logger
 	class Level
 	{
 		public:
-			inline Level(unsigned int value)
+			inline Level(const string& name, unsigned int value):
+					_name(name), _value(value)
 			{
-				_value = value;
 			}
 		
 			inline unsigned int value(void) const {
@@ -31,6 +31,7 @@ namespace logger
 			static const Level fatal;
 
 		private:
+			const string _name;
 			unsigned int _value;
 		
 	};
@@ -100,8 +101,7 @@ namespace logger
 			LoggerManager(void);
 			virtual ~LoggerManager();
 
-			void log(const Level& level, string& message);
-			void log(const Level& level, const char* message);
+			void log(const Level& level, const string& message);
 
 		protected:
 			void _publishEvent(Event* event);
