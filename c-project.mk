@@ -37,7 +37,7 @@ ifdef SHARED_INCLUDE_DIRS
 	CC_FLAGS += $(addprefix -I,$(SHARED_INCLUDE_DIRS))
 endif
 
-LD_FLAGS += -L$(LIB_DIR)
+LD_FLAGS += $(if $(or $(LIBS),$(STATIC_LIBS)),-L$(LIB_DIR))
 
 ifdef SHARED_LIB_DIRS
 	LD_FLAGS += $(addprefix -L,$(SHARED_LIB_DIRS))
