@@ -35,36 +35,58 @@ namespace logger
 		
 	};
 	
-	class LogEvent
+	class Event
 	{
-		public:
-			LogEvent(pthread_t threadId, const string& message);
-			virtual ~LogEvent();
 		
-			inline const pthread_t threadId(void) {
-				return _threadId;
+		public:
+			
+			enum Kind {
+				LOG_EVENT,
+				SHUTDOWN	
+			};
+			
+			Event(Kind kind);
+			
+			inline Kind kind(void) const {
+				return _kind;
 			}
 		
-			inline const string& message(void) {
+		private:
+			Kind _kind;
+		
+	};
+	
+	class LogEvent: public Event
+	{
+		public:
+			LogEvent(const string& message);
+		
+			inline const string& message(void) const {
 				return _message;
 			}
 
 		private:	
-			pthread_t _threadId;
 			string _message;
 	};
-
-	class LogEventConsumer: public Thread
+	
+	class ShutdownEvent: public Event
 	{
 		public:
-			LogEventConsumer(queue<LogEvent*>& pendingEvents, Mutex& mutex, Condition& publishedCond);
+			ShutdownEvent(void);
+
+	};
+
+	class Consumer: public Thread
+	{
+		public:
+			Consumer(queue<Event*>& pendingEvents, Mutex& mutex, Condition& publishedCond);
 		
 			virtual void run();
 		
-			virtual ~LogEventConsumer();
+			virtual ~Consumer();
 
 		private:
-			queue<LogEvent*>& _pendingEvents;
+			queue<Event*>& _pendingEvents;
 			Mutex& _mutex;
 			Condition& _publishedCond;
 	};
@@ -79,14 +101,14 @@ namespace logger
 			void log(const char* message);
 
 		protected:
-			void _publishEvent(LogEvent* event);
+			void _publishEvent(Event* event);
 
 		private:
-			queue<LogEvent*> _pendingEvents;
+			queue<Event*> _pendingEvents;
 			Mutex _mutex;
 			Condition _publishedCond;
 
-			LogEventConsumer _consumer;
+			Consumer _consumer;
 			
 	};
 	

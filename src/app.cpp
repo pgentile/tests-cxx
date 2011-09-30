@@ -22,7 +22,7 @@ int main(void)
 	loggerManager.log("Test d'un log 1");
 	loggerManager.log("Test d'un log 2");
 	
-	unsigned int duration = 10;
+	unsigned int duration = 5;
 	cout << "On dort..." << endl;
 	sleep(duration);
 

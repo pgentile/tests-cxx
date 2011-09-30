@@ -14,32 +14,45 @@ namespace logger
 	using namespace std;
 	using namespace logger;
 	
+	// Class Level
+	
 	const Level Level::debug(0);
 	const Level Level::info(500);
 	const Level Level::warn(1000);
 	const Level Level::error(1500);
 	const Level Level::fatal(2000);
+	
+	// Class Consumer
 
-	void LogEventConsumer::run()
+	void Consumer::run()
 	{
 		cout << "Consuming logs..." << endl;
 		
+		bool running = true;
+		
 		MutexLock lock(_mutex);
-		while (!_pendingEvents.empty()) {
+		while (running) {
+			// Waiting signal
+			_publishedCond.wait();
 			
 			// Consume pending events
 			while (!_pendingEvents.empty()) {
-				auto_ptr<LogEvent> event(_pendingEvents.front()); // Delete on scope exit
-				cout << "LOGGER EVENT: Thread " << event->threadId() << ": " << event->message() << endl;
+				auto_ptr<Event> event(_pendingEvents.front()); // Delete event on scope exit
+				Event::Kind kind = event->kind();
+				if (kind == Event::LOG_EVENT) {
+					LogEvent* logEvent = static_cast<LogEvent*>(event.get());
+					cout << "LOGGER EVENT: " << logEvent->message() << endl;
+				} else if (kind == Event::SHUTDOWN) {
+					running = false;
+					cout << "Shutdown received" << endl;
+				}
+
 				_pendingEvents.pop();
 			}
-			
-			// Waiting signal
-			_publishedCond.wait();
 		}
 	}
 	
-	LogEventConsumer::LogEventConsumer(queue<LogEvent*>& pendingEvents, Mutex& mutex, Condition& publishedCond):
+	Consumer::Consumer(queue<Event*>& pendingEvents, Mutex& mutex, Condition& publishedCond):
 			_pendingEvents(pendingEvents),
 			_mutex(mutex),
 			_publishedCond(publishedCond)
@@ -47,19 +60,32 @@ namespace logger
 		
 	}
 	
-	LogEventConsumer::~LogEventConsumer(void)
+	Consumer::~Consumer(void)
 	{
 	}
 	
+	// Class Event
 	
-	LogEvent::LogEvent(pthread_t threadId, const string& message) :
-			_threadId(threadId), _message(message)
+	Event::Event(Kind kind) {
+		_kind = kind;
+	}
+	
+	// Class LogEvent
+	
+	LogEvent::LogEvent(const string& message) :
+			Event(LOG_EVENT),
+			_message(message)
 	{
 	}
 	
-	LogEvent::~LogEvent()
+	// Class ShutdownEvent
+	
+	ShutdownEvent::ShutdownEvent(void):
+			Event(LOG_EVENT)
 	{
 	}
+	
+	// Class LoggerManager
 
 	LoggerManager::LoggerManager(void):
 			_publishedCond(_mutex),
@@ -67,33 +93,32 @@ namespace logger
 	{
 		_consumer.start();
 	}
+
+	LoggerManager::~LoggerManager()
+	{
+		Event* event = new ShutdownEvent();
+		_publishEvent(event);
+		
+		_consumer.join();
+	}
 	
 	void LoggerManager::log(string& message)
 	{
-		pthread_t threadId = pthread_self();
-		LogEvent* event = new LogEvent(threadId, message);
+		Event* event = new LogEvent(message);
 		_publishEvent(event);
 	}
 	
 	void LoggerManager::log(const char* message)
 	{
-		pthread_t threadId = pthread_self();
 		string messageStr = message;
-		LogEvent* event = new LogEvent(threadId, messageStr);
-		_publishEvent(event);
+		log(messageStr);
 	}
 	
-	void LoggerManager::_publishEvent(LogEvent* event)
+	void LoggerManager::_publishEvent(Event* event)
 	{
-		{
-			MutexLock lock(_mutex);
-			_pendingEvents.push(event);
-			_publishedCond.signal();
-		}
-	}
-
-	LoggerManager::~LoggerManager()
-	{
+		MutexLock lock(_mutex);
+		_pendingEvents.push(event);
+		_publishedCond.signal();
 	}
 	
 }
