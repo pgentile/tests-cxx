@@ -19,8 +19,8 @@ int main(void)
 
 	LoggerManager loggerManager;
 	
-	loggerManager.log("Test d'un log 1");
-	loggerManager.log("Test d'un log 2");
+	loggerManager.log(Level::info, "Test d'un log 1");
+	loggerManager.log(Level::info, "Test d'un log 2");
 	
 	unsigned int duration = 5;
 	cout << "On dort..." << endl;

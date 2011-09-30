@@ -59,13 +59,18 @@ namespace logger
 	class LogEvent: public Event
 	{
 		public:
-			LogEvent(const string& message);
+			LogEvent(const Level& level, const string& message);
+			
+			inline const Level& level(void) const {
+				return _level;
+			}
 		
 			inline const string& message(void) const {
 				return _message;
 			}
 
-		private:	
+		private:
+			Level _level;
 			string _message;
 	};
 	
@@ -83,8 +88,6 @@ namespace logger
 		
 			virtual void run();
 		
-			virtual ~Consumer();
-
 		private:
 			queue<Event*>& _pendingEvents;
 			Mutex& _mutex;
@@ -97,8 +100,8 @@ namespace logger
 			LoggerManager(void);
 			virtual ~LoggerManager();
 
-			void log(string& message);
-			void log(const char* message);
+			void log(const Level& level, string& message);
+			void log(const Level& level, const char* message);
 
 		protected:
 			void _publishEvent(Event* event);

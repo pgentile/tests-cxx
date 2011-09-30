@@ -1,6 +1,8 @@
 #ifndef MUTEX_H
 #define MUTEX_H
 
+#include "debug.hpp"
+
 extern "C" {
 #include <pthread.h>
 }

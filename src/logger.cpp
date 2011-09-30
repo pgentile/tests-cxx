@@ -25,9 +25,7 @@ namespace logger
 	// Class Consumer
 
 	void Consumer::run()
-	{
-		cout << "Consuming logs..." << endl;
-		
+	{		
 		bool running = true;
 		
 		MutexLock lock(_mutex);
@@ -38,16 +36,15 @@ namespace logger
 			// Consume pending events
 			while (!_pendingEvents.empty()) {
 				auto_ptr<Event> event(_pendingEvents.front()); // Delete event on scope exit
+				_pendingEvents.pop();
+				
 				Event::Kind kind = event->kind();
 				if (kind == Event::LOG_EVENT) {
 					LogEvent* logEvent = static_cast<LogEvent*>(event.get());
 					cout << "LOGGER EVENT: " << logEvent->message() << endl;
 				} else if (kind == Event::SHUTDOWN) {
 					running = false;
-					cout << "Shutdown received" << endl;
 				}
-
-				_pendingEvents.pop();
 			}
 		}
 	}
@@ -56,32 +53,26 @@ namespace logger
 			_pendingEvents(pendingEvents),
 			_mutex(mutex),
 			_publishedCond(publishedCond)
-	{
-		
-	}
-	
-	Consumer::~Consumer(void)
-	{
+	{	
 	}
 	
 	// Class Event
 	
-	Event::Event(Kind kind) {
-		_kind = kind;
+	Event::Event(Kind kind):
+			_kind(kind)
+	{
 	}
 	
 	// Class LogEvent
 	
-	LogEvent::LogEvent(const string& message) :
-			Event(LOG_EVENT),
-			_message(message)
+	LogEvent::LogEvent(const Level& level, const string& message) :
+			Event(LOG_EVENT), _level(level), _message(message)
 	{
 	}
 	
 	// Class ShutdownEvent
 	
-	ShutdownEvent::ShutdownEvent(void):
-			Event(LOG_EVENT)
+	ShutdownEvent::ShutdownEvent(void): Event(SHUTDOWN)
 	{
 	}
 	
@@ -102,16 +93,16 @@ namespace logger
 		_consumer.join();
 	}
 	
-	void LoggerManager::log(string& message)
+	void LoggerManager::log(const Level& level, string& message)
 	{
-		Event* event = new LogEvent(message);
+		Event* event = new LogEvent(level, message);
 		_publishEvent(event);
 	}
 	
-	void LoggerManager::log(const char* message)
+	void LoggerManager::log(const Level& level, const char* message)
 	{
 		string messageStr = message;
-		log(messageStr);
+		log(level, messageStr);
 	}
 	
 	void LoggerManager::_publishEvent(Event* event)
