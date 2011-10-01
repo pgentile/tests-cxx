@@ -25,6 +25,11 @@ namespace logger
 			Level(const string& name, unsigned int value);
 			
 			virtual bool operator<(const Level& other) const;
+			
+			inline const string& name(void) const
+			{
+				return _name;
+			}
 		
 			inline unsigned int value(void) const
 			{
