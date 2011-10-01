@@ -18,20 +18,14 @@ namespace logger
 	class Level: public Comparable<Level>, private NonCopyable
 	{
 		public:
-			inline Level(const string& name, unsigned int value):
-					_name(name), _value(value)
-			{
-			}
+			Level(const string& name, unsigned int value);
 		
 			inline unsigned int value(void) const
 			{
 				return _value;
 			}
 
-			inline virtual bool operator<(const Level& other) const
-			{
-				return _value < other._value;
-			}
+			virtual bool operator<(const Level& other) const;
 			
 			static const Level all;
 			static const Level debug;

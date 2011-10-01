@@ -16,6 +16,17 @@ namespace logger
 	using namespace logger;
 	
 	// Class Level
+	
+	Level::Level(const string& name, unsigned int value):
+			_name(name), _value(value)
+	{
+	}
+	
+	bool Level::operator<(const Level& other) const
+	{
+		return _value < other._value;
+	}
+	
 	const Level Level::all("ALL", numeric_limits<unsigned int>::min());
 	const Level Level::debug("DEBUG", 500);
 	const Level Level::info("INFO", 1000);
