@@ -41,7 +41,7 @@ namespace threading
 	}
 	
 	Thread::Thread(void):
-			_id(ThreadInstanceCounter::instance().incrementAndGet())
+			_id(ThreadInstanceCounter::instance().increment())
 	{
 		int result;
 		

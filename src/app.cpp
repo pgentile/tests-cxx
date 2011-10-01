@@ -26,6 +26,11 @@ int main(void)
 	unsigned int duration = 5;
 	cout << "On dort..." << endl;
 	sleep(duration);
+	
+	loggerManager.log(Level::warn, "On va bientot s'arreter");
+	
+	cout << "On dort..." << endl;
+	sleep(duration);
 
 	cout << "Arret du programme" << endl;
 	

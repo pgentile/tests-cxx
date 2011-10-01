@@ -11,20 +11,23 @@ namespace threading
 	{
 		public:
 
-			T incrementAndGet(void);
+			T increment(void)
+			{
+				MutexLock lock(_mutex);
+				_value++;
+				return _value;
+			}
+			
+			T value(void)
+			{
+				MutexLock lock(_mutex);
+				return _value;
+			}
 
 		private:
-			T _counter;
-			Mutex _counterMutex;
+			T _value;
+			Mutex _mutex;
 	};
-	
-	template<typename T>
-	T AtomicCounter<T>::incrementAndGet(void)
-	{
-		MutexLock lock(_counterMutex);
-		_counter++;
-		return _counter;
-	}
 	
 }
 
