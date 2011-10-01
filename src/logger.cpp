@@ -80,7 +80,8 @@ namespace logger
 	
 	// Class LoggerManager
 
-	LoggerManager::LoggerManager(void):
+	LoggerManager::LoggerManager(const Level& threshold):
+			_threshold(threshold),
 			_publishedCond(_mutex),
 	 		_consumer(_pendingEvents, _mutex, _publishedCond)
 	{
@@ -97,8 +98,10 @@ namespace logger
 	
 	void LoggerManager::log(const Level& level, const string& message)
 	{
-		Event* event = new LogEvent(level, message);
-		_publishEvent(event);
+		if (level >= _threshold) {
+			Event* event = new LogEvent(level, message);
+			_publishEvent(event);
+		}
 	}
 	
 	void LoggerManager::_publishEvent(Event* event)

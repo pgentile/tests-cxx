@@ -7,6 +7,7 @@
 #include "thread.hpp"
 #include "mutex.hpp"
 #include "non-copyable.hpp"
+#include "comparable.hpp"
 
 namespace logger
 {
@@ -14,7 +15,7 @@ namespace logger
 	using namespace patterns;
 	using namespace threading;
 	
-	class Level: private NonCopyable
+	class Level: public Comparable<Level>, private NonCopyable
 	{
 		public:
 			inline Level(const string& name, unsigned int value):
@@ -22,8 +23,14 @@ namespace logger
 			{
 			}
 		
-			inline unsigned int value(void) const {
+			inline unsigned int value(void) const
+			{
 				return _value;
+			}
+
+			inline virtual bool operator<(const Level& other) const
+			{
+				return _value < other._value;
 			}
 			
 			static const Level all;
@@ -102,7 +109,7 @@ namespace logger
 	class LoggerManager: private NonCopyable
 	{
 		public:
-			LoggerManager(void);
+			LoggerManager(const Level& threshold = Level::all);
 			virtual ~LoggerManager();
 
 			void log(const Level& level, const string& message);
@@ -111,6 +118,7 @@ namespace logger
 			void _publishEvent(Event* event);
 
 		private:
+			const Level& _threshold;
 			queue<Event*> _pendingEvents;
 			Mutex _mutex;
 			Condition _publishedCond;
