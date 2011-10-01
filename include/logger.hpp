@@ -114,44 +114,38 @@ namespace logger
 		
 		private:
 			unsigned int _size;
-			unsigned int _start;
-			unsigned int _position;
 			unsigned int _count;
 			Event** _queue;
 			Mutex _mutex;
+			Condition _publishedCond;
 		
 	};
 
 	class Consumer: public Thread
 	{
 		public:
-			Consumer(queue<Event*>& pendingEvents, Mutex& mutex, Condition& publishedCond);
-		
+			Consumer(EventQueue& queue);
+					
 			virtual void run();
 		
 		private:
-			queue<Event*>& _pendingEvents;
-			Mutex& _mutex;
-			Condition& _publishedCond;
+			EventQueue& _queue;
+			vector<Event*> _extractedEvents;
 	};
 
 	class LoggerManager: private NonCopyable
 	{
 		public:
-			LoggerManager(const Level& threshold = Level::all);
+			LoggerManager(const Level& threshold = Level::all, unsigned int queueSize = defaultQueueSize);
 			virtual ~LoggerManager();
 
 			void log(const Level& level, const string& message);
-
-		protected:
-			void _publishEvent(Event* event);
+			
+			static const unsigned int defaultQueueSize = 10000;
 
 		private:
 			const Level& _threshold;
-			queue<Event*> _pendingEvents;
-			Mutex _mutex;
-			Condition _publishedCond;
-
+			EventQueue _queue;
 			Consumer _consumer;
 			
 	};

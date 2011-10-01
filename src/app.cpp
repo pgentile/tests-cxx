@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 
 extern "C"
 {
@@ -15,45 +16,32 @@ int main(void)
 {
 	int rc = 0;
 	
-	cout << "Demarrage du programme" << endl;
-	
-	EventQueue queue(5);
-	
-	queue.publish(new ShutdownEvent());
-	queue.publish(new ShutdownEvent());
-	
-	vector<Event*> extract;
-	queue.extract(extract);
-	
-	queue.publish(new ShutdownEvent());
-	queue.publish(new ShutdownEvent());
-	queue.publish(new ShutdownEvent());
-	queue.publish(new ShutdownEvent());
-	queue.publish(new ShutdownEvent());
-	
-	queue.publish(new ShutdownEvent());
-	queue.publish(new ShutdownEvent());
-	
-	queue.extract(extract);
-	
-	queue.publish(new ShutdownEvent());
+	//cout << "Demarrage du programme" << endl;
 
-	/*
-	LoggerManager loggerManager;	
-	loggerManager.log(Level::info, "Test d'un log 1");
-	loggerManager.log(Level::info, "Test d'un log 2");
+	LoggerManager loggerManager(Level::all, 5000);
 	
-	unsigned int duration = 5;
-	cout << "On dort..." << endl;
-	sleep(duration);
+	for (int i = 0; i < 1000; i++) {
+		ostringstream message;
+		message << "Test d'un log " << i;
+		loggerManager.log(Level::info, message.str());
+		
+		/*
+		if (i % 200 == 50) {
+			sleep(2);
+		}
+		*/
+	}
+	
+	//unsigned int duration = 5;
+	//cout << "On dort..." << endl;
+	//sleep(duration);
 	
 	loggerManager.log(Level::warn, "On va bientot s'arreter");
 	
-	cout << "On dort..." << endl;
-	sleep(duration);
-	*/
+	//cout << "On dort..." << endl;
+	//sleep(duration);
 
-	cout << "Arret du programme" << endl;
+	//cout << "Arret du programme" << endl;
 	
 	return rc;
 }

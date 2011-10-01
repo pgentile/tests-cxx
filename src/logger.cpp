@@ -49,19 +49,17 @@ namespace logger
 	// Class Consumer
 
 	void Consumer::run()
-	{		
+	{
+		cout << "Demarrage consommateur" << endl;
+		
 		bool running = true;
 		
-		MutexLock lock(_mutex);
 		while (running) {
-			// Waiting signal
-			_publishedCond.wait();
+			_extractedEvents.clear();
+			_queue.extract(_extractedEvents);
 			
-			// Consume pending events
-			while (!_pendingEvents.empty()) {
-				auto_ptr<Event> event(_pendingEvents.front()); // Delete event on scope exit
-				_pendingEvents.pop();
-				
+			for (vector<Event*>::iterator it = _extractedEvents.begin(); it != _extractedEvents.end(); ++it) {
+				auto_ptr<Event> event(*it); // Supprimer l'evenement en sortie de scope
 				Event::Kind kind = event->kind();
 				if (kind == Event::LOG_EVENT) {
 					LogEvent* logEvent = static_cast<LogEvent*>(event.get());
@@ -71,27 +69,26 @@ namespace logger
 				}
 			}
 		}
+		
+		cout << "Arret consommateur" << endl;
 	}
 	
-	Consumer::Consumer(queue<Event*>& pendingEvents, Mutex& mutex, Condition& publishedCond):
-			_pendingEvents(pendingEvents),
-			_mutex(mutex),
-			_publishedCond(publishedCond)
-	{	
+	Consumer::Consumer(EventQueue& queue): _queue(queue)
+	{
 	}
 	
 	// Class Event
 	
-	Event::Event(Kind kind):
-			_kind(kind)
+	Event::Event(Kind kind): _kind(kind)
 	{
 	}
 	
 	// Class EventQueue
 	
 	EventQueue::EventQueue(unsigned int size):
-			_size(size), _start(0), _position(0), _count(0),
-			_queue(new Event*[size])
+			_size(size), _count(0),
+			_queue(new Event*[size]),
+			_publishedCond(_mutex)
 	{
 	}
 	
@@ -100,25 +97,12 @@ namespace logger
 		bool published = false;
 		MutexLock lock(_mutex);
 		
-		cout << "Before publish: position=" << _position << ", start=" << _start << ", count=" << _count << ", size=" << _size << endl;
-		
-		// Deplacer les evenements au debut de la Queue, si elle est pleine
-		if (_position >= _size && _count < _size) {
-			cout << "Resizing event queue" << endl;
-			cout << "Before resize: position=" << _position << ", start=" << _start << ", count=" << _count << ", size=" << _size << endl;
-			for (unsigned int i = _start; i < _position; i++) {
-				_queue[i - _start] = _queue[i];
-			}
-			_start = 0;
-			_position = _count;
-			cout << "After resize: position=" << _position << ", start=" << _start << ", count=" << _count << ", size=" << _size << endl;
-		}
+		//cout << "Before publish: count=" << _count << ", size=" << _size << endl;
 		
 		// Ajouter le nouvel element, si possible
-		if (_position < _size) {
-			cout << "Published event at position " << _position << endl;
-			_queue[_position] = event;
-			_position++;
+		if (_count < _size) {
+			//cout << "Published event at position " << _count << endl;
+			_queue[_count] = event;
 			_count++;
 			published = true;
 		} else {
@@ -126,15 +110,17 @@ namespace logger
 			// dans la queue, meme s'il faut supprimer un evenement existant
 			if (event->kind() == Event::SHUTDOWN) {
 				cerr << "Event queue full, dropping old event, replacing with new event" << endl;
-				delete _queue[_position]; // Drop old
-				_queue[_position] = event; // Append new
+				delete _queue[_size - 1]; // Drop old
+				_queue[_size - 1] = event; // Append new
 			} else {
 				cerr << "Event queue full, dropping new event" << endl;
 				delete event; // Drop new
 			}
 		}
 		
-		cout << "After publish: position=" << _position << ", start=" << _start << ", count=" << _count << ", size=" << _size << endl << endl;
+		_publishedCond.signal();
+		
+		//cout << "After publish: count=" << _count << ", size=" << _size << endl << endl;
 		
 		return published;
 	}
@@ -143,22 +129,22 @@ namespace logger
 	{
 		MutexLock lock(_mutex);
 		
-		cout << "Before extract: position=" << _position << ", start=" << _start << ", count=" << _count << ", size=" << _size << endl;
-		
-		// Copier les pointeurs dans output
-		for (unsigned int i = _start; i < _position; i++) {
-			output.push_back(_queue[i]);
+		if (_count > 0) {
+			// Copier les pointeurs dans output
+			for (unsigned int i = 0; i < _count; i++) {
+				output.push_back(_queue[i]);
+			}
+			_count = 0;
+		} else {
+			// Attendre l'arrivee d'un evenement
+			_publishedCond.wait();
 		}
-		_start = _position;
-		_count = 0;
-		
-		cout << "After extract: position=" << _position << ", start=" << _start << ", count=" << _count << ", size=" << _size << endl << endl;
 	}
 	
 	EventQueue::~EventQueue()
 	{
 		// Supprimer les evenements restants
-		for (unsigned int i = _start; i < _position; i++) {
+		for (unsigned int i = 0; i < _count; i++) {
 			cout << "Dropping event at position " << i << endl;
 			delete _queue[i];
 		}
@@ -181,10 +167,10 @@ namespace logger
 	
 	// Class LoggerManager
 
-	LoggerManager::LoggerManager(const Level& threshold):
+	LoggerManager::LoggerManager(const Level& threshold, unsigned int queueSize):
 			_threshold(threshold),
-			_publishedCond(_mutex),
-	 		_consumer(_pendingEvents, _mutex, _publishedCond)
+			_queue(queueSize),
+	 		_consumer(_queue)
 	{
 		_consumer.start();
 	}
@@ -192,7 +178,7 @@ namespace logger
 	LoggerManager::~LoggerManager()
 	{
 		Event* event = new ShutdownEvent();
-		_publishEvent(event);
+		_queue.publish(event);
 		
 		_consumer.join();
 	}
@@ -201,15 +187,8 @@ namespace logger
 	{
 		if (level >= _threshold) {
 			Event* event = new LogEvent(level, message);
-			_publishEvent(event);
+			_queue.publish(event);
 		}
 	}
-	
-	void LoggerManager::_publishEvent(Event* event)
-	{
-		MutexLock lock(_mutex);
-		_pendingEvents.push(event);
-		_publishedCond.signal();
-	}
-	
+
 }
