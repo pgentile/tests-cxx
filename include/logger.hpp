@@ -26,11 +26,13 @@ namespace logger
 				return _value;
 			}
 			
+			static const Level all;
 			static const Level debug;
 			static const Level info;
 			static const Level warn;
 			static const Level error;
 			static const Level fatal;
+			static const Level none;
 
 		private:
 			const string _name;

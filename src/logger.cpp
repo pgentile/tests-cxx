@@ -7,6 +7,7 @@ extern "C"
 
 #include <iostream>
 #include <memory>
+#include <limits>
 
 namespace logger
 {
@@ -15,12 +16,13 @@ namespace logger
 	using namespace logger;
 	
 	// Class Level
-	
-	const Level Level::debug("DEBUG", 0);
-	const Level Level::info("INFO", 500);
-	const Level Level::warn("WARN", 1000);
-	const Level Level::error("ERROR", 1500);
-	const Level Level::fatal("FATAL", 2000);
+	const Level Level::all("ALL", numeric_limits<unsigned int>::min());
+	const Level Level::debug("DEBUG", 500);
+	const Level Level::info("INFO", 1000);
+	const Level Level::warn("WARN", 1500);
+	const Level Level::error("ERROR", 2000);
+	const Level Level::fatal("FATAL", 2500);
+	const Level Level::none("NONE", numeric_limits<unsigned int>::max());
 	
 	// Class Consumer
 
