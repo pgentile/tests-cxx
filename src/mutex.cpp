@@ -19,7 +19,7 @@ namespace threading
 	
 	Mutex::Mutex(void)
 	{
-		cout << "Creating mutex " << &_ptMutex << endl;
+		//cout << "Creating mutex " << &_ptMutex << endl;
 		
 		int result = pthread_mutex_init(&_ptMutex, NULL);
 		_checkRC(result);
@@ -31,15 +31,15 @@ namespace threading
 		try {
 			_checkRC(result);
 		} catch (const exception& e) {
-			cout << "Mutex::~Mutex() - Catched exception: " << e.what() << endl;
+			cerr << "Mutex::~Mutex() - Catched exception: " << e.what() << endl;
 		}
 		
-		cout << "Destructing mutex " << &_ptMutex << endl;
+		//cout << "Destructing mutex " << &_ptMutex << endl;
 	}
 
 	void Mutex::lock(void)
 	{
-		cout << "Locking mutex " << &_ptMutex << endl;
+		//cout << "Locking mutex " << &_ptMutex << endl;
 
 		int result = pthread_mutex_lock(&_ptMutex);
 		_checkRC(result);
@@ -47,7 +47,7 @@ namespace threading
 	
 	bool Mutex::tryLock(void)
 	{
-		cout << "Trying to lock mutex " << &_ptMutex << endl;
+		//cout << "Trying to lock mutex " << &_ptMutex << endl;
 		
 		bool locked = false;
 		int result = pthread_mutex_trylock(&_ptMutex);
@@ -67,7 +67,7 @@ namespace threading
 
 	void Mutex::release(void)
 	{
-		cout << "Releasing mutex " << &_ptMutex << endl;
+		//cout << "Releasing mutex " << &_ptMutex << endl;
 
 		int result = pthread_mutex_unlock(&_ptMutex);
 		_checkRC(result);
@@ -95,7 +95,7 @@ namespace threading
 		try {
 			_mutex.release();
 		} catch (const exception& e) {
-			cout << "MutexLock::~MutexLock() - Catched exception: " << e.what() << endl;
+			cerr << "MutexLock::~MutexLock() - Catched exception: " << e.what() << endl;
 		}
 	}
 	
@@ -109,13 +109,13 @@ namespace threading
 	
 	void Condition::wait(void)
 	{
-		cout << "Waiting on mutex " << &_mutex._ptMutex << endl;
+		//cout << "Waiting on mutex " << &_mutex._ptMutex << endl;
 		pthread_cond_wait(&_cond, &_mutex._ptMutex);
 	}
 	
 	void Condition::signal(void)
 	{
-		cout << "Signaling mutex " << &_mutex._ptMutex << endl;
+		//cout << "Signaling mutex " << &_mutex._ptMutex << endl;
 		pthread_cond_signal(&_cond);
 	}
 		

@@ -16,10 +16,30 @@ int main(void)
 	int rc = 0;
 	
 	cout << "Demarrage du programme" << endl;
-
-	LoggerManager loggerManager;
-	//LoggerManager loggerManager2 = loggerManager;
 	
+	EventQueue queue(5);
+	
+	queue.publish(new ShutdownEvent());
+	queue.publish(new ShutdownEvent());
+	
+	vector<Event*> extract;
+	queue.extract(extract);
+	
+	queue.publish(new ShutdownEvent());
+	queue.publish(new ShutdownEvent());
+	queue.publish(new ShutdownEvent());
+	queue.publish(new ShutdownEvent());
+	queue.publish(new ShutdownEvent());
+	
+	queue.publish(new ShutdownEvent());
+	queue.publish(new ShutdownEvent());
+	
+	queue.extract(extract);
+	
+	queue.publish(new ShutdownEvent());
+
+	/*
+	LoggerManager loggerManager;	
 	loggerManager.log(Level::info, "Test d'un log 1");
 	loggerManager.log(Level::info, "Test d'un log 2");
 	
@@ -31,6 +51,7 @@ int main(void)
 	
 	cout << "On dort..." << endl;
 	sleep(duration);
+	*/
 
 	cout << "Arret du programme" << endl;
 	

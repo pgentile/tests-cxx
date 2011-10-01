@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <queue>
+#include <vector>
 
 #include "thread.hpp"
 #include "mutex.hpp"
@@ -25,6 +26,8 @@ namespace logger
 			Level(const string& name, unsigned int value);
 			
 			virtual bool operator<(const Level& other) const;
+			
+			bool operator==(const Level& other) const;
 			
 			inline const string& name(void) const
 			{
@@ -96,6 +99,27 @@ namespace logger
 		public:
 			ShutdownEvent(void);
 
+	};
+	
+	class EventQueue: private NonCopyable
+	{
+		
+		public:
+			EventQueue(unsigned int size);
+			~EventQueue();
+			
+			bool publish(Event* event);
+			
+			void extract(vector<Event*>& output);
+		
+		private:
+			unsigned int _size;
+			unsigned int _start;
+			unsigned int _position;
+			unsigned int _count;
+			Event** _queue;
+			Mutex _mutex;
+		
 	};
 
 	class Consumer: public Thread

@@ -27,6 +27,11 @@ namespace logger
 		return _value < other._value;
 	}
 	
+	bool Level::operator==(const Level& other) const
+	{
+		return _value == other._value;
+	}
+	
 	ostream& operator<<(ostream& out, const Level& level)
 	{
 		out << level._name;
@@ -82,9 +87,88 @@ namespace logger
 	{
 	}
 	
+	// Class EventQueue
+	
+	EventQueue::EventQueue(unsigned int size):
+			_size(size), _start(0), _position(0), _count(0),
+			_queue(new Event*[size])
+	{
+	}
+	
+	bool EventQueue::publish(Event* event)
+	{
+		bool published = false;
+		MutexLock lock(_mutex);
+		
+		cout << "Before publish: position=" << _position << ", start=" << _start << ", count=" << _count << ", size=" << _size << endl;
+		
+		// Deplacer les evenements au debut de la Queue, si elle est pleine
+		if (_position >= _size && _count < _size) {
+			cout << "Resizing event queue" << endl;
+			cout << "Before resize: position=" << _position << ", start=" << _start << ", count=" << _count << ", size=" << _size << endl;
+			for (unsigned int i = _start; i < _position; i++) {
+				_queue[i - _start] = _queue[i];
+			}
+			_start = 0;
+			_position = _count;
+			cout << "After resize: position=" << _position << ", start=" << _start << ", count=" << _count << ", size=" << _size << endl;
+		}
+		
+		// Ajouter le nouvel element, si possible
+		if (_position < _size) {
+			cout << "Published event at position " << _position << endl;
+			_queue[_position] = event;
+			_position++;
+			_count++;
+			published = true;
+		} else {
+			// Les evenements de type SHUTDOWN sont prioritaires et donc toujours inseres
+			// dans la queue, meme s'il faut supprimer un evenement existant
+			if (event->kind() == Event::SHUTDOWN) {
+				cerr << "Event queue full, dropping old event, replacing with new event" << endl;
+				delete _queue[_position]; // Drop old
+				_queue[_position] = event; // Append new
+			} else {
+				cerr << "Event queue full, dropping new event" << endl;
+				delete event; // Drop new
+			}
+		}
+		
+		cout << "After publish: position=" << _position << ", start=" << _start << ", count=" << _count << ", size=" << _size << endl << endl;
+		
+		return published;
+	}
+	
+	void EventQueue::extract(vector<Event*>& output)
+	{
+		MutexLock lock(_mutex);
+		
+		cout << "Before extract: position=" << _position << ", start=" << _start << ", count=" << _count << ", size=" << _size << endl;
+		
+		// Copier les pointeurs dans output
+		for (unsigned int i = _start; i < _position; i++) {
+			output.push_back(_queue[i]);
+		}
+		_start = _position;
+		_count = 0;
+		
+		cout << "After extract: position=" << _position << ", start=" << _start << ", count=" << _count << ", size=" << _size << endl << endl;
+	}
+	
+	EventQueue::~EventQueue()
+	{
+		// Supprimer les evenements restants
+		for (unsigned int i = _start; i < _position; i++) {
+			cout << "Dropping event at position " << i << endl;
+			delete _queue[i];
+		}
+		
+		delete[] _queue;
+	}
+	
 	// Class LogEvent
 	
-	LogEvent::LogEvent(const Level& level, const string& message) :
+	LogEvent::LogEvent(const Level& level, const string& message):
 			Event(LOG_EVENT), _level(level), _message(message)
 	{
 	}
