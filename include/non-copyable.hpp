@@ -8,11 +8,11 @@ namespace patterns
 	{
 		
 		protected:
-			NonCopyable(void)
+			inline NonCopyable(void)
 			{
 			}
 			
-			virtual ~NonCopyable()
+			inline virtual ~NonCopyable()
 			{
 			}
 	
