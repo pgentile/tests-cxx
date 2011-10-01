@@ -27,6 +27,12 @@ namespace logger
 		return _value < other._value;
 	}
 	
+	ostream& operator<<(ostream& out, const Level& level)
+	{
+		out << level._name;
+		return out;
+	}
+	
 	const Level Level::all("ALL", numeric_limits<unsigned int>::min());
 	const Level Level::debug("DEBUG", 500);
 	const Level Level::info("INFO", 1000);
@@ -54,7 +60,7 @@ namespace logger
 				Event::Kind kind = event->kind();
 				if (kind == Event::LOG_EVENT) {
 					LogEvent* logEvent = static_cast<LogEvent*>(event.get());
-					cout << "LOGGER EVENT: " << logEvent->message() << endl;
+					cout << "LOGGER EVENT: (" << logEvent->level() << ") " << logEvent->message() << endl;
 				} else if (kind == Event::SHUTDOWN) {
 					running = false;
 				}

@@ -1,6 +1,7 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
+#include <iostream>
 #include <string>
 #include <queue>
 
@@ -12,20 +13,23 @@
 namespace logger
 {
 	
+	using namespace std;
 	using namespace patterns;
 	using namespace threading;
 	
 	class Level: public Comparable<Level>, private NonCopyable
 	{
+		friend ostream& operator<<(ostream& out, const Level& level);
+		
 		public:
 			Level(const string& name, unsigned int value);
+			
+			virtual bool operator<(const Level& other) const;
 		
 			inline unsigned int value(void) const
 			{
 				return _value;
 			}
-
-			virtual bool operator<(const Level& other) const;
 			
 			static const Level all;
 			static const Level debug;
@@ -40,6 +44,8 @@ namespace logger
 			unsigned int _value;
 		
 	};
+	
+	ostream& operator<<(ostream& out, const Level& level);
 	
 	class Event: private NonCopyable
 	{
