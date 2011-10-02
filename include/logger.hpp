@@ -2,6 +2,7 @@
 #define LOGGER_H
 
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <queue>
 #include <vector>
@@ -55,7 +56,7 @@ namespace logger
 	
 	ostream& operator<<(ostream& out, const Level& level);
 	
-	class Event: private NonCopyable
+	class Event: public Comparable<Event>, private NonCopyable
 	{
 		
 		public:
@@ -66,7 +67,7 @@ namespace logger
 			};
 			
 			Event(Kind kind);
-			
+						
 			inline Kind kind(void) const {
 				return _kind;
 			}
@@ -80,6 +81,10 @@ namespace logger
 	{
 		public:
 			LogEvent(const Level& level, const string& message);
+			
+			virtual bool operator<(const Event& other) const;
+			
+			virtual bool operator==(const Event& other) const;
 			
 			inline const Level& level(void) const {
 				return _level;
@@ -98,6 +103,10 @@ namespace logger
 	{
 		public:
 			ShutdownEvent(void);
+			
+			virtual bool operator<(const Event& other) const;
+			
+			virtual bool operator==(const Event& other) const;
 
 	};
 	
@@ -115,7 +124,7 @@ namespace logger
 		private:
 			unsigned int _size;
 			unsigned int _count;
-			Event** _queue;
+			Event** _events;
 			Mutex _mutex;
 			Condition _publishedCond;
 		

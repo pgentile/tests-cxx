@@ -17,26 +17,34 @@ int main(void)
 	int rc = 0;
 	
 	//cout << "Demarrage du programme" << endl;
+	
+	EventQueue queue(5);
+	
+	queue.publish(new LogEvent(Level::info, "Test"));
+	queue.publish(new LogEvent(Level::info, "Test"));
+	queue.publish(new LogEvent(Level::info, "Test"));
+	queue.publish(new LogEvent(Level::info, "Test"));
+	queue.publish(new LogEvent(Level::info, "Test"));
+	queue.publish(new LogEvent(Level::info, "Test"));
+	queue.publish(new LogEvent(Level::info, "Test"));
+	queue.publish(new ShutdownEvent());
+	queue.publish(new ShutdownEvent());
 
-	LoggerManager loggerManager(Level::all, 5000);
+	/*
+	LoggerManager loggerManager(Level::all, 100);
 	
 	for (int i = 0; i < 1000; i++) {
 		ostringstream message;
 		message << "Test d'un log " << i;
 		loggerManager.log(Level::info, message.str());
-		
-		/*
-		if (i % 200 == 50) {
-			sleep(2);
-		}
-		*/
 	}
+	*/
 	
 	//unsigned int duration = 5;
 	//cout << "On dort..." << endl;
 	//sleep(duration);
 	
-	loggerManager.log(Level::warn, "On va bientot s'arreter");
+	//loggerManager.log(Level::warn, "On va bientot s'arreter");
 	
 	//cout << "On dort..." << endl;
 	//sleep(duration);

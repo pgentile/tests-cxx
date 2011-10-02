@@ -50,7 +50,7 @@ namespace logger
 
 	void Consumer::run()
 	{
-		cout << "Demarrage consommateur" << endl;
+		//cout << "Demarrage consommateur" << endl;
 		
 		bool running = true;
 		
@@ -70,7 +70,7 @@ namespace logger
 			}
 		}
 		
-		cout << "Arret consommateur" << endl;
+		//cout << "Arret consommateur" << endl;
 	}
 	
 	Consumer::Consumer(EventQueue& queue): _queue(queue)
@@ -87,7 +87,7 @@ namespace logger
 	
 	EventQueue::EventQueue(unsigned int size):
 			_size(size), _count(0),
-			_queue(new Event*[size]),
+			_events(new Event*[size]),
 			_publishedCond(_mutex)
 	{
 	}
@@ -102,16 +102,15 @@ namespace logger
 		// Ajouter le nouvel element, si possible
 		if (_count < _size) {
 			//cout << "Published event at position " << _count << endl;
-			_queue[_count] = event;
+			_events[_count] = event;
 			_count++;
 			published = true;
 		} else {
-			// Les evenements de type SHUTDOWN sont prioritaires et donc toujours inseres
-			// dans la queue, meme s'il faut supprimer un evenement existant
-			if (event->kind() == Event::SHUTDOWN) {
+			Event* last = _events[_size - 1];
+			if (*event > *last) {
 				cerr << "Event queue full, dropping old event, replacing with new event" << endl;
-				delete _queue[_size - 1]; // Drop old
-				_queue[_size - 1] = event; // Append new
+				delete last; // Drop old
+				_events[_size - 1] = event; // Append new
 			} else {
 				cerr << "Event queue full, dropping new event" << endl;
 				delete event; // Drop new
@@ -132,7 +131,7 @@ namespace logger
 		if (_count > 0) {
 			// Copier les pointeurs dans output
 			for (unsigned int i = 0; i < _count; i++) {
-				output.push_back(_queue[i]);
+				output.push_back(_events[i]);
 			}
 			_count = 0;
 		} else {
@@ -146,10 +145,10 @@ namespace logger
 		// Supprimer les evenements restants
 		for (unsigned int i = 0; i < _count; i++) {
 			cout << "Dropping event at position " << i << endl;
-			delete _queue[i];
+			delete _events[i];
 		}
 		
-		delete[] _queue;
+		delete[] _events;
 	}
 	
 	// Class LogEvent
@@ -158,11 +157,44 @@ namespace logger
 			Event(LOG_EVENT), _level(level), _message(message)
 	{
 	}
+
+	bool LogEvent::operator<(const Event& other) const
+	{
+		bool result = false;
+		Kind kind = other.kind();
+		if (kind == Event::SHUTDOWN) {
+			result = true;
+		} else { // kind == Event::LOG_EVENT
+			const LogEvent* otherLogEvent = static_cast<const LogEvent*>(&other);
+			return _level < otherLogEvent->_level;
+		}
+		return result;
+	}
+	
+	bool LogEvent::operator==(const Event& other) const
+	{
+		bool result = false;
+		if (this->kind() == other.kind()) {
+			const LogEvent& otherLogEvent = static_cast<const LogEvent&>(other);
+			result = _level == otherLogEvent._level;
+		}
+		return result;
+	}
 	
 	// Class ShutdownEvent
 	
 	ShutdownEvent::ShutdownEvent(void): Event(SHUTDOWN)
 	{
+	}
+	
+	bool ShutdownEvent::operator==(const Event& other) const
+	{
+		return this->kind() == other.kind();
+	}
+	
+	bool ShutdownEvent::operator<(const Event& other) const
+	{
+		return false;
 	}
 	
 	// Class LoggerManager
