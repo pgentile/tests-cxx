@@ -3,3 +3,5 @@
 *.d
 bin/*
 .DS_Store
+Makefile
+*.make
