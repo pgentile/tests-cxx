@@ -8,6 +8,12 @@ solution "TestCPP"
 	flags { "ExtraWarnings", "FatalWarnings" }
 	flags { "EnableSSE", "EnableSSE2" }
 	
+	configuration "Release"
+		flags { "Optimize" }
+
+	configuration "Debug"
+		flags { "Symbols" }
+	
 	project "app"
 		kind "ConsoleApp"
 		targetdir "bin"
@@ -24,9 +30,3 @@ solution "TestCPP"
 		targetdir "lib"
 		files { "src/logger.cpp" }
 		links { "threading" }
-
-	configuration "Release"
-		flags { "Optimize" }
-
-	configuration "Debug"
-		flags { "Symbols" }
