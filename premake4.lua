@@ -1,5 +1,5 @@
 solution "TestCPP"
-	configurations { "Release" }
+	configurations "Release"
 	files "src/*.cpp"
 	includedirs "include"
 	flags { "ExtraWarnings", "FatalWarnings" }
