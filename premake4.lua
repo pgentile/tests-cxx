@@ -6,6 +6,7 @@ solution "TestCPP"
 	
 	includedirs "include"
 	flags { "ExtraWarnings", "FatalWarnings" }
+	flags { "EnableSSE", "EnableSSE2" }
 	
 	project "app"
 		kind "ConsoleApp"
@@ -23,6 +24,9 @@ solution "TestCPP"
 		targetdir "lib"
 		files { "src/logger.cpp" }
 		links { "threading" }
+
+	configuration "Release"
+		flags { "Optimize" }
 
 	configuration "Debug"
 		flags { "Symbols" }
