@@ -1,5 +1,6 @@
 *.o
 *.so
+*.dylib
 *.d
 bin/*
 .DS_Store
