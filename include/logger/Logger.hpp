@@ -1,5 +1,5 @@
-#ifndef LOGGER_H
-#define LOGGER_H
+#ifndef LOGGER_LOGGER_H
+#define LOGGER_LOGGER_H
 
 #include <iostream>
 #include <queue>
@@ -7,10 +7,10 @@
 #include <string>
 #include <vector>
 
-#include "patterns/Comparable.hpp"
 #include "patterns/NonCopyable.hpp"
 #include "threading/Mutex.hpp"
 #include "threading/Thread.hpp"
+
 
 namespace logger
 {
@@ -19,26 +19,20 @@ namespace logger
 	using namespace patterns;
 	using namespace threading;
 	
-	class Level: public Comparable<Level>, private NonCopyable
+	class Level: private NonCopyable
 	{
 		friend ostream& operator<<(ostream& out, const Level& level);
 		
 		public:
 			Level(const string& name, unsigned int value);
 			
-			virtual bool operator<(const Level& other) const;
+			bool operator <(const Level& other) const;
 			
-			bool operator==(const Level& other) const;
+			bool operator ==(const Level& other) const;
 			
-			inline const string& name(void) const
-			{
-				return _name;
-			}
+			const string& name() const;
 		
-			inline unsigned int value(void) const
-			{
-				return _value;
-			}
+			unsigned int value() const;
 			
 			static const Level all;
 			static const Level debug;
@@ -54,9 +48,19 @@ namespace logger
 		
 	};
 	
+	inline const string& Level::name() const
+	{
+		return _name;
+	}
+
+	inline unsigned int Level::value() const
+	{
+		return _value;
+	}
+	
 	ostream& operator<<(ostream& out, const Level& level);
 	
-	class Event: public Comparable<Event>, private NonCopyable
+	class Event: private NonCopyable
 	{
 		
 		public:
@@ -68,45 +72,45 @@ namespace logger
 			
 			Event(Kind kind);
 						
-			inline Kind kind(void) const {
-				return _kind;
-			}
+			Kind kind() const;
 		
 		private:
 			Kind _kind;
 		
 	};
 	
+	inline Event::Kind Event::kind() const {
+		return _kind;
+	}
+	
+	ostream& operator<<(ostream& out, const Event& event);
+	
 	class LogEvent: public Event
 	{
 		public:
 			LogEvent(const Level& level, const string& message);
 			
-			virtual bool operator<(const Event& other) const;
-			
-			virtual bool operator==(const Event& other) const;
-			
-			inline const Level& level(void) const {
-				return _level;
-			}
+			const Level& level() const;
 		
-			inline const string& message(void) const {
-				return _message;
-			}
+			const string& message() const;
 
 		private:
 			const Level& _level;
 			string _message;
 	};
 	
+	inline const Level& LogEvent::level() const {
+		return _level;
+	}
+
+	inline const string& LogEvent::message() const {
+		return _message;
+	}
+	
 	class ShutdownEvent: public Event
 	{
 		public:
-			ShutdownEvent(void);
-			
-			virtual bool operator<(const Event& other) const;
-			
-			virtual bool operator==(const Event& other) const;
+			ShutdownEvent();
 
 	};
 	
@@ -126,7 +130,7 @@ namespace logger
 			unsigned int _count;
 			Event** _events;
 			Mutex _mutex;
-			Condition _publishedCond;
+			Mutex::Condition _publishedCond;
 		
 	};
 
@@ -146,7 +150,7 @@ namespace logger
 	{
 		public:
 			LoggerManager(const Level& threshold = Level::all, unsigned int queueSize = defaultQueueSize);
-			virtual ~LoggerManager();
+			~LoggerManager();
 
 			void log(const Level& level, const string& message);
 			

@@ -1,40 +1,85 @@
 #include "threading/ReadWriteLock.hpp"
 
 #include <errno.h>
-#include <pthread.h>
-
 #include <iostream>
+#include <pthread.h>
 #include <sstream>
 #include <stdexcept>
+
+#include "patterns/ExceptionSafe.hpp"
 
 namespace threading
 {
 	
 	using namespace std;
 	
-	ReadWriteLock::ReadWriteLock(void)
+	ReadWriteLock::ReadWriteLock()
 	{
-		pthread_rwlock_init(&_lock, NULL);
+		int result = pthread_rwlock_init(&_lock, NULL);
+		_checkRC(result);
 	}
 	
 	ReadWriteLock::~ReadWriteLock()
 	{
-		pthread_rwlock_destroy(&_lock);
+		EXCEPTION_SAFE_BEGIN();
+		int result = pthread_rwlock_destroy(&_lock);
+		_checkRC(result);
+		EXCEPTION_SAFE_END();
 	}
 	
-	void ReadWriteLock::lockRead(void)
+	void ReadWriteLock::lockRead()
 	{
-		pthread_rwlock_rdlock(&_lock);
+		cout << this << ": lock read" << endl;
+		int result = pthread_rwlock_rdlock(&_lock);
+		_checkRC(result);
 	}
 	
-	void ReadWriteLock::lockWrite(void)
+	void ReadWriteLock::lockWrite()
 	{
-		pthread_rwlock_wrlock(&_lock);
+		cout << this << ": lock write" << endl;
+		int result = pthread_rwlock_wrlock(&_lock);
+		_checkRC(result);
 	}
 	
-	void ReadWriteLock::unlock(void)
+	void ReadWriteLock::unlock()
 	{
-		pthread_rwlock_unlock(&_lock);
+		cout << this << ": unlock" << endl;
+		int result = pthread_rwlock_unlock(&_lock);
+		_checkRC(result);
+	}
+	
+	void ReadWriteLock::_checkRC(int result)
+	{
+		if (result != 0) {
+			ostringstream message;
+			char* specificMessage = strerror(result);
+			message << "Error on read/write lock " << this << ": code " << result << ", message = " << specificMessage;
+			throw runtime_error(message.str());
+		}
+	}
+	
+	ReadWriteLock::ReadLock::ReadLock(ReadWriteLock& lock): _lock(lock)
+	{
+		_lock.lockRead();
+	}
+	
+	ReadWriteLock::ReadLock::~ReadLock()
+	{
+		EXCEPTION_SAFE_BEGIN();
+		_lock.unlock();
+		EXCEPTION_SAFE_END();
+	}	
+	
+	ReadWriteLock::WriteLock::WriteLock(ReadWriteLock& lock): _lock(lock)
+	{
+		_lock.lockWrite();
+	}
+	
+	ReadWriteLock::WriteLock::~WriteLock()
+	{
+		EXCEPTION_SAFE_BEGIN();
+		_lock.unlock();
+		EXCEPTION_SAFE_END();
 	}
 	
 }

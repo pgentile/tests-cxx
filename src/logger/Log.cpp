@@ -8,7 +8,7 @@ namespace log
 	
 	static ostream& (*const endlPf)(ostream&) = endl;
 	
-	Log::Log(void)
+	Log::Log()
 	{
 		_message << '[' << getpid() << " - " << pthread_self() << "] ";
 	}

@@ -1,7 +1,7 @@
-#ifndef ATOMIC_COUNTER_H
-#define ATOMIC_COUNTER_H
+#ifndef THREADING_ATOMIC_COUNTER_H
+#define THREADING_ATOMIC_COUNTER_H
 
-#include "mutex.hpp"
+#include "threading/Mutex.hpp"
 
 namespace threading
 {
@@ -9,30 +9,59 @@ namespace threading
 	template <typename T>
 	class AtomicCounter
 	{
-		public:
+	
+	public:
+		
+		AtomicCounter()
+		{
+		}
+		
+		AtomicCounter(const T value)
+		{
+			set(value);
+		}
+		
+		T add(const T added)
+		{
+			Mutex::Lock lock(_mutex);
+			_value += added;
+			return _value;
+		}
 
-			T increment(void)
-			{
-				MutexLock lock(_mutex);
-				_value++;
-				return _value;
-			}
-			
-			void set(T value)
-			{
-				MutexLock lock(_mutex);
-				_value = value;
-			}
-			
-			T value(void)
-			{
-				MutexLock lock(_mutex);
-				return _value;
-			}
-
-		private:
-			T _value;
-			Mutex _mutex;
+		T substract(const T substracted)
+		{
+			Mutex::Lock lock(_mutex);
+			_value -= substracted;
+			return _value;
+		}
+		
+		T increment()
+		{
+			Mutex::Lock lock(_mutex);
+			_value++;
+			return _value;
+		}
+		
+		T decrement()
+		{
+			Mutex::Lock lock(_mutex);
+			_value--;
+			return _value;
+		}
+		
+		void set(const T value)
+		{
+			Mutex::Lock lock(_mutex);
+			_value = value;
+			return _value;
+		}
+		
+	private:
+		
+		T _value;
+		
+		Mutex _mutex;
+		
 	};
 	
 }

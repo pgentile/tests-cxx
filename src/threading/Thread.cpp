@@ -3,14 +3,15 @@
 #include <sstream>
 #include <stdexcept>
 
+#include "patterns/ExceptionSafe.hpp"
+
 namespace threading
 {
 	
 	using namespace std;
 	using namespace patterns;
 
-	Thread::Thread(void):
-			_id(InstanceCounter::instance().increment())
+	Thread::Thread(): _id(InstanceCounter::instance().increment())
 	{
 		int result;
 		
@@ -21,32 +22,34 @@ namespace threading
 		_checkRC(result);
 	}
 
-	void Thread::start(void)
+	Thread::~Thread()
+	{
+		EXCEPTION_SAFE_BEGIN();
+		int result = pthread_attr_destroy(&_threadAttrs);
+		_checkRC(result);
+		EXCEPTION_SAFE_END();
+	}
+
+	void Thread::start()
 	{
 		void* threadArg = (void*) this;
 		int result = pthread_create(&_thread, &_threadAttrs, _runThread, threadArg);
 		_checkRC(result);
 	}
 	
-	void Thread::join(void)
+	void Thread::join()
 	{
 		int result = pthread_join(_thread, NULL);
 		_checkRC(result);
 	}
 	
-	void Thread::cancel(void)
+	void Thread::cancel()
 	{
 		int result = pthread_cancel(_thread);
 		_checkRC(result);
 	}
 	
-	Thread::~Thread(void)
-	{
-		int result = pthread_attr_destroy(&_threadAttrs);
-		_checkRC(result);
-	}
-	
-	void Thread::_checkCancelled(void)
+	void Thread::checkCancelled()
 	{
 		pthread_testcancel();
 	}
@@ -66,6 +69,11 @@ namespace threading
 			message << "Error on thread " << _id << ": code " << result;
 			throw runtime_error(message.str());
 		}
+	}
+	
+	ostream& operator <<(ostream& out, const Thread& thread)
+	{
+		return out << "Thread #" << thread._id;
 	}
 	
 }

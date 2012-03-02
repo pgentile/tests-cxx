@@ -1,5 +1,5 @@
-#ifndef SINGLETON_H
-#define SINGLETON_H
+#ifndef PATTERNS_SINGLETON_H
+#define PATTERNS_SINGLETON_H
 
 #include <exception>
 #include <pthread.h>
@@ -46,10 +46,10 @@ namespace patterns
 	template<class T>
 	class Singleton: private NonCopyable
 	{
-	
+			
 		public:
 
-			static T& instance(void)
+			static T& instance()
 			{
 				pthread_once(&_onceControl, _createInstance);
 				if (_instance == NULL) {
@@ -57,15 +57,25 @@ namespace patterns
 				}
 				return *_instance;
 			}
+		
+		protected:
+			
+			Singleton()
+			{
+			}
+			
+			virtual ~Singleton()
+			{
+			}
 	
 		private:
 			
-			static void _createInstance(void)
+			static void _createInstance()
 			{
 				try {
 					_instance = new T();
 					registerDestructor(_deleteInstance);
-				} catch (exception& e) {
+				} catch (const exception& e) {
 					_error = e.what();
 					
 					delete _instance;
@@ -73,7 +83,7 @@ namespace patterns
 				}
 			}
 			
-			static void _deleteInstance(void)
+			static void _deleteInstance()
 			{
 				delete _instance;
 			}

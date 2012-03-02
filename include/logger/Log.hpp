@@ -1,5 +1,5 @@
-#ifndef LOG_HPP
-#define LOG_HPP
+#ifndef LOGGER_LOG_HPP
+#define LOGGER_LOG_HPP
 
 #include <iostream>
 #include <sstream>
@@ -14,7 +14,7 @@ namespace log
 		
 	public:
 		
-		Log(void);
+		Log();
 		
 		template<typename T>
 		Log& operator <<(const T& value)
@@ -44,7 +44,7 @@ namespace log
 		
 	public:
 		
-		Logging(void)
+		Logging()
 		{
 		}
 		

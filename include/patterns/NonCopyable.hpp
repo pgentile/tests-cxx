@@ -1,5 +1,5 @@
-#ifndef NON_COPYABLE
-#define NON_COPYABLE
+#ifndef PATTERNS_NON_COPYABLE_H
+#define PATTERNS_NON_COPYABLE_H
 
 namespace patterns
 {
@@ -8,13 +8,9 @@ namespace patterns
 	{
 		
 		protected:
-			inline NonCopyable(void)
-			{
-			}
+			NonCopyable();
 			
-			inline virtual ~NonCopyable()
-			{
-			}
+			virtual ~NonCopyable();
 	
 		private:
 			NonCopyable(const NonCopyable& base);
@@ -22,6 +18,14 @@ namespace patterns
 			NonCopyable& operator=(NonCopyable& base);
 	
 	};
+	
+	inline NonCopyable::NonCopyable()
+	{
+	}
+	
+	inline NonCopyable::~NonCopyable()
+	{
+	}
 
 }
 

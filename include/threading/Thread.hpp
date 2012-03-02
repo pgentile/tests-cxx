@@ -1,5 +1,5 @@
-#ifndef THREAD_H
-#define THREAD_H
+#ifndef THREADING_THREAD_H
+#define THREADING_THREAD_H
 
 #include <pthread.h>
 
@@ -15,25 +15,25 @@ namespace threading
 	class Thread: private NonCopyable
 	{
 		public:
-			Thread(void);
+			Thread();
+					
+			virtual ~Thread();
 		
-			virtual ~Thread(void);
+			void start();
+		
+			void cancel();
+		
+			void join();
+		
+			unsigned long id() const;
+			
+			friend ostream& operator <<(ostream& out, const Thread& thread);
+	
+		protected:	
 		
 			virtual void run() = 0;
 		
-			void start(void);
-		
-			void cancel(void);
-		
-			void join(void);
-		
-			inline unsigned long id(void) const {
-				return _id;
-			}
-	
-		protected:
-		
-			void _checkCancelled(void);
+			void checkCancelled();
 
 		private:
 			
@@ -53,17 +53,26 @@ namespace threading
 				friend class Singleton<InstanceCounter>;
 
 				private:
-					inline InstanceCounter()
-					{
-					}
+					
+					InstanceCounter();
 
-					inline virtual ~InstanceCounter()
-					{
-					}
+					~InstanceCounter();
 
 			};
 		
 	};
+	
+	inline unsigned long Thread::id() const {
+		return _id;
+	}
+	
+	inline Thread::InstanceCounter::InstanceCounter()
+	{
+	}
+
+	inline Thread::InstanceCounter::~InstanceCounter()
+	{
+	}
 
 }
 

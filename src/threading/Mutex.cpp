@@ -1,11 +1,12 @@
-#include "mutex.hpp"
+#include "threading/Mutex.hpp"
 
 #include <errno.h>
-#include <pthread.h>
-
 #include <iostream>
+#include <pthread.h>
 #include <sstream>
 #include <stdexcept>
+
+#include "patterns/ExceptionSafe.hpp"
 
 namespace threading
 {
@@ -14,7 +15,7 @@ namespace threading
 	
 	// Class Mutex
 	
-	Mutex::Mutex(void)
+	Mutex::Mutex()
 	{
 		//cout << "Creating mutex " << &_ptMutex << endl;
 		
@@ -22,17 +23,15 @@ namespace threading
 		_checkRC(result);
 	}
 	
-	Mutex::~Mutex(void)
+	Mutex::~Mutex()
 	{
+		EXCEPTION_SAFE_BEGIN();
 		int result = pthread_mutex_destroy(&_mutex);
-		try {
-			_checkRC(result);
-		} catch (const exception& e) {
-			cerr << "Mutex::~Mutex() - Catched exception: " << e.what() << endl;
-		}
+		_checkRC(result);
+		EXCEPTION_SAFE_END();
 	}
 
-	void Mutex::lock(void)
+	void Mutex::lock()
 	{
 		//cout << "Locking mutex " << &_ptMutex << endl;
 
@@ -40,7 +39,7 @@ namespace threading
 		_checkRC(result);
 	}
 	
-	bool Mutex::tryLock(void)
+	bool Mutex::tryLock()
 	{
 		//cout << "Trying to lock mutex " << &_ptMutex << endl;
 		
@@ -60,7 +59,7 @@ namespace threading
 		return locked;
 	}
 
-	void Mutex::release(void)
+	void Mutex::release()
 	{
 		int result = pthread_mutex_unlock(&_mutex);
 		_checkRC(result);
@@ -71,52 +70,50 @@ namespace threading
 		if (result != 0) {
 			ostringstream message;
 			char* specificMessage = strerror(result);
-			message << "Error on mutex " << &_mutex << ": code " << result << ", message = " << specificMessage;
+			message << "Error on mutex " << this << ": code " << result << ", message = " << specificMessage;
 			throw runtime_error(message.str());
 		}
 	}
 	
 	// Class MutexLock
 	
-	MutexLock::MutexLock(Mutex& mutex): _mutex(mutex)
+	Mutex::Lock::Lock(Mutex& mutex): _mutex(mutex)
 	{
 		_mutex.lock();
 	}
 	
-	MutexLock::~MutexLock()
+	Mutex::Lock::~Lock()
 	{
-		try {
-			_mutex.release();
-		} catch (const exception& e) {
-			cerr << __FUNCTION__ << " - Catched exception: " << e.what() << endl;
-		}
+		EXCEPTION_SAFE_BEGIN();
+		_mutex.release();
+		EXCEPTION_SAFE_END();
 	}
 	
 	// Class Condition
 	
-	Condition::Condition(Mutex& mutex): _mutex(mutex)
+	Mutex::Condition::Condition(Mutex& mutex): _mutex(mutex)
 	{
 		pthread_cond_init(&_cond, NULL);
 	}
+
+	Mutex::Condition::~Condition()
+	{
+		pthread_cond_destroy(&_cond);
+	}
 	
-	void Condition::wait(void)
+	void Mutex::Condition::wait()
 	{
 		pthread_cond_wait(&_cond, &_mutex._mutex);
 	}
 	
-	void Condition::signal(void)
+	void Mutex::Condition::signal()
 	{
 		pthread_cond_signal(&_cond);
 	}
 		
-	void Condition::broadcast(void)
+	void Mutex::Condition::broadcast()
 	{
 		pthread_cond_broadcast(&_cond);
-	}
-
-	Condition::~Condition()
-	{
-		pthread_cond_destroy(&_cond);
 	}
 	
 }

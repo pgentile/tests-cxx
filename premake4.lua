@@ -10,40 +10,36 @@ end
 
 solution "TestCPP"
 
-	configurations { "Release", "Debug" }
+	configurations { "Release" }
 	
 	language "C++"
 	
 	includedirs "include"
-	flags { "ExtraWarnings", "FatalWarnings" }
-	flags { "EnableSSE", "EnableSSE2" }
-	buildoptions { "-pthread", "-ansi", "-felide-constructors" }
-	linkoptions { "-pthread" }
+	flags { "ExtraWarnings", "FatalWarnings", "Symbols", "EnableSSE", "EnableSSE2" }
+	buildoptions { "-pthread", "-ansi" }
+	linkoptions { "-pthread", "-rdynamic" }
 	
 	configuration "Release"
-		flags { "Optimize" }
 
-	configuration "Debug"
-		flags { "Symbols" }
-		targetsuffix "-debug"
-	
 	project "common"
 		kind "SharedLib"
+		targetdir "lib"
 		sources { 
 			"threading/Thread.cpp",
 			"threading/Mutex.cpp",
 			"threading/ReadWriteLock.cpp", 
-			"patterns/Singleton.cpp"
-		}
-
-	project "logger"
-		kind "SharedLib"
-		links { "common" }
-		sources {
+			"util/UndefinedError.cpp",
+			"patterns/Singleton.cpp",
+			"core/Backtrace.cpp",
+			"core/Exception.cpp",
+			"core/CLibException.cpp",
+			"core/Reflection.cpp",
+			"core/StackElement.cpp",
 			"logger/Logger.cpp"
 		}
 
 	project "app"
 		kind "ConsoleApp"
-		links { "common", "logger" }
+		links { "common" }
+		targetdir "bin"
 		sources { "app.cpp" }

@@ -10,6 +10,7 @@ namespace logger
 {
 
 	using namespace std;
+	using namespace std::rel_ops;
 	using namespace logger;
 	
 	// Class Level
@@ -19,14 +20,14 @@ namespace logger
 	{
 	}
 	
-	bool Level::operator<(const Level& other) const
-	{
-		return _value < other._value;
-	}
-	
-	bool Level::operator==(const Level& other) const
+	bool Level::operator ==(const Level& other) const
 	{
 		return _value == other._value;
+	}
+
+	bool Level::operator <(const Level& other) const
+	{
+		return _value < other._value;
 	}
 	
 	ostream& operator<<(ostream& out, const Level& level)
@@ -80,6 +81,12 @@ namespace logger
 	{
 	}
 	
+	ostream& operator<<(ostream& out, const Event& event)
+	{
+		out << "Event[kind = " << event.kind() << "]";
+		return out;
+	}
+	
 	// Class EventQueue
 	
 	EventQueue::EventQueue(unsigned int size):
@@ -92,7 +99,7 @@ namespace logger
 	bool EventQueue::publish(Event* event)
 	{
 		bool published = false;
-		MutexLock lock(_mutex);
+		Mutex::Lock lock(_mutex);
 		
 		//cout << "Before publish: count=" << _count << ", size=" << _size << endl;
 		
@@ -102,16 +109,8 @@ namespace logger
 			_events[_count] = event;
 			_count++;
 			published = true;
-		} else {
-			Event* last = _events[_size - 1];
-			if (*event > *last) {
-				cerr << "Event queue full, dropping old event, replacing with new event" << endl;
-				delete last; // Drop old
-				_events[_size - 1] = event; // Append new
-			} else {
-				cerr << "Event queue full, dropping new event" << endl;
-				delete event; // Drop new
-			}
+		} else {	
+			cerr << "Event queue full, dropping new event " << *event << endl;
 		}
 		
 		_publishedCond.signal();
@@ -123,7 +122,7 @@ namespace logger
 	
 	void EventQueue::extract(vector<Event*>& output)
 	{
-		MutexLock lock(_mutex);
+		Mutex::Lock lock(_mutex);
 		
 		if (_count > 0) {
 			// Copier les pointeurs dans output
@@ -154,44 +153,11 @@ namespace logger
 			Event(LOG_EVENT), _level(level), _message(message)
 	{
 	}
-
-	bool LogEvent::operator<(const Event& other) const
-	{
-		bool result = false;
-		Kind kind = other.kind();
-		if (kind == Event::SHUTDOWN) {
-			result = true;
-		} else { // kind == Event::LOG_EVENT
-			const LogEvent* otherLogEvent = static_cast<const LogEvent*>(&other);
-			return _level < otherLogEvent->_level;
-		}
-		return result;
-	}
-	
-	bool LogEvent::operator==(const Event& other) const
-	{
-		bool result = false;
-		if (this->kind() == other.kind()) {
-			const LogEvent& otherLogEvent = static_cast<const LogEvent&>(other);
-			result = _level == otherLogEvent._level;
-		}
-		return result;
-	}
 	
 	// Class ShutdownEvent
 	
-	ShutdownEvent::ShutdownEvent(void): Event(SHUTDOWN)
+	ShutdownEvent::ShutdownEvent(): Event(SHUTDOWN)
 	{
-	}
-	
-	bool ShutdownEvent::operator==(const Event& other) const
-	{
-		return this->kind() == other.kind();
-	}
-	
-	bool ShutdownEvent::operator<(const Event& other) const
-	{
-		return false;
 	}
 	
 	// Class LoggerManager

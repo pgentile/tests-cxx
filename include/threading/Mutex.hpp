@@ -1,5 +1,5 @@
-#ifndef MUTEX_H
-#define MUTEX_H
+#ifndef THREADING_MUTEX_H
+#define THREADING_MUTEX_H
 
 #include <pthread.h>
 
@@ -12,9 +12,6 @@ namespace threading {
 	
 	using namespace patterns;
 	using namespace std;
-	
-	class MutexLock;
-	class Condition;
 	
 	/**
 	 * Mutex
@@ -36,15 +33,58 @@ namespace threading {
 		
 		public:
 			
-			Mutex(void);
+			Mutex();
 		
-			void lock(void);
+			void lock();
 		
-			bool tryLock(void);
+			bool tryLock();
 		
-			void release(void);
+			void release();
 		
-			virtual ~Mutex(void);
+			virtual ~Mutex();
+			
+			/**
+			 * Lock on a mutex
+			 */
+			class Lock: private NonCopyable
+			{
+
+				public:
+
+					Lock(Mutex& mutex);
+
+					virtual ~Lock();
+
+				private:
+					Mutex& _mutex;
+
+			};
+			
+			class Condition: private NonCopyable
+			{
+
+				public:
+
+					Condition(Mutex& mutex);
+
+					virtual ~Condition();
+
+					void wait();
+
+					void signal();
+
+					void broadcast();
+
+					inline Mutex& mutex() {
+						return _mutex;
+					}
+
+				private:
+
+					Mutex& _mutex;
+					pthread_cond_t _cond;
+
+			};
 		
 		private:
 			
@@ -52,54 +92,10 @@ namespace threading {
 		
 			pthread_mutex_t _mutex;
 		
-			friend class MutexLock;
-			friend class Condition;
-		
-	};
-	
-	/**
-	 * Lock on a mutex
-	 */
-	class MutexLock: private NonCopyable
-	{
-		
-		public:
-			
-			MutexLock(Mutex& mutex);
-		
-			virtual ~MutexLock();
-
-		private:
-			Mutex& _mutex;
-		
-	};
-	
-	class Condition: private NonCopyable
-	{
-	
-		public:
-			
-			Condition(Mutex& mutex);
-		
-			void wait(void);
-		
-			void signal(void);
-		
-			void broadcast(void);
-		
-			virtual ~Condition();
-		
-			inline Mutex& mutex(void) {
-				return _mutex;
-			}
-		
-		private:
-		
-			Mutex& _mutex;
-			pthread_cond_t _cond;
-		
 	};
 	
 }
+
+#define SCOPED_MUTEX_LOCK(mutex) ::threading::Mutex::Lock ANONYMOUS_VAR(lock)(mutex);
 
 #endif
