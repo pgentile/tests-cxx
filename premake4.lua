@@ -1,4 +1,6 @@
+-- Generation des Makefiles du projet
 
+BOOST_INCLUDE_DIR = "/Users/pgentile/Programmation/OpenSourceProjects/boost"
 
 function sources(sources)
 	local sourceDir = "src"
@@ -8,16 +10,25 @@ function sources(sources)
 	end
 end
 
+function threaded()
+	buildoptions { "-pthread" }
+	linkoptions { "-pthread" }
+end
+
+-- Description de la solution
+
 solution "TestCPP"
 
 	configurations { "Release" }
 	
 	language "C++"
 	
-	includedirs "include"
-	flags { "ExtraWarnings", "FatalWarnings", "Symbols", "EnableSSE", "EnableSSE2" }
-	buildoptions { "-pthread", "-ansi" }
-	linkoptions { "-pthread", "-rdynamic" }
+	includedirs { "src", "include", BOOST_INCLUDE_DIR }
+	flags { "ExtraWarnings", "FatalWarnings", "Symbols", "EnableSSE", "EnableSSE2", "Optimize" }
+	buildoptions { "-ansi" }
+	linkoptions { "-rdynamic" }
+	
+	threaded()
 	
 	configuration "Release"
 
@@ -35,11 +46,15 @@ solution "TestCPP"
 			"core/CLibException.cpp",
 			"core/Reflection.cpp",
 			"core/StackElement.cpp",
-			"logger/Logger.cpp"
+			"logger/Logger.cpp",
+			"ndbm/RawStoreFile.cpp"
 		}
 
 	project "app"
 		kind "ConsoleApp"
-		links { "common" }
 		targetdir "bin"
+		links { "common" }
 		sources { "app.cpp" }
+		
+		threaded()
+

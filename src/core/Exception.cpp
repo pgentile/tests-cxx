@@ -1,11 +1,14 @@
 #include "core/Exception.hpp"
 #include "core/Reflection.hpp"
+#include "core/StackElement.hpp"
+
+#include <boost/foreach.hpp>
 
 using namespace std;
 
 namespace core {
 	
-	Exception::Exception(const string& what): exception(), _what(what) {
+	Exception::Exception(const string& what): exception(), _what(what), _thread(pthread_self()) {
 	}
 	
 	Exception::Exception(const exception& ex): exception() {
@@ -17,15 +20,25 @@ namespace core {
 			_what += ": ";
 			_what += ex.what();
 		}
+		
+		_thread = pthread_self();
 	}
 	
 	Exception::Exception(const Exception& src):
 		_what(src._what),
-		_backtrace(src._backtrace)
+		_backtrace(src._backtrace),
+		_thread(src._thread)
 	{
 	}
 	
 	Exception::~Exception() throw() {
+	}
+	
+	Exception& Exception::operator =(const Exception& src) {
+		_what = src._what;
+		_backtrace = src._backtrace;
+		_thread = src._thread;
+		return *this;
 	}
 	
 	const string Exception::thrownClassName() const {
@@ -33,16 +46,13 @@ namespace core {
 	}
 	
 	ostream& operator <<(ostream& out, const Exception& exception) {
-		out << exception.thrownClassName() << ": " << exception.what() << endl;
+		out << exception.thrownClassName() << " (from thread " << exception.thread() << "): " << exception.what() << endl;
 		out << endl;
 		
 		out << "Backtrace:";
 		const vector<StackElement*>& elements = exception.backtrace().elements();
-		vector<StackElement*>::const_iterator elementIt;
-		vector<StackElement*>::const_iterator elementItEnd = elements.end();
 		unsigned int index = 0;
-		for (elementIt = elements.begin(); elementIt != elementItEnd; elementIt++) {
-			StackElement* element = *elementIt;
+		BOOST_FOREACH(StackElement* element, elements) {
 			out << endl << '\t' << index << ": " << *element;
 			index++;
 		}

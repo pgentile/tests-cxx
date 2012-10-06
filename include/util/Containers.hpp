@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <iostream>
 
+#include <boost/foreach.hpp>
+
 namespace util {
 	
 	using namespace std;
@@ -14,9 +16,17 @@ namespace util {
 	{
 		
 	public:
+
+		template<typename C, typename F>
+		static F apply(C& container, const F func) {
+			typedef typename C::iterator I;
+			I iteratorBegin = container.begin();
+			I iteratorEnd = container.end();
+			return for_each(iteratorBegin, iteratorEnd, func);
+		}
 		
 		template<typename C, typename F>
-		static F apply(const C& container, F func) {
+		static F apply(const C& container, const F func) {
 			typedef typename C::const_iterator I;
 			I iteratorBegin = container.begin();
 			I iteratorEnd = container.end();
@@ -24,19 +34,15 @@ namespace util {
 		}
 		
 		template<typename C>
-		static void deleteObjPointers(const C& container) {
+		static void deletePointedObjects(C& container) {
 			typedef typename C::value_type PT;
-			Containers::apply(container, DeleteObjPointer<PT>());
+			apply(container, DeleteObjPointer<PT>());
 		}
 		
 		template<typename C>
 		static void copyElements(const C& source, C& dest) {
-			typedef typename C::const_iterator I;
 			typedef typename C::value_type PT;
-			I iterator;
-			I iteratorEnd = source.end();
-			for (iterator = source.begin(); iterator != iteratorEnd; iterator++) {
-				PT element = *iterator;
+			BOOST_FOREACH(PT element, source) {
 				PT elementCopy = _copyPointerValue(element);
 				dest.push_back(elementCopy);
 			}
@@ -50,7 +56,6 @@ namespace util {
 		
 		template<typename T>
 		static T* _copyPointerValue(const T* source) {
-			cout << "Copy " << source << endl;
 			return new T(*source);
 		}
 

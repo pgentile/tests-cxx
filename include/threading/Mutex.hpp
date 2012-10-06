@@ -6,6 +6,7 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "macros.h"
 #include "patterns/NonCopyable.hpp"
 
 namespace threading {
@@ -96,6 +97,6 @@ namespace threading {
 	
 }
 
-#define SCOPED_MUTEX_LOCK(mutex) ::threading::Mutex::Lock ANONYMOUS_VAR(lock)(mutex);
+#define SCOPED_MUTEX_LOCK(mutex) ::threading::Mutex::Lock ANONYMOUS_VAR(lock)(mutex)
 
 #endif

@@ -8,11 +8,13 @@ namespace patterns
 	{
 		
 		protected:
+			
 			NonCopyable();
 			
 			virtual ~NonCopyable();
 	
 		private:
+			
 			NonCopyable(const NonCopyable& base);
 			
 			NonCopyable& operator=(NonCopyable& base);

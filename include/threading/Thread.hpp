@@ -56,7 +56,7 @@ namespace threading
 					
 					InstanceCounter();
 
-					~InstanceCounter();
+					virtual ~InstanceCounter();
 
 			};
 		

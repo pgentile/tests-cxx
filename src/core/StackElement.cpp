@@ -25,6 +25,14 @@ namespace core {
 		
 	}
 	
+	StackElement& StackElement::operator =(const StackElement& source) {
+		_sharedObjectPath = source._sharedObjectPath;
+		_sharedObjectAddr = source._sharedObjectAddr;
+		_symbolName = source._symbolName;
+		_symbolAddr = source._symbolAddr;
+		return *this;
+	}
+	
 	ostream& operator <<(ostream& out, const StackElement& element) {
 		out << element.sharedObjectPath() << ": " << element.symbolName();
 		return out;

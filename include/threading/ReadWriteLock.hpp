@@ -69,7 +69,7 @@ namespace threading {
 
 }
 
-#define SCOPED_READ_LOCK(rwLock) ::threading::ReadWriteLock::ReadLock ANONYMOUS_VAR(readLock)(rwLock);
-#define SCOPED_WRITE_LOCK(rwLock) ::threading::ReadWriteLock::WriteLock ANONYMOUS_VAR(writeLock)(rwLock);
+#define SCOPED_READ_LOCK(rwLock) ::threading::ReadWriteLock::ReadLock ANONYMOUS_VAR(readLock)(rwLock)
+#define SCOPED_WRITE_LOCK(rwLock) ::threading::ReadWriteLock::WriteLock ANONYMOUS_VAR(writeLock)(rwLock)
 
 #endif

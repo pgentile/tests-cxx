@@ -10,7 +10,7 @@ namespace core {
 	
 	public:
 		
-		static void throwOnError(int errnum);
+		static void throwOnError();
 		
 		CLibException(int errnum);
 		

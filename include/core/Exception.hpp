@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+#include <pthread.h>
+
 namespace core {
 	
 	using namespace std;
@@ -17,13 +19,15 @@ namespace core {
 		
 	public:
 		
-		Exception(const string& what);
+		explicit Exception(const string& what);
 		
-		Exception(const exception& ex);
+		explicit Exception(const exception& ex);
 
 		Exception(const Exception& src);
 		
 		virtual ~Exception() throw();
+		
+		Exception& operator =(const Exception& src);
 		
 		const string thrownClassName() const;
 		
@@ -31,11 +35,15 @@ namespace core {
 		
 		const Backtrace& backtrace() const;
 		
+		const pthread_t& thread() const;
+		
 	private:
 		
 		string _what;
 		
-		const Backtrace _backtrace;
+		Backtrace _backtrace;
+		
+		pthread_t _thread;
 
 	};
 	
@@ -47,6 +55,10 @@ namespace core {
 	
 	inline const Backtrace& Exception::backtrace() const {
 		return _backtrace;
+	}
+	
+	inline const pthread_t& Exception::thread() const {
+		return _thread;
 	}
 
 }

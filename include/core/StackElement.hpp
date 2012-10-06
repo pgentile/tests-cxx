@@ -19,29 +19,31 @@ namespace core {
 		
 		~StackElement();
 		
-		const string sharedObjectPath() const;
+		StackElement& operator =(const StackElement& source);
+		
+		const string& sharedObjectPath() const;
 		
 		const void* sharedObjectAddr() const;
 		
-		const string symbolName() const;
+		const string& symbolName() const;
 		
 		const void* symbolAddr() const;
 
 	private:
 		
-		const string _sharedObjectPath;
+		string _sharedObjectPath;
 		
-		const void* _sharedObjectAddr;
+		void* _sharedObjectAddr;
 		
-		const string _symbolName;
+		string _symbolName;
 		
-		const void* _symbolAddr;
+		void* _symbolAddr;
 		
 	};
 	
 	ostream& operator <<(ostream& out, const StackElement& stackElement);
 	
-	inline const string StackElement::sharedObjectPath() const {
+	inline const string& StackElement::sharedObjectPath() const {
 		return _sharedObjectPath;
 	}
 	
@@ -49,7 +51,7 @@ namespace core {
 		return _sharedObjectAddr;
 	}
 	
-	inline const string StackElement::symbolName() const {
+	inline const string& StackElement::symbolName() const {
 		return _symbolName;
 	}
 	

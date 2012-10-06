@@ -12,55 +12,56 @@ namespace threading
 	
 	public:
 		
-		AtomicCounter()
-		{
+		AtomicCounter(): _value(0) {
 		}
 		
-		AtomicCounter(const T value)
-		{
-			set(value);
+		AtomicCounter(const T value): _value(value) {
 		}
 		
 		T add(const T added)
 		{
-			Mutex::Lock lock(_mutex);
+			SCOPED_MUTEX_LOCK(_mutex);
 			_value += added;
 			return _value;
 		}
 
 		T substract(const T substracted)
 		{
-			Mutex::Lock lock(_mutex);
+			SCOPED_MUTEX_LOCK(_mutex);
 			_value -= substracted;
 			return _value;
 		}
 		
 		T increment()
 		{
-			Mutex::Lock lock(_mutex);
+			SCOPED_MUTEX_LOCK(_mutex);
 			_value++;
 			return _value;
 		}
 		
 		T decrement()
 		{
-			Mutex::Lock lock(_mutex);
+			SCOPED_MUTEX_LOCK(_mutex);
 			_value--;
+			return _value;
+		}
+		
+		T get() {
+			SCOPED_MUTEX_LOCK(_mutex);
 			return _value;
 		}
 		
 		void set(const T value)
 		{
-			Mutex::Lock lock(_mutex);
+			SCOPED_MUTEX_LOCK(_mutex);
 			_value = value;
-			return _value;
 		}
 		
 	private:
 		
 		T _value;
 		
-		Mutex _mutex;
+		mutable Mutex _mutex;
 		
 	};
 	

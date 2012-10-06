@@ -1,5 +1,6 @@
 #include "core/Backtrace.hpp"
 
+#include "core/StackElement.hpp"
 #include "core/Reflection.hpp"
 #include "util/Containers.hpp"
 
@@ -34,7 +35,13 @@ namespace core {
 	}
 	
 	Backtrace::~Backtrace() {
-		Containers::deleteObjPointers(_elements);
+		Containers::deletePointedObjects(_elements);
+	}
+	
+	Backtrace& Backtrace::operator =(const Backtrace& src) {
+		_elements.clear();
+		Containers::copyElements(src._elements, _elements);
+		return *this;
 	}
 	
 	StackElement* Backtrace::_createElement(void* addr) {
@@ -55,8 +62,8 @@ namespace core {
 		vector<StackElement*>::const_iterator elementIt;
 		vector<StackElement*>::const_iterator elementItEnd = elements.end();
 		unsigned int index = 0;
-		for (elementIt = elements.begin(); elementIt != elementItEnd; elementIt++) {
-			StackElement* element = *elementIt;
+		for (elementIt = elements.begin(); elementIt != elementItEnd; ++elementIt) {
+			const StackElement* element = *elementIt;
 			out << index << ": " << *element << endl;
 			index++;
 		}

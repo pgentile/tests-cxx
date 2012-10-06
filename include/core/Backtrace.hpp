@@ -1,8 +1,6 @@
 #ifndef CORE_BACKTRACE_HPP
 #define CORE_BACKTRACE_HPP
 
-#include "core/StackElement.hpp"
-
 #include <string>
 #include <vector>
 
@@ -10,16 +8,20 @@ namespace core {
 	
 	using namespace std;
 	
+	class StackElement;
+	
 	class Backtrace
 	{
 		
 	public:
 		
-		Backtrace(bool initElements = true);
+		explicit Backtrace(bool initElements = true);
 
 		Backtrace(const Backtrace& src);
 		
 		~Backtrace();
+		
+		Backtrace& operator =(const Backtrace& src);
 
 		const vector<StackElement*>& elements() const;
 

@@ -9,8 +9,9 @@ namespace util {
 		
 	public:
 
-		void operator()(PT pt) {
+		void operator()(PT& pt) const {
 			delete pt;
+			pt = NULL;
 		}
 		
 	};
