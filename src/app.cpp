@@ -86,7 +86,10 @@ public:
 	{
 	}
 
-	Node(const Node& src) {
+	Node(const Node& src):
+		_parent(src._parent),
+		_children(src._children)
+	{
 	}
 
 	~Node() {
