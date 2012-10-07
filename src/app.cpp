@@ -133,6 +133,38 @@ Indent indent(unsigned int level = 1) {
 class Node: public enable_shared_from_this<Node>, private noncopyable {
 
 public:
+	
+	class TreeView {
+	
+	public:
+		
+		TreeView(shared_ptr<Node const> node, unsigned int level): _node(node), _level(level) {
+			
+		}
+		
+		TreeView(TreeView const & src): _node(src._node), _level(src._level) {
+			
+		}
+		
+		~TreeView() {
+			
+		}
+		
+		TreeView& operator =(TreeView const & src) {
+			_node = src._node;
+			_level = src._level;
+			return *this;
+		}
+		
+	private:
+		
+		shared_ptr<Node const> _node;
+		
+		unsigned int _level;
+		
+		friend ostream& operator <<(ostream& out, TreeView const & treeView);
+		
+	};
 
 	explicit Node(string const & name): _name(name), _parent(), _children() {
 		cout << "Creation " << *this << endl;
@@ -167,37 +199,6 @@ public:
 		return removed;
 	}
 	
-	void printAsTree(ostream& out, unsigned int level = 0) const {
-		out << indent(level) << *this << " {" << endl;
-		
-		out << indent(level + 1) << "name = '" << _name << "'" << endl;
-		
-		out << indent(level + 1) << "parent = ";
-		shared_ptr<Node> parent = getParent();
-		if (parent) {
-			out << *parent;
-		}
-		else {
-			out << "<no parent>";
-		}
-		out << endl;
-		
-		out << indent(level + 1) << "children = ";
-		if (_children.empty()) {
-			out << "<empty>";
-		}
-		else {
-			out << "[" << endl;
-			BOOST_FOREACH(shared_ptr<Node> const & child, _children) {
-				child->printAsTree(out, level + 2);
-			}
-			out << indent(level + 1) << "]";
-		}
-		out << endl;
-		
-		out << indent(level) << "}" << endl;
-	}
-	
 	string const & getName() const {
 		return _name;
 	}
@@ -209,10 +210,14 @@ public:
 	vector<shared_ptr<Node> > const & getChildren() const {
 		return _children;
 	}
+	
+	TreeView treeView(unsigned int level = 0) const {
+		return TreeView(shared_from_this(), level);
+	}
 
 private:
 	
-	string _name;
+	string const _name;
 
 	weak_ptr<Node> _parent;
 
@@ -222,9 +227,45 @@ private:
 
 };
 
-ostream& operator <<(ostream& out, Node const & node)
-{
+ostream& operator <<(ostream& out, Node const & node) {
 	return out << "Node " << &node << " '" << node._name << "'";
+}
+
+ostream& operator <<(ostream& out, Node::TreeView const & treeView) {
+	shared_ptr<Node const> node = treeView._node;
+	unsigned int level = treeView._level;
+	
+	out << indent(level) << *node << " {" << endl;
+	
+	out << indent(level + 1) << "name = '" << node->getName() << "'" << endl;
+	
+	out << indent(level + 1) << "parent = ";
+	shared_ptr<Node> parent = node->getParent();
+	if (parent) {
+		out << *parent;
+	}
+	else {
+		out << "<no parent>";
+	}
+	out << endl;
+	
+	out << indent(level + 1) << "children = ";
+	vector<shared_ptr<Node> > const & children = node->getChildren();
+	if (children.empty()) {
+		out << "<empty>";
+	}
+	else {
+		out << "[" << endl;
+		BOOST_FOREACH(shared_ptr<Node> const & child, children) {
+			out << child->treeView(level + 2) << endl;
+		}
+		out << indent(level + 1) << "]";
+	}
+	out << endl;
+	
+	out << indent(level) << "}";
+	
+	return out;
 }
 
 
@@ -268,22 +309,17 @@ shared_ptr<Node> createTree() {
 	shared_ptr<Node> node2 = make_shared<Node>("B");
 	shared_ptr<Node> node3 = make_shared<Node>("C");
 	
-	cout << "node1 = ";
-	node1->printAsTree(cout);
-	cout << endl;
+	cout << "node1 = " << node1->treeView() << endl;
 	
 	cout << "addChild(...)" << endl;
 	node1->addChild(node2);
 	node2->addChild(node3);
-	cout << "node1 = ";
-	node1->printAsTree(cout);
-	cout << endl;
+	cout << "node1 = " << node1->treeView() << endl;
 	
 	cout << "addChild(...) / removeChild(...)" << endl;
 	node1->addChild(node3);
 	node1->removeChild(node2);
-	cout << "node1 = ";
-	node1->printAsTree(cout);
+	cout << "node1 = " << node1->treeView() << endl;
 	cout << endl;
 	
 	return node1;
@@ -294,7 +330,7 @@ int main() {
 	
 	shared_ptr<Node> rootNode = createTree();
 	cout << "Apres createTree()" << endl;
-	rootNode->printAsTree(cout);
+	cout << rootNode->treeView() << endl;
 	
 	cout << "Fin" << endl;
 	return 0;
