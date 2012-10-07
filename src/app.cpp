@@ -254,9 +254,9 @@ namespace std {
 }
 
 shared_ptr<Node> createTree() {
-	shared_ptr<Node> node1(new Node());
-	shared_ptr<Node> node2(new Node());
-	shared_ptr<Node> node3(new Node());
+	shared_ptr<Node> node1 = make_shared<Node>();
+	shared_ptr<Node> node2 = make_shared<Node>();
+	shared_ptr<Node> node3 = make_shared<Node>();
 	
 	cout << "node1 = ";
 	node1->printAsTree(cout);
