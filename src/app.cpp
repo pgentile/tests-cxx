@@ -158,7 +158,7 @@ public:
 		bool removed = false;
 		vector<shared_ptr<Node> >::iterator it, begin = _children.begin(), end = _children.end();
 		for (it = begin; it != end; ++it) {
-			shared_ptr<Node> current(*it);
+			shared_ptr<Node> const & current = *it;
 			if (current == child) {
 				child->_parent.reset();
 				_children.erase(it);
@@ -169,15 +169,23 @@ public:
 		return removed;
 	}
 	
-	void printAsTree(ostream& out, unsigned int level = 0) {
+	void printAsTree(ostream& out, unsigned int level = 0) const {
 		out << indent(level) << "Node " << this << " {" << endl;
+		
+		shared_ptr<Node> parent = getParent();
+		if (parent) {
+			out << indent(level + 1) << "parent = " << parent.get() << endl;
+		}
+		else {
+			out << indent(level + 1) << "parent = <no parent>" << endl;
+		}
 		
 		if (_children.empty()) {
 			out << indent(level + 1) << "children = <empty>" << endl;
 		}
 		else {
 			out << indent(level + 1) << "children = [" << endl;
-			BOOST_FOREACH(shared_ptr<Node> child, _children) {
+			BOOST_FOREACH(shared_ptr<Node> const & child, _children) {
 				child->printAsTree(out, level + 2);
 			}
 			out << indent(level + 1) << "]" << endl;
@@ -203,11 +211,7 @@ private:
 
 ostream& operator <<(ostream& out, Node const & node)
 {
-	out << "Node " << &node << " [";
-	out << "parent = " << node._parent.lock();
-	out << ", nb children = " << node._children.size();
-	out << "]";
-	return out;
+	return out << "Node " << &node;
 }
 
 
