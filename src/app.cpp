@@ -122,7 +122,7 @@ ostream& operator <<(ostream& out, Indent const & indent) {
 }
 
 
-Indent indent(unsigned int level) {
+Indent indent(unsigned int level = 1) {
 	return Indent(level);
 }
 
@@ -132,16 +132,12 @@ class Node: public enable_shared_from_this<Node>, private noncopyable {
 
 public:
 
-	Node(): _parent(), _children() {
-		cout << "Creation noeud " << *this << endl;
+	explicit Node(string const & name): _name(name), _parent(), _children() {
+		cout << "Creation " << *this << endl;
 	}
 
 	~Node() {
-		cout << "Suppression noeud " << *this << endl;
-	}
-
-	shared_ptr<Node> getParent() const {
-		return _parent.lock();
+		cout << "Suppression " << *this << endl;
 	}
 	
 	void addChild(shared_ptr<Node> child) {
@@ -170,12 +166,14 @@ public:
 	}
 	
 	void printAsTree(ostream& out, unsigned int level = 0) const {
-		out << indent(level) << "Node " << this << " {" << endl;
+		out << indent(level) << *this << " {" << endl;
+		
+		out << indent(level + 1) << "name = '" << _name << "'" << endl;
 		
 		out << indent(level + 1) << "parent = ";
 		shared_ptr<Node> parent = getParent();
 		if (parent) {
-			out << parent.get();
+			out << *parent;
 		}
 		else {
 			out << "<no parent>";
@@ -197,12 +195,22 @@ public:
 		
 		out << indent(level) << "}" << endl;
 	}
+	
+	string const & getName() const {
+		return _name;
+	}
+	
+	shared_ptr<Node> getParent() const {
+		return _parent.lock();
+	}
 
 	vector<shared_ptr<Node> > const & getChildren() const {
 		return _children;
 	}
 
 private:
+	
+	string _name;
 
 	weak_ptr<Node> _parent;
 
@@ -214,7 +222,7 @@ private:
 
 ostream& operator <<(ostream& out, Node const & node)
 {
-	return out << "Node " << &node;
+	return out << "Node " << &node << " '" << node._name << "'";
 }
 
 
@@ -254,9 +262,9 @@ namespace std {
 }
 
 shared_ptr<Node> createTree() {
-	shared_ptr<Node> node1 = make_shared<Node>();
-	shared_ptr<Node> node2 = make_shared<Node>();
-	shared_ptr<Node> node3 = make_shared<Node>();
+	shared_ptr<Node> node1 = make_shared<Node>("A");
+	shared_ptr<Node> node2 = make_shared<Node>("B");
+	shared_ptr<Node> node3 = make_shared<Node>("C");
 	
 	cout << "node1 = ";
 	node1->printAsTree(cout);
