@@ -116,7 +116,7 @@ private:
 
 ostream& operator <<(ostream& out, Indent const & indent) {
 	for (unsigned int i = 0; i < indent._level; ++i) {
-		out << '\t';
+		out << "    ";
 	}
 	return out;
 }
@@ -133,11 +133,11 @@ class Node: public enable_shared_from_this<Node>, private noncopyable {
 public:
 
 	Node(): _parent(), _children() {
-		cout << "Creation noeud " << this << endl;
+		cout << "Creation noeud " << *this << endl;
 	}
 
 	~Node() {
-		cout << "Suppression noeud " << this << endl;
+		cout << "Suppression noeud " << *this << endl;
 	}
 
 	shared_ptr<Node> getParent() const {
@@ -172,25 +172,28 @@ public:
 	void printAsTree(ostream& out, unsigned int level = 0) const {
 		out << indent(level) << "Node " << this << " {" << endl;
 		
+		out << indent(level + 1) << "parent = ";
 		shared_ptr<Node> parent = getParent();
 		if (parent) {
-			out << indent(level + 1) << "parent = " << parent.get() << endl;
+			out << parent.get();
 		}
 		else {
-			out << indent(level + 1) << "parent = <no parent>" << endl;
+			out << "<no parent>";
 		}
+		out << endl;
 		
+		out << indent(level + 1) << "children = ";
 		if (_children.empty()) {
-			out << indent(level + 1) << "children = <empty>" << endl;
+			out << "<empty>";
 		}
 		else {
-			out << indent(level + 1) << "children = [" << endl;
+			out << "[" << endl;
 			BOOST_FOREACH(shared_ptr<Node> const & child, _children) {
 				child->printAsTree(out, level + 2);
 			}
-			out << indent(level + 1) << "]" << endl;
+			out << indent(level + 1) << "]";
 		}
-		
+		out << endl;
 		
 		out << indent(level) << "}" << endl;
 	}
@@ -238,21 +241,19 @@ struct IterableHash
 
 namespace std {
 
-template<typename I>
-void printIterable(const I& iterable, ostream& out) {
-	typedef typename I::const_reference R;
-	out << "[";
-	BOOST_FOREACH(R elem, iterable) {
-		out << elem << ", ";
+	template<typename I>
+	void printIterable(const I& iterable, ostream& out) {
+		typedef typename I::const_reference R;
+		out << "[";
+		BOOST_FOREACH(R elem, iterable) {
+			out << elem << ", ";
+		}
+		out << "]";
 	}
-	out << "]";
-}
 
 }
 
-int main() {
-	cout << "Debut" << endl;
-	
+shared_ptr<Node> createTree() {
 	shared_ptr<Node> node1(new Node());
 	shared_ptr<Node> node2(new Node());
 	shared_ptr<Node> node3(new Node());
@@ -268,11 +269,22 @@ int main() {
 	node1->printAsTree(cout);
 	cout << endl;
 	
-	cout << "addChild(...)" << endl;
+	cout << "addChild(...) / removeChild(...)" << endl;
 	node1->addChild(node3);
+	node1->removeChild(node2);
 	cout << "node1 = ";
 	node1->printAsTree(cout);
 	cout << endl;
+	
+	return node1;
+}
+
+int main() {
+	cout << "Debut" << endl;
+	
+	shared_ptr<Node> rootNode = createTree();
+	cout << "Apres createTree()" << endl;
+	rootNode->printAsTree(cout);
 	
 	cout << "Fin" << endl;
 	return 0;
