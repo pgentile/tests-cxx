@@ -80,7 +80,10 @@ class Node {
 
 public:
 
-	Node() {
+	Node():
+		_parent(),
+		_children()
+	{
 	}
 
 	Node(const Node& src) {
@@ -90,6 +93,8 @@ public:
 	}
 
 	Node& operator =(const Node& src) {
+		_parent = src._parent;
+		_children = src._children;
 		return *this;
 	}
 
