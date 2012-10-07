@@ -27,6 +27,7 @@
 #include <boost/weak_ptr.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/utility.hpp>
 
 
 using namespace std;
@@ -40,6 +41,7 @@ using boost::shared_ptr;
 using boost::weak_ptr;
 using boost::make_shared;
 using boost::enable_shared_from_this;
+using boost::noncopyable;
 
 
 template<typename T>
@@ -82,7 +84,51 @@ private:
 };
 
 
-class Node: public enable_shared_from_this<Node> {
+class Indent {
+
+public:
+	
+	explicit Indent(unsigned int level): _level(level) {
+		
+	}
+	
+	Indent(Indent const & src): _level(src._level) {
+		
+	}
+	
+	~Indent() {
+		
+	}
+	
+	Indent& operator =(Indent const & src) {
+		_level = src._level;
+		return *this;
+	}
+	
+private:
+	
+	unsigned int _level;
+	
+	friend ostream& operator <<(ostream& out, Indent const & indent);
+	
+};
+
+
+ostream& operator <<(ostream& out, Indent const & indent) {
+	for (unsigned int i = 0; i < indent._level; ++i) {
+		out << '\t';
+	}
+	return out;
+}
+
+
+Indent indent(unsigned int level) {
+	return Indent(level);
+}
+
+
+
+class Node: public enable_shared_from_this<Node>, private noncopyable {
 
 public:
 
@@ -99,6 +145,11 @@ public:
 	}
 	
 	void addChild(shared_ptr<Node> child) {
+		shared_ptr<Node> childParent = child->getParent();
+		if (childParent) {
+			childParent->removeChild(child);
+		}
+		
 		child->_parent = shared_from_this();
 		_children.push_back(child);
 	}
@@ -117,22 +168,47 @@ public:
 		}
 		return removed;
 	}
+	
+	void printAsTree(ostream& out, unsigned int level = 0) {
+		out << indent(level) << "Node " << this << " {" << endl;
+		
+		if (_children.empty()) {
+			out << indent(level + 1) << "children = <empty>" << endl;
+		}
+		else {
+			out << indent(level + 1) << "children = [" << endl;
+			BOOST_FOREACH(shared_ptr<Node> child, _children) {
+				child->printAsTree(out, level + 2);
+			}
+			out << indent(level + 1) << "]" << endl;
+		}
+		
+		
+		out << indent(level) << "}" << endl;
+	}
 
-	const vector<shared_ptr<Node> >& getChildren() const {
+	vector<shared_ptr<Node> > const & getChildren() const {
 		return _children;
 	}
 
 private:
-	
-	Node(const Node& src);
-
-	Node& operator =(const Node& src);
 
 	weak_ptr<Node> _parent;
 
 	vector<shared_ptr<Node> > _children;
+	
+	friend ostream& operator <<(ostream& out, Node const & node);
 
 };
+
+ostream& operator <<(ostream& out, Node const & node)
+{
+	out << "Node " << &node << " [";
+	out << "parent = " << node._parent.lock();
+	out << ", nb children = " << node._children.size();
+	out << "]";
+	return out;
+}
 
 
 template<typename T, typename ElemHash = hash<T> >
@@ -150,7 +226,7 @@ struct IterableHash
 				result = 1;
 			}
 			result = 31 * result + hasher(elem);
-		}			
+		}
 		return result;
 	}
 
@@ -175,8 +251,24 @@ int main() {
 	
 	shared_ptr<Node> node1(new Node());
 	shared_ptr<Node> node2(new Node());
+	shared_ptr<Node> node3(new Node());
+	
+	cout << "node1 = ";
+	node1->printAsTree(cout);
+	cout << endl;
+	
+	cout << "addChild(...)" << endl;
 	node1->addChild(node2);
-	node1->removeChild(node2);
+	node2->addChild(node3);
+	cout << "node1 = ";
+	node1->printAsTree(cout);
+	cout << endl;
+	
+	cout << "removeChild(...)" << endl;
+	node1->addChild(node3);
+	cout << "node1 = ";
+	node1->printAsTree(cout);
+	cout << endl;
 	
 	cout << "Fin" << endl;
 	return 0;
