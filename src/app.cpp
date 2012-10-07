@@ -268,7 +268,7 @@ int main() {
 	node1->printAsTree(cout);
 	cout << endl;
 	
-	cout << "removeChild(...)" << endl;
+	cout << "addChild(...)" << endl;
 	node1->addChild(node3);
 	cout << "node1 = ";
 	node1->printAsTree(cout);
