@@ -22,8 +22,11 @@
 #include <boost/foreach.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/numeric/conversion/converter.hpp>
+
 #include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 
 using namespace std;
@@ -34,7 +37,10 @@ using namespace util;
 
 using boost::numeric::converter;
 using boost::shared_ptr;
+using boost::weak_ptr;
 using boost::make_shared;
+using boost::enable_shared_from_this;
+
 
 template<typename T>
 T* alloc(size_t count = 1, bool zero = false) {
@@ -76,50 +82,53 @@ private:
 };
 
 
-class Node {
+class Node: public enable_shared_from_this<Node> {
 
 public:
 
-	Node():
-		_parent(),
-		_children()
-	{
-	}
-
-	Node(const Node& src):
-		_parent(src._parent),
-		_children(src._children)
-	{
+	Node(): _parent(), _children() {
+		cout << "Creation noeud " << this << endl;
 	}
 
 	~Node() {
-	}
-
-	Node& operator =(const Node& src) {
-		_parent = src._parent;
-		_children = src._children;
-		return *this;
+		cout << "Suppression noeud " << this << endl;
 	}
 
 	shared_ptr<Node> getParent() const {
-		return _parent;
+		return _parent.lock();
+	}
+	
+	void addChild(shared_ptr<Node> child) {
+		child->_parent = shared_from_this();
+		_children.push_back(child);
+	}
+	
+	bool removeChild(shared_ptr<Node> child) {
+		bool removed = false;
+		vector<shared_ptr<Node> >::iterator it, begin = _children.begin(), end = _children.end();
+		for (it = begin; it != end; ++it) {
+			shared_ptr<Node> current(*it);
+			if (current == child) {
+				child->_parent.reset();
+				_children.erase(it);
+				removed = true;
+				break;
+			}
+		}
+		return removed;
 	}
 
-	void setParent(const shared_ptr<Node>& parent) {
-		_parent = parent;
-	}
-
-	vector<shared_ptr<Node> > getChildren() const {
+	const vector<shared_ptr<Node> >& getChildren() const {
 		return _children;
 	}
 
-	void setChildren(const vector<shared_ptr<Node> >& children) {
-		_children = children;
-	}
-
 private:
+	
+	Node(const Node& src);
 
-	shared_ptr<Node> _parent;
+	Node& operator =(const Node& src);
+
+	weak_ptr<Node> _parent;
 
 	vector<shared_ptr<Node> > _children;
 
@@ -161,79 +170,14 @@ void printIterable(const I& iterable, ostream& out) {
 
 }
 
-
-int main()
-{
-	typedef unordered_map<vector<string>, string, IterableHash<string> > CustomHashMap;
-	typedef CustomHashMap::value_type CustomPair;
+int main() {
+	cout << "Debut" << endl;
 	
-	vector<string> key1;
-	key1.push_back("test1");
-	key1.push_back("test2");
-	key1.push_back("test3");
+	shared_ptr<Node> node1(new Node());
+	shared_ptr<Node> node2(new Node());
+	node1->addChild(node2);
+	node1->removeChild(node2);
 	
-	string value1 = "ABC";
-	
-	pair<vector<string>, string> entry1(key1, value1);
-	
-	CustomHashMap hashMap;
-	hashMap.insert(entry1);
-	
-	BOOST_FOREACH(const CustomPair& p, hashMap) {
-		std::cout << "Entry : ";
-		printIterable(p.first, std::cout);
-		std::cout << " -> " << p.second << endl;
-	}
-	
-	shared_ptr<MutableInteger> x1(new MutableInteger(5));
-	shared_ptr<const MutableInteger> x2 = x1;
-	
-	vector<shared_ptr<MutableInteger> > ints;
-	ints.push_back(make_shared<MutableInteger>(30495));
-	ints.push_back(make_shared<MutableInteger>(98374));
-	ints.push_back(make_shared<MutableInteger>(75843));
-	ints.push_back(make_shared<MutableInteger>(10875));
-	
-	cout << "Contenu de ints :" << endl;
-	BOOST_FOREACH(const shared_ptr<MutableInteger>& x, ints) {
-		cout << "\t- " << x->value() << " (ref count = " << x.use_count() << ")" << endl;
-	}
-	
-	cout << "Nb de references sur x1 : " << x1.use_count() << endl;
-	cout << "Travail avec x1 : " << x1->value() << endl;
-	cout << "Travail avec x2 : " << x2->value() << endl;
-	cout << "Convertion de nombre : " << converter<double, uint32_t>::convert(1897) << endl;
-	
-	ndbm::RawStoreFile rawStoreFile("/tmp/ndbmTest", O_RDWR | O_CREAT, 0644);
-	rawStoreFile.open();
-	
-	const string key = "ABC";
-	const string value = "DEF";
-	
-	datum keyStruct;
-	keyStruct.dptr = const_cast<char*>(key.c_str());
-	keyStruct.dsize = key.size();
-	
-	datum valueStruct = rawStoreFile.fetch(keyStruct);
-	if (valueStruct.dptr == NULL) {
-		cout << "Cle " << key << " non definie" << endl;
-		
-		datum newValueStruct;
-		newValueStruct.dptr = const_cast<char*>(value.c_str());
-		newValueStruct.dsize = value.size();
-		rawStoreFile.store(keyStruct, newValueStruct, DBM_REPLACE);
-	} else {
-		const string value(reinterpret_cast<char*>(valueStruct.dptr), valueStruct.dsize);
-		cout << "Cle " << key << " definie, valeur = " << value << endl;
-	}
-	
-	rawStoreFile.close();
-	
-	exception ex1;
-	Exception ex2("Exception perso 2");
-	Exception ex3("Exception perso 3");
-	ex2 = ex3;
-	cout << "ex2: " << ex2 << endl;
-	
+	cout << "Fin" << endl;
 	return 0;
 }
