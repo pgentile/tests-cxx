@@ -3,11 +3,13 @@
 #include "core/CLibException.hpp"
 #include "core/Exception.hpp"
 #include "core/Handle.hpp"
+#include "core/Reflection.hpp"
 #include "core/WeakHandle.hpp"
 #include "logger/Logger.hpp"
 #include "util/Optional.hpp"
 #include "ndbm/RawStoreFile.hpp"
 
+#include <cstddef>
 #include <cerrno>
 #include <cstdlib>
 #include <cmath>
@@ -124,7 +126,7 @@ ostream& operator <<(ostream& out, Indent const & indent) {
 }
 
 
-Indent indent(unsigned int level = 1) {
+inline Indent indent(unsigned int level = 1) {
 	return Indent(level);
 }
 
@@ -138,20 +140,26 @@ public:
 	
 	public:
 		
-		TreeView(shared_ptr<Node const> node, unsigned int level): _node(node), _level(level) {
-			
+		TreeView(shared_ptr<Node const> node, bool showParent, unsigned int level):
+				_node(node),
+				_showParent(showParent),
+				_level(level)
+		{
 		}
 		
-		TreeView(TreeView const & src): _node(src._node), _level(src._level) {
-			
+		TreeView(TreeView const & src):
+				_node(src._node),
+				_showParent(src._showParent),
+				_level(src._level)
+		{
 		}
 		
 		~TreeView() {
-			
 		}
 		
 		TreeView& operator =(TreeView const & src) {
 			_node = src._node;
+			_showParent = src._showParent;
 			_level = src._level;
 			return *this;
 		}
@@ -160,18 +168,22 @@ public:
 		
 		shared_ptr<Node const> _node;
 		
+		bool _showParent;
+		
 		unsigned int _level;
 		
 		friend ostream& operator <<(ostream& out, TreeView const & treeView);
 		
 	};
 
-	explicit Node(string const & name): _name(name), _parent(), _children() {
-		cout << "Creation " << *this << endl;
+	explicit Node(string const & name):
+			_name(name),
+			_parent(),
+			_children()
+	{
 	}
 
 	~Node() {
-		cout << "Suppression " << *this << endl;
 	}
 	
 	void addChild(shared_ptr<Node> child) {
@@ -211,10 +223,10 @@ public:
 		return _children;
 	}
 	
-	TreeView treeView(unsigned int level = 0) const {
-		return TreeView(shared_from_this(), level);
+	TreeView treeView(bool showParent = false, unsigned int level = 0) const {
+		return TreeView(shared_from_this(), showParent, level);
 	}
-
+	
 private:
 	
 	string const _name;
@@ -234,20 +246,23 @@ ostream& operator <<(ostream& out, Node const & node) {
 ostream& operator <<(ostream& out, Node::TreeView const & treeView) {
 	shared_ptr<Node const> node = treeView._node;
 	unsigned int level = treeView._level;
+	bool showParent = treeView._showParent;
 	
 	out << indent(level) << *node << " {" << endl;
 	
 	out << indent(level + 1) << "name = '" << node->getName() << "'" << endl;
 	
-	out << indent(level + 1) << "parent = ";
-	shared_ptr<Node> parent = node->getParent();
-	if (parent) {
-		out << *parent;
+	if (showParent || level == 0) {
+		out << indent(level + 1) << "parent = ";
+		shared_ptr<Node> parent = node->getParent();
+		if (parent) {
+			out << *parent;
+		}
+		else {
+			out << "<no parent>";
+		}
+		out << endl;
 	}
-	else {
-		out << "<no parent>";
-	}
-	out << endl;
 	
 	out << indent(level + 1) << "children = ";
 	vector<shared_ptr<Node> > const & children = node->getChildren();
@@ -257,7 +272,7 @@ ostream& operator <<(ostream& out, Node::TreeView const & treeView) {
 	else {
 		out << "[" << endl;
 		BOOST_FOREACH(shared_ptr<Node> const & child, children) {
-			out << child->treeView(level + 2) << endl;
+			out << child->treeView(showParent, level + 2) << endl;
 		}
 		out << indent(level + 1) << "]";
 	}
@@ -274,7 +289,7 @@ struct IterableHash
 {
 
 	template<typename I>
-	size_t operator ()(const I& iterable) const {
+	size_t operator ()(I const & iterable) const {
 		ElemHash hasher;
 		size_t result = 0;
 		bool empty = true;
@@ -293,7 +308,7 @@ struct IterableHash
 namespace std {
 
 	template<typename I>
-	void printIterable(const I& iterable, ostream& out) {
+	void printIterable(I const & iterable, ostream& out) {
 		typedef typename I::const_reference R;
 		out << "[";
 		BOOST_FOREACH(R elem, iterable) {
@@ -308,30 +323,104 @@ shared_ptr<Node> createTree() {
 	shared_ptr<Node> node1 = make_shared<Node>("A");
 	shared_ptr<Node> node2 = make_shared<Node>("B");
 	shared_ptr<Node> node3 = make_shared<Node>("C");
+	shared_ptr<Node> node4 = make_shared<Node>("D");
+	shared_ptr<Node> node5 = make_shared<Node>("E");
+	shared_ptr<Node> node6 = make_shared<Node>("F");
 	
-	cout << "node1 = " << node1->treeView() << endl;
-	
-	cout << "addChild(...)" << endl;
 	node1->addChild(node2);
-	node2->addChild(node3);
-	cout << "node1 = " << node1->treeView() << endl;
-	
-	cout << "addChild(...) / removeChild(...)" << endl;
 	node1->addChild(node3);
-	node1->removeChild(node2);
-	cout << "node1 = " << node1->treeView() << endl;
-	cout << endl;
-	
+	node2->addChild(node4);
+	node2->addChild(node5);
+	node1->addChild(node6);
+
 	return node1;
 }
 
+
+class Papa {
+
+public:
+	
+	Papa(): _x(0) {
+	}
+
+	virtual ~Papa() {
+		cout << "Destruction Papa" << endl;
+	}
+	
+	Papa& operator =(Papa const & src) {
+		cout << "Appel a " << __PRETTY_FUNCTION__ << endl;
+		_x = src._x;
+		return *this;
+	}
+
+private:
+	
+	int _x;
+
+};
+
+
+class Enfant: public Papa {
+
+public:
+	
+	Enfant(): _y(0) {
+	}
+	
+	Enfant& operator =(Enfant const & src) {
+		cout << "Appel a " << __PRETTY_FUNCTION__ << endl;
+		Papa::operator =(src);
+		// Papa* daddy = this;
+		// *daddy = src;
+		_y = src._y;
+		return *this;
+	}
+	
+	virtual ~Enfant() {
+		cout << "Destruction Enfant" << endl;
+	}
+
+private:
+	
+	int _y;
+
+};
+
+
+class PetitEnfant: public Enfant {
+
+public:
+	
+	PetitEnfant(): _z(0) {
+	}
+	
+	virtual ~PetitEnfant() {
+		cout << "Destruction PetitEnfant" << endl;
+	}
+
+private:
+	
+	int _z;
+
+};
+
+
 int main() {
-	cout << "Debut" << endl;
+	// shared_ptr<Node> rootNode = createTree();
+	// cout << endl << rootNode->treeView() << endl << endl;
 	
-	shared_ptr<Node> rootNode = createTree();
-	cout << "Apres createTree()" << endl;
-	cout << rootNode->treeView() << endl;
+	PetitEnfant z;
 	
-	cout << "Fin" << endl;
+	Enfant* test = new PetitEnfant();
+	PetitEnfant* test2 = dynamic_cast<PetitEnfant*>(test);
+	*test2 = z;
+	cout << "test = " << test << endl;
+	delete test;
+	
+	cout << "sizeof(Papa)        = " << sizeof(Papa) << endl;
+	cout << "sizeof(Enfant)      = " << sizeof(Enfant) << endl;
+	cout << "sizeof(PetitEnfant) = " << sizeof(PetitEnfant) << endl;
+	
 	return 0;
 }

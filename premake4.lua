@@ -28,6 +28,9 @@ solution "TestCPP"
 	buildoptions { "-ansi" }
 	linkoptions { "-rdynamic" }
 	
+	includedirs { "/opt/local/include" }
+	libdirs { "/opt/local/lib" }
+	
 	threaded()
 	
 	configuration "Release"
@@ -55,6 +58,16 @@ solution "TestCPP"
 		targetdir "bin"
 		links { "common" }
 		sources { "app.cpp" }
-		
-		threaded()
+	
+	project "zmqclient"
+		kind "ConsoleApp"
+		targetdir "bin"
+		links { "common", "zmq" }
+		sources { "zmqclient.cpp" }
+	
+	project "zmqserver"
+		kind "ConsoleApp"
+		targetdir "bin"
+		links { "common", "zmq" }
+		sources { "zmqserver.cpp" }
 
