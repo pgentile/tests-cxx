@@ -41,7 +41,7 @@ int main (void)
 			std::cout << "Received World " << request_nbr << std::endl;
 		}
 	}
-	catch (zmq::error_t& err) {
+	catch (zmq::error_t const & err) {
 		std::cout << "Erreur : " << err.what() << std::endl;
 	}
 
