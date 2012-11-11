@@ -11,13 +11,22 @@ error()
 	exit 1
 }
 
+indent()
+{
+	typeset line
+	while read line
+	do
+		echo "   $line"
+	done
+}
+
 # Generate Makefiles
-echo "[1/2] Generating Makefiles..."
-premake4 gmake || error "Can't generate Makefiles"
+echo "Generating Makefiles..."
+premake4 gmake | indent || error "Can't generate Makefiles"
 
 # Build project
-echo "[2/2] Building project..."
-make -j $CONCURRENT_BUILD_THREADS || error "Can't build project"
+echo "Building project..."
+make -j $CONCURRENT_BUILD_THREADS | indent || error "Can't build project"
 
 # End of build
 echo "Build done"

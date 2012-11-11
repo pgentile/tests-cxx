@@ -34,7 +34,7 @@ int main (void)
 
 			// Send reply back to client
 			string const data("World");
-			zmq::message_t reply(data.size() * sizeof(char));
+			zmq::message_t reply(data.size() * sizeof(string::value_type));
 			std::memcpy(reply.data(), data.c_str(), reply.size());
 			
 			socket.send(reply);

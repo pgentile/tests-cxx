@@ -31,7 +31,7 @@ int main (void)
 			dataBuilder << "Hello #" << request_nbr;
 			
 			string const data(dataBuilder.str());
-			zmq::message_t request(data.size() * sizeof(char));
+			zmq::message_t request(data.size() * sizeof(string::value_type));
 			std::memcpy(request.data(), data.c_str(), request.size());
 			
 			socket.send(request);
