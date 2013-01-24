@@ -18,9 +18,7 @@ namespace core {
 		} else {
 			realName = name;
 		}
-		if (realNamePt != NULL) {
-			free(realNamePt);
-		}
+		free(realNamePt);
 		return realName;
 	}
 

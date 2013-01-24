@@ -1,10 +1,13 @@
 #include "threading/Mutex.hpp"
 
-#include <errno.h>
+#include <cerrno>
+#include <cstdio>
+#include <cstring>
 #include <iostream>
-#include <pthread.h>
 #include <sstream>
 #include <stdexcept>
+
+#include <pthread.h>
 
 #include "patterns/ExceptionSafe.hpp"
 

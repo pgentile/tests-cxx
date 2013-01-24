@@ -16,15 +16,15 @@ int main (void)
 	try {
 		zmq::context_t context(1);
 	
-		zmq::socket_t socket(context, ZMQ_REP);
-		socket.bind("tcp://*:9000");
-	
+		zmq::socket_t socket1(context, ZMQ_REP);
+		socket1.bind("tcp://*:9000");
+
 		while (true) {
 			std::cout << "Waiting..." << std::endl;
 		
 			//  Wait for next request from client
 			zmq::message_t request;
-			socket.recv(&request);
+			socket1.recv(&request);
 			
 			string const requestData((char const *) request.data(), request.size());
 			std::cout << "Received: " << requestData << std::endl;
@@ -37,7 +37,7 @@ int main (void)
 			zmq::message_t reply(data.size() * sizeof(string::value_type));
 			std::memcpy(reply.data(), data.c_str(), reply.size());
 			
-			socket.send(reply);
+			socket1.send(reply);
 		}
 	}
 	catch (zmq::error_t const & err) {

@@ -8,6 +8,7 @@
 #include "logger/Logger.hpp"
 #include "util/Optional.hpp"
 #include "ndbm/RawStoreFile.hpp"
+#include "patterns/ExceptionSafe.hpp"
 
 #include <cstddef>
 #include <cerrno>
@@ -19,7 +20,7 @@
 #include <vector>
 #include <string>
 #include <iterator>
-#include <tr1/unordered_map>
+#include <unordered_map>
 
 #include <sys/stat.h>
 
@@ -69,10 +70,6 @@ public:
 	{
 	}
 	
-	~MutableInteger()
-	{
-	}
-	
 	int value() const {
 		return _value;
 	}
@@ -97,10 +94,6 @@ public:
 	}
 	
 	Indent(Indent const & src): _level(src._level) {
-		
-	}
-	
-	~Indent() {
 		
 	}
 	
@@ -154,9 +147,6 @@ public:
 		{
 		}
 		
-		~TreeView() {
-		}
-		
 		TreeView& operator =(TreeView const & src) {
 			_node = src._node;
 			_showParent = src._showParent;
@@ -181,9 +171,6 @@ public:
 			_parent(),
 			_children()
 	{
-	}
-
-	~Node() {
 	}
 	
 	void addChild(shared_ptr<Node> child) {
@@ -305,6 +292,7 @@ struct IterableHash
 
 };
 
+
 namespace std {
 
 	template<typename I>
@@ -318,6 +306,7 @@ namespace std {
 	}
 
 }
+
 
 shared_ptr<Node> createTree() {
 	shared_ptr<Node> node1 = make_shared<Node>("A");
@@ -406,9 +395,32 @@ private:
 };
 
 
+class TestNoThrow {
+	
+public:
+	
+	TestNoThrow() {
+		
+	}
+
+	~TestNoThrow() throw() {
+		EXCEPTION_SAFE_BEGIN();
+		stringstream message;
+		message << __func__ << " : Test...";
+		throw std::runtime_error(message.str().c_str());
+		EXCEPTION_SAFE_END();
+	}
+	
+};
+
+
 int main() {
 	// shared_ptr<Node> rootNode = createTree();
 	// cout << endl << rootNode->treeView() << endl << endl;
+	
+	{
+		TestNoThrow nt;
+	}
 	
 	PetitEnfant z;
 	
