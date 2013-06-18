@@ -13,9 +13,18 @@
 
 #define EXCEPTION_SAFE_END() \
 	} \
-	catch (const std::exception& catchedException ## __LINE__) { \
-		std::cerr << __FUNCTION__ << ": Catched exception" << std::endl; \
-		std::cerr << __FUNCTION__ << ": Reason: " << catchedException ## __LINE__.what() << std::endl; \
+	catch (const std::exception& caughtException ## __LINE__) { \
+	    try { \
+		    std::cerr << __func__ << ": Caught exception" << std::endl; \
+		    std::cerr << __func__ << ": Reason: " << caughtException ## __LINE__.what() << std::endl; \
+		} \
+		catch (...) {} \
+	} \
+	catch (...) { \
+	    try { \
+		    std::cerr << __func__ << ": Caught unknown exception" << std::endl; \
+		} \
+		catch (...) {} \
 	}
 
 #endif

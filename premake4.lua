@@ -112,3 +112,8 @@ solution "TestCPP"
 		kind "ConsoleApp"
 		targetdir "bin"
 		sources { "app-strtol.cpp" }
+
+	project "app-exceptions"
+		kind "ConsoleApp"
+		targetdir "bin"
+		sources { "app-exceptions.cpp" }
