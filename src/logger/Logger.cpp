@@ -61,7 +61,7 @@ namespace logger
 				Event::Kind kind = event->kind();
 				if (kind == Event::LOG_EVENT) {
 					LogEvent* logEvent = static_cast<LogEvent*>(event.get());
-					cout << "LOGGER EVENT: (" << logEvent->level() << ") " << logEvent->message() << endl;
+					cout << "LOGGER EVENT: (" << logEvent->level() << ", " <<  logEvent->threadId() << ") " << logEvent->message() << endl;
 				} else if (kind == Event::SHUTDOWN) {
 					running = false;
 				}
@@ -149,8 +149,8 @@ namespace logger
 	
 	// Class LogEvent
 	
-	LogEvent::LogEvent(const Level& level, const string& message):
-			Event(LOG_EVENT), _level(level), _message(message)
+	LogEvent::LogEvent(const Level& level, const string& message, const thread::id& threadId):
+			Event(LOG_EVENT), _level(level), _message(message), _threadId(threadId)
 	{
 	}
 	
@@ -181,7 +181,7 @@ namespace logger
 	void LoggerManager::log(const Level& level, const string& message)
 	{
 		if (level >= _threshold) {
-			Event* event = new LogEvent(level, message);
+			Event* event = new LogEvent(level, message, this_thread::get_id());
 			_queue.publish(event);
 		}
 	}

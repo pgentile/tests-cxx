@@ -128,3 +128,9 @@ solution "TestCPP"
 	    kind "ConsoleApp"
 	    targetdir "bin"
 	    sources { "app-mmap.cpp" }
+
+	project "app-logger"
+	    kind "ConsoleApp"
+	    targetdir "bin"
+		links { "common" }
+	    sources { "app-logger.cpp" }

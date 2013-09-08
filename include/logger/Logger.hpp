@@ -30,9 +30,15 @@ namespace logger
 			
 			bool operator ==(const Level& other) const;
 			
-			const string& name() const;
+			const string& name() const
+        	{
+        		return _name;
+        	}
 		
-			unsigned int value() const;
+			unsigned int value() const
+        	{
+        		return _value;
+        	}
 			
 			static const Level all;
 			static const Level debug;
@@ -47,16 +53,6 @@ namespace logger
 			unsigned int _value;
 		
 	};
-	
-	inline const string& Level::name() const
-	{
-		return _name;
-	}
-
-	inline unsigned int Level::value() const
-	{
-		return _value;
-	}
 	
 	ostream& operator<<(ostream& out, const Level& level);
 	
@@ -75,40 +71,40 @@ namespace logger
             Event(Event const&) = delete;
             Event& operator =(Event const&) = delete;
 						
-			Kind kind() const;
+			Kind kind() const {
+        		return _kind;
+        	}
 		
 		private:
 			Kind _kind;
 		
 	};
 	
-	inline Event::Kind Event::kind() const {
-		return _kind;
-	}
-	
 	ostream& operator<<(ostream& out, const Event& event);
+	
 	
 	class LogEvent: public Event
 	{
 		public:
-			LogEvent(const Level& level, const string& message);
+			LogEvent(const Level& level, const string& message, const thread::id& threadId);
 			
-			const Level& level() const;
+			const Level& level() const {
+                return _level;
+			}
 		
-			const string& message() const;
+			const string& message() const {
+                return _message;
+			}
+			
+            const thread::id threadId() const {
+                return _threadId;
+            }
 
 		private:
 			const Level& _level;
 			string _message;
+            thread::id _threadId;
 	};
-	
-	inline const Level& LogEvent::level() const {
-		return _level;
-	}
-
-	inline const string& LogEvent::message() const {
-		return _message;
-	}
 	
 	class ShutdownEvent: public Event
 	{
