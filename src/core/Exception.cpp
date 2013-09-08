@@ -7,7 +7,7 @@ using namespace std;
 
 namespace core {
 	
-	Exception::Exception(const string& what): exception(), _what(what), _thread(pthread_self()) {
+	Exception::Exception(const string& what): exception(), _what(what), _thread(this_thread::get_id()) {
 	}
 	
 	Exception::Exception(const exception& ex): exception() {
@@ -20,7 +20,7 @@ namespace core {
 			_what += ex.what();
 		}
 		
-		_thread = pthread_self();
+		_thread = this_thread::get_id();
 	}
 	
 	Exception::Exception(const Exception& src):

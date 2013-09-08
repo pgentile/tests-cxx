@@ -7,8 +7,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <thread>
 
-#include <pthread.h>
 
 namespace core {
 	
@@ -31,11 +31,17 @@ namespace core {
 		
 		const string thrownClassName() const;
 		
-		const char* what() const throw();
+		const char* what() const throw() {
+    		return _what.c_str();
+		}
 		
-		const Backtrace& backtrace() const;
+		const Backtrace& backtrace() const {
+            return _backtrace;
+		}
 		
-		const pthread_t& thread() const;
+		const std::thread::id& thread() const {
+            return _thread;
+		}
 		
 	private:
 		
@@ -43,23 +49,11 @@ namespace core {
 		
 		Backtrace _backtrace;
 		
-		pthread_t _thread;
+		std::thread::id _thread;
 
 	};
 	
 	ostream& operator <<(ostream& out, const Exception& exception);
-	
-	inline const char* Exception::what() const throw() {
-		return _what.c_str();
-	}
-	
-	inline const Backtrace& Exception::backtrace() const {
-		return _backtrace;
-	}
-	
-	inline const pthread_t& Exception::thread() const {
-		return _thread;
-	}
 
 }
 

@@ -2,36 +2,33 @@
 #define PATTERNS_SINGLETON_H
 
 #include <exception>
-#include <pthread.h>
 #include <sstream>
 #include <stdexcept>
 #include <stdlib.h>
 #include <string>
+#include <thread>
+#include <mutex>
 
 #include "patterns/NonCopyable.hpp"
 
+
 namespace patterns
-{
+{	
 	
-	using namespace std;
-	
-	
-	class UnexistingSingletonError: public runtime_error
+	class UnexistingSingletonError: public std::runtime_error
 	{
 		
 	public:
 		
-		inline UnexistingSingletonError(const string reason): runtime_error(_createMessage(reason))
+		inline UnexistingSingletonError(const std::string reason): runtime_error(_createMessage(reason))
 		{
 		}
 	
 	private:
 		
-		static string _createMessage(const string& reason)
+		static std::string _createMessage(const std::string& reason)
 		{
-			ostringstream message;
-			message << "Can't create singleton: " << reason;
-			return message.str();
+			return "Can't create singleton: " + reason;
 		}
 		
 	};
@@ -51,7 +48,7 @@ namespace patterns
 
 			static T& instance()
 			{
-				pthread_once(&_onceControl, _createInstance);
+                std::call_once(_onceFlag, _createInstance);
 				if (_instance == NULL) {
 					throw UnexistingSingletonError(_error);
 				}
@@ -75,7 +72,7 @@ namespace patterns
 				try {
 					_instance = new T();
 					registerDestructor(_deleteInstance);
-				} catch (const exception& e) {
+				} catch (const std::exception& e) {
 					_error = e.what();
 					
 					delete _instance;
@@ -88,22 +85,22 @@ namespace patterns
 				delete _instance;
 			}
 			
-			static pthread_once_t _onceControl;
+			static std::once_flag _onceFlag;
 					
 			static T* _instance;
 			
-			static string _error;
+			static std::string _error;
 	
 	};
 	
 	template<class T>
-	pthread_once_t Singleton<T>::_onceControl = PTHREAD_ONCE_INIT;
+    std::once_flag Singleton<T>::_onceFlag;
 	
 	template<class T>
 	T* Singleton<T>::_instance = NULL;
 	
 	template<class T>
-	string Singleton<T>::_error;
+	std::string Singleton<T>::_error;
 
 }
 
