@@ -55,8 +55,6 @@ solution "TestCPP"
 		kind "SharedLib"
 		targetdir "lib"
 		sources { 
-			"threading/Thread.cpp",
-			"threading/Mutex.cpp",
 			"threading/ReadWriteLock.cpp", 
 			"util/UndefinedError.cpp",
 			"patterns/Singleton.cpp",

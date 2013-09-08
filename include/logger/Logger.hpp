@@ -6,10 +6,11 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
 
 #include "patterns/NonCopyable.hpp"
-#include "threading/Mutex.hpp"
-#include "threading/Thread.hpp"
 
 
 namespace logger
@@ -17,7 +18,6 @@ namespace logger
 	
 	using namespace std;
 	using namespace patterns;
-	using namespace threading;
 	
 	class Level: private NonCopyable
 	{
@@ -129,12 +129,12 @@ namespace logger
 			unsigned int _size;
 			unsigned int _count;
 			Event** _events;
-			Mutex _mutex;
-			Mutex::Condition _publishedCond;
+			mutex _mutex;
+			condition_variable _publishedCond;
 		
 	};
 
-	class Consumer: public Thread
+	class Consumer
 	{
 		public:
 			Consumer(EventQueue& queue);
@@ -159,7 +159,8 @@ namespace logger
 		private:
 			const Level& _threshold;
 			EventQueue _queue;
-			Consumer _consumer;
+            Consumer _consumer;
+			thread _consumerThread;
 			
 	};
 	

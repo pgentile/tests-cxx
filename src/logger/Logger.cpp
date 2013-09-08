@@ -7,6 +7,7 @@
 #include <memory>
 #include <iostream>
 
+
 namespace logger
 {
 
@@ -91,30 +92,33 @@ namespace logger
 	// Class EventQueue
 	
 	EventQueue::EventQueue(unsigned int size):
-			_size(size), _count(0),
+			_size(size),
+			_count(0),
 			_events(new Event*[size]),
-			_publishedCond(_mutex)
+			_publishedCond()
 	{
 	}
 	
 	bool EventQueue::publish(Event* event)
 	{
 		bool published = false;
-		Mutex::Lock lock(_mutex);
+		{
+    		lock_guard<mutex> lock(_mutex);
 		
-		//cout << "Before publish: count=" << _count << ", size=" << _size << endl;
+    		//cout << "Before publish: count=" << _count << ", size=" << _size << endl;
 		
-		// Ajouter le nouvel element, si possible
-		if (_count < _size) {
-			//cout << "Published event at position " << _count << endl;
-			_events[_count] = event;
-			_count++;
-			published = true;
-		} else {	
-			cerr << "Event queue full, dropping new event " << *event << endl;
-		}
+    		// Ajouter le nouvel element, si possible
+    		if (_count < _size) {
+    			//cout << "Published event at position " << _count << endl;
+    			_events[_count] = event;
+    			_count++;
+    			published = true;
+    		} else {	
+    			cerr << "Event queue full, dropping new event " << *event << endl;
+    		}
+    	}
 		
-		_publishedCond.signal();
+		_publishedCond.notify_all();
 		
 		//cout << "After publish: count=" << _count << ", size=" << _size << endl << endl;
 		
@@ -123,18 +127,15 @@ namespace logger
 	
 	void EventQueue::extract(vector<Event*>& output)
 	{
-		Mutex::Lock lock(_mutex);
+	    unique_lock<mutex> lock(_mutex);
+	    
+        _publishedCond.wait(lock, [this] {return _count > 0; });
 		
-		if (_count > 0) {
-			// Copier les pointeurs dans output
-			for (unsigned int i = 0; i < _count; i++) {
-				output.push_back(_events[i]);
-			}
-			_count = 0;
-		} else {
-			// Attendre l'arrivee d'un evenement
-			_publishedCond.wait();
+		// Copier les pointeurs dans output
+		for (unsigned int i = 0; i < _count; i++) {
+			output.push_back(_events[i]);
 		}
+		_count = 0;
 	}
 	
 	EventQueue::~EventQueue()
@@ -166,9 +167,9 @@ namespace logger
 	LoggerManager::LoggerManager(const Level& threshold, unsigned int queueSize):
 			_threshold(threshold),
 			_queue(queueSize),
-	 		_consumer(_queue)
+	 		_consumer(_queue),
+            _consumerThread([this] { _consumer.run(); })
 	{
-		_consumer.start();
 	}
 
 	LoggerManager::~LoggerManager()
@@ -176,7 +177,7 @@ namespace logger
 		Event* event = new ShutdownEvent();
 		_queue.publish(event);
 		
-		_consumer.join();
+		_consumerThread.join();
 	}
 	
 	void LoggerManager::log(const Level& level, const string& message)

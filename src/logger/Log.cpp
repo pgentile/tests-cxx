@@ -10,7 +10,7 @@ namespace log
 	
 	Log::Log()
 	{
-		_message << '[' << getpid() << " - " << pthread_self() << "] ";
+		_message << '[' << getpid() << " - " << this_thread::get_id() << "] ";
 	}
 	
 	Log& Log::operator <<(ostream& (*pf)(ostream&))
