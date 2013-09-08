@@ -2,9 +2,7 @@
 
 #include "core/CLibException.hpp"
 #include "core/Exception.hpp"
-#include "core/Handle.hpp"
 #include "core/Reflection.hpp"
-#include "core/WeakHandle.hpp"
 #include "logger/Logger.hpp"
 #include "util/Optional.hpp"
 #include "ndbm/RawStoreFile.hpp"
