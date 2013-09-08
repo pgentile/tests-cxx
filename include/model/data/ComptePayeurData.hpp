@@ -1,10 +1,9 @@
 #ifndef MODEL_DATA_COMPTEPAYEUR_HPP
 #define MODEL_DATA_COMPTEPAYEUR_HPP
 
-#include <stdint.h>
+#include <cstdint>
 #include <string>
-
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include "date/LocalDateTimeRange.hpp"
 
@@ -33,11 +32,11 @@ public:
         _idFonc = idFonc;
     }
     
-    boost::shared_ptr<date::LocalDateTimeRange> getValidite() const {
+    std::shared_ptr<date::LocalDateTimeRange> getValidite() const {
         return _validite;
     }
     
-    void setValidite(boost::shared_ptr<date::LocalDateTimeRange> validite) {
+    void setValidite(std::shared_ptr<date::LocalDateTimeRange> validite) {
         _validite = validite;
     }
 
@@ -47,7 +46,7 @@ private:
     
     std::string _idFonc;
     
-    boost::shared_ptr<date::LocalDateTimeRange> _validite;
+    std::shared_ptr<date::LocalDateTimeRange> _validite;
     
 };
 

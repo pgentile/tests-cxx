@@ -3,7 +3,7 @@
 #include <string>
 #include <cstring>
 #include <stdexcept>
-#include <assert.h>
+#include <cassert>
 #include <cerrno>
 #include <unistd.h>
 #include <sys/mman.h>

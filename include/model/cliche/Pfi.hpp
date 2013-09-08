@@ -1,7 +1,7 @@
 #ifndef MODEL_CLICHE_PFI_HPP
 #define MODEL_CLICHE_PFI_HPP
 
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include <vector>
 

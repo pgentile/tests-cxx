@@ -22,11 +22,10 @@
 #include <iterator>
 #include <memory>
 #include <unordered_map>
+#include <cstdint>
 
 #include <sys/stat.h>
 
-#include <boost/foreach.hpp>
-#include <boost/cstdint.hpp>
 #include <boost/numeric/conversion/converter.hpp>
 
 #include <boost/utility.hpp>
@@ -250,7 +249,7 @@ ostream& operator <<(ostream& out, Node::TreeView const & treeView) {
 	}
 	else {
 		out << "[" << endl;
-		BOOST_FOREACH(shared_ptr<Node> const & child, children) {
+		for (auto child: children) {
 			out << child->treeView(showParent, level + 2) << endl;
 		}
 		out << indent(level + 1) << "]";
@@ -272,7 +271,7 @@ struct IterableHash
 		ElemHash hasher;
 		size_t result = 0;
 		bool empty = true;
-		BOOST_FOREACH(const T& elem, iterable) {
+		for (auto elem: iterable) {
 			if (empty) {
 				empty = false;
 				result = 1;
@@ -289,9 +288,8 @@ namespace std {
 
 	template<typename I>
 	void printIterable(I const & iterable, ostream& out) {
-		typedef typename I::const_reference R;
 		out << "[";
-		BOOST_FOREACH(R elem, iterable) {
+		for (auto elem: iterable) {
 			out << elem << ", ";
 		}
 		out << "]";

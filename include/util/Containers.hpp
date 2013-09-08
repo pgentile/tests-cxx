@@ -6,7 +6,6 @@
 #include <algorithm>
 #include <iostream>
 
-#include <boost/foreach.hpp>
 
 namespace util {
 	
@@ -41,9 +40,8 @@ namespace util {
 		
 		template<typename C>
 		static void copyElements(const C& source, C& dest) {
-			typedef typename C::value_type PT;
-			BOOST_FOREACH(PT element, source) {
-				PT elementCopy = _copyPointerValue(element);
+			for (auto element: source) {
+				decltype(element) elementCopy = _copyPointerValue(element);
 				dest.push_back(elementCopy);
 			}
 		}

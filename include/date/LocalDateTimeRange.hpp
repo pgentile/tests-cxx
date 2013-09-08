@@ -1,7 +1,6 @@
 #ifndef DATE_LOCALDATETIMERANGE_HPP
 #define DATE_LOCALDATETIMERANGE_HPP
 
-#include <stdint.h>
 #include "boost/optional.hpp"
 
 #include "date/LocalDateTime.hpp"

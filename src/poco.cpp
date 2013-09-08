@@ -1,6 +1,6 @@
 #include <iostream>
 #include <sstream>
-#include <stdint.h>
+#include <cstdint>
 
 #include "Poco/ThreadPool.h"
 #include "Poco/Net/HTTPRequestHandler.h"

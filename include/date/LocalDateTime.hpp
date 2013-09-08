@@ -1,7 +1,7 @@
 #ifndef DATE_LOCALDATETIME_HPP
 #define DATE_LOCALDATETIME_HPP
 
-#include <stdint.h>
+#include <cstdint>
 
 
 namespace date {

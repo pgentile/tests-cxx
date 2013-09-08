@@ -1,11 +1,10 @@
 #ifndef MODEL_DATA_PFI_HPP
 #define MODEL_DATA_PFI_HPP
 
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include <vector>
-
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include "date/LocalDateTimeRange.hpp"
 #include "model/data/ComptePayeurData.hpp"
@@ -35,23 +34,23 @@ public:
         _idFonc = idFonc;
     }
     
-    boost::shared_ptr<date::LocalDateTimeRange> getValidite() const {
+    std::shared_ptr<date::LocalDateTimeRange> getValidite() const {
         return _validite;
     }
     
-    void setValidite(boost::shared_ptr<date::LocalDateTimeRange> validite) {
+    void setValidite(std::shared_ptr<date::LocalDateTimeRange> validite) {
         _validite = validite;
     }
     
-    std::vector<boost::shared_ptr<ComptePayeurData> >& getComptesPayeurs() {
+    std::vector<std::shared_ptr<ComptePayeurData> >& getComptesPayeurs() {
         return _comptesPayeurs;
     }
     
-    std::vector<boost::shared_ptr<ComptePayeurData> > const& getComptesPayeurs() const {
+    std::vector<std::shared_ptr<ComptePayeurData> > const& getComptesPayeurs() const {
         return _comptesPayeurs;
     }
     
-    void setComptesPayeurs(std::vector<boost::shared_ptr<ComptePayeurData> > const& comptesPayeurs) {
+    void setComptesPayeurs(std::vector<std::shared_ptr<ComptePayeurData> > const& comptesPayeurs) {
         _comptesPayeurs = comptesPayeurs;
     }
 
@@ -61,9 +60,9 @@ private:
     
     std::string _idFonc;
     
-    boost::shared_ptr<date::LocalDateTimeRange> _validite;
+    std::shared_ptr<date::LocalDateTimeRange> _validite;
     
-    std::vector<boost::shared_ptr<ComptePayeurData> > _comptesPayeurs;
+    std::vector<std::shared_ptr<ComptePayeurData> > _comptesPayeurs;
     
 };
 

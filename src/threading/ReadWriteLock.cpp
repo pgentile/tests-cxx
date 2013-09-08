@@ -1,6 +1,6 @@
 #include "threading/ReadWriteLock.hpp"
 
-#include <errno.h>
+#include <cerrno>
 #include <iostream>
 #include <pthread.h>
 #include <sstream>

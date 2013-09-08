@@ -2,9 +2,8 @@
 #include "core/Reflection.hpp"
 #include "core/StackElement.hpp"
 
-#include <boost/foreach.hpp>
-
 using namespace std;
+
 
 namespace core {
 	
@@ -52,7 +51,7 @@ namespace core {
 		out << "Backtrace:";
 		const vector<StackElement*>& elements = exception.backtrace().elements();
 		unsigned int index = 0;
-		BOOST_FOREACH(StackElement* element, elements) {
+		for (StackElement* element: elements) {
 			out << endl << '\t' << index << ": " << *element;
 			index++;
 		}
