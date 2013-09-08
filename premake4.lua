@@ -1,7 +1,6 @@
 -- Generation des Makefiles du projet
 
-BOOST_INCLUDE_DIR = "/Users/pgentile/Programmation/OpenSourceProjects/boost"
-BOOST_LIB_DIR = "/Users/pgentile/Programmation/OpenSourceProjects/boost/stage/lib"
+ZMQCPP_INCLUDE_DIR = '/Users/pgentile/Programmation/OpenSourceProjects/cppzmq'
 
 POCO_FOUNDATION_INCLUDE_DIR = '/Users/pgentile/Programmation/OpenSourceProjects/poco/Foundation/include'
 POCO_UTIL_INCLUDE_DIR = '/Users/pgentile/Programmation/OpenSourceProjects/poco/Util/include'
@@ -32,8 +31,7 @@ solution "TestCPP"
 	includedirs {
 		"src",
 		"include",
-		path.join(BOOST_INCLUDE_DIR, "boost/tr1/tr1"),
-		BOOST_INCLUDE_DIR,
+		ZMQCPP_INCLUDE_DIR,
 		POCO_FOUNDATION_INCLUDE_DIR,
 		POCO_UTIL_INCLUDE_DIR,
 		POCO_NET_INCLUDE_DIR,
@@ -42,10 +40,8 @@ solution "TestCPP"
 	
 	flags { "ExtraWarnings", "FatalWarnings", "Symbols", "EnableSSE", "EnableSSE2", "Optimize" }
 	buildoptions { "-ansi" }
-	linkoptions { "-rdynamic" }
 	
 	libdirs {
-		BOOST_LIB_DIR,
 		POCO_LIB_DIR,
 		"/opt/local/lib"
 	}
@@ -69,8 +65,21 @@ solution "TestCPP"
 			"core/Reflection.cpp",
 			"core/StackElement.cpp",
 			"logger/Logger.cpp",
-			"ndbm/RawStoreFile.cpp"
+			"ndbm/RawStoreFile.cpp",
+			"date/LocalDateTime.cpp",
+			"date/LocalDateTimeRange.cpp"
 		}
+	
+	project "model"
+	    kind "SharedLib"
+	    targetdir "lib"
+		links { "common" }
+	    sources {
+	        "model/data/PfiData.cpp",
+            "model/data/ComptePayeurData.cpp",
+            "model/cliche/Pfi.cpp",
+            "model/cliche/ComptePayeur.cpp"
+	    }
 
 	project "app"
 		kind "ConsoleApp"
@@ -102,11 +111,11 @@ solution "TestCPP"
 		links { "common", "zmq" }
 		sources { "zmq/handler.cpp" }
 
-	project "poco"
-		kind "ConsoleApp"
-		targetdir "bin"
-		links { "common", "zmq", "PocoUtil", "PocoFoundation", "PocoNet" }
-		sources { "poco.cpp" }
+	-- project "poco"
+	--	kind "ConsoleApp"
+	--	targetdir "bin"
+	--	links { "common", "zmq", "PocoUtil", "PocoFoundation", "PocoNet" }
+	--	sources { "poco.cpp" }
 
 	project "app-strtol"
 		kind "ConsoleApp"
@@ -117,3 +126,8 @@ solution "TestCPP"
 		kind "ConsoleApp"
 		targetdir "bin"
 		sources { "app-exceptions.cpp" }
+	
+	project "app-mmap"
+	    kind "ConsoleApp"
+	    targetdir "bin"
+	    sources { "app-mmap.cpp" }

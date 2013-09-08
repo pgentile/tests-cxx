@@ -1,5 +1,6 @@
 #include <zmq.hpp>
 
+#include <unistd.h>
 #include <string>
 #include <csignal>
 #include <cstdlib>

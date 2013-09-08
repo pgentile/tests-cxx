@@ -4,8 +4,6 @@
 #include <exception>
 #include <iostream>
 
-#include "macros.h"
-
 
 #define EXCEPTION_SAFE_BEGIN() \
 	try \

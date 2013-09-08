@@ -36,7 +36,6 @@
 
 
 using namespace std;
-using namespace std::tr1;
 
 using namespace core;
 using namespace util;

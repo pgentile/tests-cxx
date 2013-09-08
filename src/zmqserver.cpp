@@ -4,6 +4,7 @@
 //  Expects "Hello" from client, replies with "World"
 //
 #include <zmq.hpp>
+#include <unistd.h>
 #include <string>
 #include <cstring>
 #include <iostream>

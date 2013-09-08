@@ -1,5 +1,6 @@
 #include "core/Reflection.hpp"
 
+#include <cstdlib>
 #include <cxxabi.h>
 
 namespace core {

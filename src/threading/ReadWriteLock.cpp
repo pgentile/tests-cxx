@@ -5,6 +5,7 @@
 #include <pthread.h>
 #include <sstream>
 #include <stdexcept>
+#include <cstring>
 
 #include "patterns/ExceptionSafe.hpp"
 
