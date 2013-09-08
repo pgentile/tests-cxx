@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <cassert>
 #include <cerrno>
+#include <system_error>
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -12,38 +13,7 @@
 
 #include "patterns/ExceptionSafe.hpp"
 
-
 using namespace std;
-
-
-class SystemException: public runtime_error {
-    
-public:
-    
-    SystemException(char const* source, int errnum):
-        runtime_error(buildMessage(source, errnum))
-    {
-    }
-    
-    virtual ~SystemException() throw () {
-    }
-    
-    int errnum() const {
-        return _errnum;
-    }
-
-private:
-    
-    string buildMessage(char const* source, int errnum) {
-        stringstream msg;
-        msg << "System error with " << source << ": "
-            << strerror(errnum) << " (num = " << errnum << ")";
-        return msg.str();
-    }
-    
-    int _errnum;
-    
-};
 
 
 namespace memmapped {
@@ -52,28 +22,28 @@ namespace memmapped {
 void sync(void* addr, size_t length, int flags) {
     int rc = msync(addr, length, flags);
     if (rc == -1) {
-        throw SystemException("msync", errno);
+        throw system_error(errno, system_category());
     }
 }
 
 void protect(void* addr, size_t length, int protections) {
     int rc = mprotect(addr, length, protections);
     if (rc == -1) {
-        throw SystemException("mprotect", errno);
+        throw system_error(errno, system_category());
     }
 }
 
 void lock(const void* addr, size_t length) {
     int rc = mlock(addr, length);
     if (rc == -1) {
-        throw SystemException("mlock", errno);
+        throw system_error(errno, system_category());
     }
 }
 
 void unlock(const void* addr, size_t length) {
     int rc = munlock(addr, length);
     if (rc == -1) {
-        throw SystemException("munlock", errno);
+        throw system_error(errno, system_category());
     }
 }
 
@@ -91,7 +61,7 @@ public:
         _fd(open(filename.c_str(), flags))
     {
         if (_fd == -1) {
-            throw SystemException("open", errno);
+            throw system_error(errno, system_category());
         }
     }
     
@@ -99,14 +69,14 @@ public:
         _fd(open(filename.c_str(), flags, mode))
     {
         if (_fd == -1) {
-            throw SystemException("open", errno);
+            throw system_error(errno, system_category());
         }
     }
     
     ~FileDescriptor() {
         EXCEPTION_SAFE_BEGIN();
         if (close(_fd) == -1) {
-            throw SystemException("close", errno);
+            throw system_error(errno, system_category());
         }
         EXCEPTION_SAFE_END();
     }
@@ -135,7 +105,7 @@ public:
     {
         _start = mmap(NULL, length, protections, flags, fd, offset);
         if (_start == MAP_FAILED) {
-            throw SystemException("mmap", errno);
+            throw system_error(errno, system_category());
         }
     }
     
@@ -146,14 +116,14 @@ public:
         int fd = descriptor.fd();
         _start = mmap(NULL, length, protections, flags | MAP_FILE, fd, offset);
         if (_start == MAP_FAILED) {
-            throw SystemException("mmap", errno);
+            throw system_error(errno, system_category());
         }
     }
     
     ~MemMapped() {
         EXCEPTION_SAFE_BEGIN();
         if (munmap(_start, _length) == -1) {
-            throw SystemException("munmap", errno);
+            throw system_error(errno, system_category());
         }
         EXCEPTION_SAFE_END();
     }
