@@ -76,7 +76,10 @@ namespace patterns
 					registerDestructor(_deleteInstance);
 				} catch (const std::exception& e) {
 					_error = e.what();
-					
+					delete _instance;
+					_instance = NULL;
+				} catch (...) {
+                    _error = "Can't create singleton";
 					delete _instance;
 					_instance = NULL;
 				}
