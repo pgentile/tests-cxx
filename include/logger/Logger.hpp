@@ -10,21 +10,21 @@
 #include <mutex>
 #include <condition_variable>
 
-#include "patterns/NonCopyable.hpp"
-
 
 namespace logger
 {
 	
 	using namespace std;
-	using namespace patterns;
 	
-	class Level: private NonCopyable
+	class Level
 	{
 		friend ostream& operator<<(ostream& out, const Level& level);
 		
 		public:
 			Level(const string& name, unsigned int value);
+			
+            Level(Level const&) = delete;
+            Level& operator =(Level const&) = delete;
 			
 			bool operator <(const Level& other) const;
 			
@@ -60,7 +60,7 @@ namespace logger
 	
 	ostream& operator<<(ostream& out, const Level& level);
 	
-	class Event: private NonCopyable
+	class Event
 	{
 		
 		public:
@@ -71,6 +71,9 @@ namespace logger
 			};
 			
 			Event(Kind kind);
+			
+            Event(Event const&) = delete;
+            Event& operator =(Event const&) = delete;
 						
 			Kind kind() const;
 		
@@ -114,12 +117,15 @@ namespace logger
 
 	};
 	
-	class EventQueue: private NonCopyable
+	class EventQueue
 	{
 		
 		public:
 			EventQueue(unsigned int size);
 			~EventQueue();
+			
+            EventQueue(EventQueue const&) = delete;
+            EventQueue& operator =(EventQueue const&) = delete;
 			
 			bool publish(Event* event);
 			
@@ -146,11 +152,15 @@ namespace logger
 			vector<Event*> _extractedEvents;
 	};
 
-	class LoggerManager: private NonCopyable
+	class LoggerManager
 	{
 		public:
 			LoggerManager(const Level& threshold = Level::all, unsigned int queueSize = defaultQueueSize);
 			~LoggerManager();
+			
+			
+            LoggerManager(LoggerManager const&) = delete;
+            LoggerManager& operator =(LoggerManager const&) = delete;
 
 			void log(const Level& level, const string& message);
 			

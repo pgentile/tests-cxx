@@ -16,6 +16,9 @@ namespace log
 		
 		Log();
 		
+        Log(Log const&) = delete;
+        Log& operator =(Log const&) = delete;
+		
 		template<typename T>
 		Log& operator <<(const T& value)
 		{
@@ -31,9 +34,7 @@ namespace log
 		
 		friend ostream& operator <<(ostream& out, const Log& log);
 	
-	private:	
-
-		Log(const Log& base);
+	private:
 		
 		ostringstream _message;
 	

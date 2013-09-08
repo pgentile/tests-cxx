@@ -10,8 +10,6 @@
 #include <mutex>
 #include <atomic>
 
-#include "patterns/NonCopyable.hpp"
-
 
 namespace patterns
 {	
@@ -42,7 +40,7 @@ namespace patterns
 	 * Thread-safe singleton
 	 */
 	template<class T>
-	class Singleton: private NonCopyable
+	class Singleton
 	{
 			
 		public:
@@ -56,6 +54,9 @@ namespace patterns
 				}
 				return *instancePt;
 			}
+			
+            Singleton(Singleton const&) = delete;
+            Singleton& operator =(Singleton const&) = delete;
 		
 		protected:
 			

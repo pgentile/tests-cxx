@@ -7,14 +7,13 @@
 #include <stdexcept>
 
 #include "macros.h"
-#include "patterns/NonCopyable.hpp"
+
 
 namespace threading {
 	
-	using namespace patterns;
 	using namespace std;
 
-	class ReadWriteLock: private NonCopyable
+	class ReadWriteLock
 	{
 	
 	public:
@@ -23,13 +22,16 @@ namespace threading {
 		
 		~ReadWriteLock();
 		
+        ReadWriteLock(ReadWriteLock const&) = delete;
+        ReadWriteLock& operator =(ReadWriteLock const&) = delete;
+        
 		void lockRead();
 		
 		void lockWrite();
 		
 		void unlock();
 		
-		class ReadLock: private NonCopyable
+		class ReadLock
 		{
 			
 		public:
@@ -37,6 +39,9 @@ namespace threading {
 			ReadLock(ReadWriteLock& lock);
 			
 			~ReadLock();
+			
+            ReadLock(ReadLock const&) = delete;
+            ReadLock& operator =(ReadLock const&) = delete;
 		
 		private:
 			
@@ -44,7 +49,7 @@ namespace threading {
 			
 		};
 		
-		class WriteLock: private NonCopyable
+		class WriteLock
 		{
 			
 		public:
@@ -52,6 +57,9 @@ namespace threading {
 			WriteLock(ReadWriteLock& lock);
 			
 			~WriteLock();
+			
+            WriteLock(WriteLock const&) = delete;
+            WriteLock& operator =(WriteLock const&) = delete;
 			
 		private:
 
