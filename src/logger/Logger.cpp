@@ -56,8 +56,8 @@ namespace logger
 			_extractedEvents.clear();
 			_queue.extract(_extractedEvents);
 			
-			for (vector<Event*>::iterator it = _extractedEvents.begin(); it != _extractedEvents.end(); ++it) {
-				auto_ptr<Event> event(*it); // Supprimer l'evenement en sortie de scope
+			for (Event* eventPt: _extractedEvents) {
+				auto_ptr<Event> event(eventPt); // Supprimer l'evenement en sortie de scope
 				Event::Kind kind = event->kind();
 				if (kind == Event::LOG_EVENT) {
 					LogEvent* logEvent = static_cast<LogEvent*>(event.get());
