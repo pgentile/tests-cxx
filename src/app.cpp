@@ -3,7 +3,6 @@
 #include "core/Exception.hpp"
 #include "core/Reflection.hpp"
 #include "logger/Logger.hpp"
-#include "util/Optional.hpp"
 #include "ndbm/RawStoreFile.hpp"
 #include "patterns/ExceptionSafe.hpp"
 
@@ -31,7 +30,6 @@
 using namespace std;
 
 using namespace core;
-using namespace util;
 
 using boost::numeric::converter;
 using boost::noncopyable;
