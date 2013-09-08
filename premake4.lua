@@ -56,7 +56,6 @@ solution "TestCPP"
 		targetdir "lib"
 		sources { 
 			"threading/ReadWriteLock.cpp", 
-			"util/UndefinedError.cpp",
 			"patterns/Singleton.cpp",
 			"core/Backtrace.cpp",
 			"core/Exception.cpp",

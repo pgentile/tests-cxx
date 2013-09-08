@@ -21,7 +21,7 @@ namespace patterns
 		
 	public:
 		
-		inline UnexistingSingletonError(const std::string reason): runtime_error(_createMessage(reason))
+		inline UnexistingSingletonError(const std::string& reason): runtime_error(_createMessage(reason))
 		{
 		}
 	
