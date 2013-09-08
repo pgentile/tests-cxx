@@ -39,8 +39,8 @@ solution "TestCPP"
 	}
 	
 	flags { "ExtraWarnings", "FatalWarnings", "Symbols", "EnableSSE", "EnableSSE2", "Optimize" }
-	buildoptions { "-std=c++11" }
-	linkoptions { "-std=c++11" }
+	buildoptions { "-std=c++11", "-fpic" }
+	linkoptions { "-std=c++11", "-fpic" }
 	
 	libdirs {
 		POCO_LIB_DIR,
