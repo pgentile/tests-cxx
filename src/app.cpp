@@ -20,6 +20,7 @@
 #include <vector>
 #include <string>
 #include <iterator>
+#include <memory>
 #include <unordered_map>
 
 #include <sys/stat.h>
@@ -28,10 +29,6 @@
 #include <boost/cstdint.hpp>
 #include <boost/numeric/conversion/converter.hpp>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/utility.hpp>
 
 
@@ -41,10 +38,6 @@ using namespace core;
 using namespace util;
 
 using boost::numeric::converter;
-using boost::shared_ptr;
-using boost::weak_ptr;
-using boost::make_shared;
-using boost::enable_shared_from_this;
 using boost::noncopyable;
 
 
