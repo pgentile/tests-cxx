@@ -1,17 +1,18 @@
 #include "patterns/Singleton.hpp"
 
-#include "threading/Mutex.hpp"
+#include <mutex>
+
+using namespace std;
+
 
 namespace patterns
 {
-	
-	using namespace threading;
 
-	static Mutex exitMutex;
+	static mutex exitMutex;
 
 	void registerDestructor(void (*destructorFunc)(void))
 	{
-		Mutex::Lock lock(exitMutex);
+	    lock_guard<mutex> lock(exitMutex);
 		atexit(destructorFunc);
 	}
 
