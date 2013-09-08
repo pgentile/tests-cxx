@@ -1,6 +1,5 @@
 // Quelques tests en C++
 
-#include "core/CLibException.hpp"
 #include "core/Exception.hpp"
 #include "core/Reflection.hpp"
 #include "logger/Logger.hpp"

@@ -60,7 +60,6 @@ solution "TestCPP"
 			"patterns/Singleton.cpp",
 			"core/Backtrace.cpp",
 			"core/Exception.cpp",
-			"core/CLibException.cpp",
 			"core/Reflection.cpp",
 			"core/StackElement.cpp",
 			"logger/Logger.cpp",
