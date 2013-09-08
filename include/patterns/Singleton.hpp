@@ -4,7 +4,7 @@
 #include <exception>
 #include <sstream>
 #include <stdexcept>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <thread>
 #include <mutex>

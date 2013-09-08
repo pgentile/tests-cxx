@@ -1,7 +1,5 @@
 #include "logger/Logger.hpp"
 
-#include <pthread.h>
-
 #include <limits>
 #include <utility>
 #include <memory>

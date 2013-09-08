@@ -1,7 +1,7 @@
 #include "logger/Log.hpp"
 
-#include <pthread.h>
-#include <stdlib.h>
+#include <cstdlib>
+
 
 namespace log
 {
