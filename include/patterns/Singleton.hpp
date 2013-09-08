@@ -8,6 +8,7 @@
 #include <string>
 #include <thread>
 #include <mutex>
+#include <atomic>
 
 #include "patterns/NonCopyable.hpp"
 
@@ -49,10 +50,11 @@ namespace patterns
 			static T& instance()
 			{
                 std::call_once(_onceFlag, _createInstance);
-				if (_instance == NULL) {
+                T* instancePt = _instance;
+				if (instancePt == NULL) {
 					throw UnexistingSingletonError(_error);
 				}
-				return *_instance;
+				return *instancePt;
 			}
 		
 		protected:
@@ -87,7 +89,7 @@ namespace patterns
 			
 			static std::once_flag _onceFlag;
 					
-			static T* _instance;
+			static std::atomic<T*> _instance;
 			
 			static std::string _error;
 	
@@ -97,7 +99,7 @@ namespace patterns
     std::once_flag Singleton<T>::_onceFlag;
 	
 	template<class T>
-	T* Singleton<T>::_instance = NULL;
+    std::atomic<T*> Singleton<T>::_instance;
 	
 	template<class T>
 	std::string Singleton<T>::_error;
