@@ -238,7 +238,7 @@ public:
         _mapped(mapped),
         _start(start),
         _end(end),
-        _lock(start, length * sizeof(T))
+        _lock(start, end - start)
     {
     }
     
@@ -246,7 +246,7 @@ public:
     }
     
     void sync(int flags) {
-        ::memmapped::sync(_start, _length * sizeof(T), flags);
+        ::memmapped::sync(_start, _end - _start, flags);
     }
     
     T* start() const {
@@ -283,7 +283,7 @@ private:
 template<typename T>
 ostream& operator <<(ostream& out, MemView<T> const& view) {
     out << "MemView(start = " << static_cast<void const *>(view._start)
-        << ", length = " << view._length
+        << ", length = " << view.length()
         << ", type size = " << sizeof(T) << ")";
     return out;
 }
