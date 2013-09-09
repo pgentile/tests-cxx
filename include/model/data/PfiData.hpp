@@ -42,7 +42,7 @@ public:
         _validite = validite;
     }
     
-    std::vector<std::shared_ptr<ComptePayeurData> >& getComptesPayeurs() {
+    std::vector<std::shared_ptr<ComptePayeurData>>& getComptesPayeurs() {
         return _comptesPayeurs;
     }
     
@@ -50,7 +50,7 @@ public:
         return _comptesPayeurs;
     }
     
-    void setComptesPayeurs(std::vector<std::shared_ptr<ComptePayeurData> > const& comptesPayeurs) {
+    void setComptesPayeurs(std::vector<std::shared_ptr<ComptePayeurData>> const& comptesPayeurs) {
         _comptesPayeurs = comptesPayeurs;
     }
 

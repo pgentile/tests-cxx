@@ -48,7 +48,7 @@ namespace logger
 
 	void Consumer::run()
 	{
-		//cout << "Demarrage consommateur" << endl;
+		cout << "[" << this_thread::get_id() << "] " << "Demarrage consommateur" << endl;
 		
 		bool running = true;
 		
@@ -68,7 +68,7 @@ namespace logger
 			}
 		}
 		
-		//cout << "Arret consommateur" << endl;
+		cout << "[" << this_thread::get_id() << "] " << "Arret consommateur" << endl;
 	}
 	
 	Consumer::Consumer(EventQueue& queue): _queue(queue)
