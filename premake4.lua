@@ -38,7 +38,7 @@ solution "TestCPP"
 		"/opt/local/include"
 	}
 	
-	flags { "ExtraWarnings", "FatalWarnings", "Symbols", "EnableSSE", "EnableSSE2", "Optimize" }
+	flags { "ExtraWarnings", "FatalWarnings", "Symbols", "EnableSSE", "EnableSSE2" }
 	buildoptions { "-std=c++11", "-fpic" }
 	linkoptions { "-std=c++11", "-fpic" }
 	
@@ -134,3 +134,8 @@ solution "TestCPP"
 	    targetdir "bin"
 		links { "common" }
 	    sources { "app-logger.cpp" }
+	
+	project "app-cpp11"
+        kind "ConsoleApp"
+        targetdir "bin"
+        sources { "app-cpp11.cpp" }
