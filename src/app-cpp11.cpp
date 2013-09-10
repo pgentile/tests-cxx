@@ -8,8 +8,8 @@
 using namespace std;
 
 
-string separator() {
-    return string(50, '-');
+string separator(char c) {
+    return string(70, c);
 }
 
 
@@ -69,10 +69,6 @@ namespace testrvalues {
     }
     
     void test() {
-        cout << separator() << endl;
-        cout << "Tests rvalues" << endl;
-        cout << separator() << endl << endl;
-        
         Value v1(0);
         Value v2 = move(createValue());
         cout << "v1 = @ " << &v1 << endl;
@@ -80,8 +76,6 @@ namespace testrvalues {
         
         cout << "Value of v1: " << v1.get() << " @ " << &v1 << endl;
         cout << "Value of v2: " << v2.get() << " @ " << &v2 << endl;
-        
-        cout << endl << separator() << endl << endl;
     }
     
 }
@@ -92,16 +86,10 @@ namespace testrvalues {
 namespace testcontainers {
     
     void test() {
-        cout << separator() << endl;
-        cout << "Tests containers" << endl;
-        cout << separator() << endl << endl;
-        
         vector<int> ints = { 1, 2, 3 };
         for (decltype(ints)::const_reference v: ints) {
             cout << "Dans ints : " << v << endl;
         }
-    
-        cout << endl << separator() << endl << endl;
     }
     
 }
@@ -126,7 +114,6 @@ namespace testthreads {
         for (int i = 0; i < 10; i++) {
             helloThreads.push_back(createHelloThread(outMutex, i + 1));
         }
-        
         for (thread& helloThread: helloThreads) {
             helloThread.join();
         }
@@ -134,21 +121,27 @@ namespace testthreads {
     
     
     void test() {
-        cout << separator() << endl;
-        cout << "Tests threads" << endl;
-        cout << separator() << endl << endl;
-        
         sayHello();
-    
-        cout << endl << separator() << endl << endl;
     }
     
 }
 
 
+template<typename T>
+void runTest(char const* title, T func) {
+    cout << separator('=') << endl;
+    cout << title << endl;
+    cout << separator('=') << endl << endl;
+
+    func();
+    
+    cout << endl << separator('-') << endl << endl;
+}
+
+
 int main(void) {
-    testrvalues::test();
-    testcontainers::test();
-    testthreads::test();
+    runTest("Test rvalues", testrvalues::test);
+    runTest("Test containers", testcontainers::test);
+    runTest("Test threads", testthreads::test);
     return 0;
 }
