@@ -130,20 +130,23 @@ namespace testthreads {
 
 // Test align
 
+#define PRINT_ALIGN_OF(type) (printAlignOf<type>(#type))
+
+
 namespace testalign {
     
     template<typename T>
-    void printAlignOf() {
-        cout << "Alignment of " << typeid(T).name() << ": " << alignof(T) << endl;
-        cout << "Size of " << typeid(T).name() << ": " << sizeof(T) << endl;
+    void printAlignOf(char const* typeName) {
+        cout << "Alignment / size of " << typeName << ": "
+             << alignof(T) << " / " << sizeof(T) << endl;
     }
     
     void test() {
-        printAlignOf<char>();
-        printAlignOf<int8_t>();
-        printAlignOf<int16_t>();
-        printAlignOf<int32_t>();
-        printAlignOf<int64_t>();
+        PRINT_ALIGN_OF(char);
+        PRINT_ALIGN_OF(int8_t);
+        PRINT_ALIGN_OF(int16_t);
+        PRINT_ALIGN_OF(int32_t);
+        PRINT_ALIGN_OF(int64_t);
     }
     
 }
@@ -162,9 +165,9 @@ void runTest(char const* title, T func) {
 
 
 int main(void) {
-    runTest("Test rvalues", testrvalues::test);
-    runTest("Test containers", testcontainers::test);
-    runTest("Test threads", testthreads::test);
-    runTest("Test align", testalign::test);
+    runTest("Test rvalues", &testrvalues::test);
+    runTest("Test containers", &testcontainers::test);
+    runTest("Test threads", &testthreads::test);
+    runTest("Test align", &testalign::test);
     return 0;
 }
