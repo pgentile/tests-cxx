@@ -4,6 +4,7 @@
 #include <string>
 #include <thread>
 #include <mutex>
+#include <typeinfo>
 
 using namespace std;
 
@@ -127,6 +128,27 @@ namespace testthreads {
 }
 
 
+// Test align
+
+namespace testalign {
+    
+    template<typename T>
+    void printAlignOf() {
+        cout << "Alignment of " << typeid(T).name() << ": " << alignof(T) << endl;
+        cout << "Size of " << typeid(T).name() << ": " << sizeof(T) << endl;
+    }
+    
+    void test() {
+        printAlignOf<char>();
+        printAlignOf<int8_t>();
+        printAlignOf<int16_t>();
+        printAlignOf<int32_t>();
+        printAlignOf<int64_t>();
+    }
+    
+}
+
+
 template<typename T>
 void runTest(char const* title, T func) {
     cout << separator('=') << endl;
@@ -143,5 +165,6 @@ int main(void) {
     runTest("Test rvalues", testrvalues::test);
     runTest("Test containers", testcontainers::test);
     runTest("Test threads", testthreads::test);
+    runTest("Test align", testalign::test);
     return 0;
 }
