@@ -154,8 +154,21 @@ namespace testalign {
         PRINT_ALIGN_OF(double);
     }
     
+    void charArrayAsFloat() {
+        alignas(float) char aligned[sizeof(float)];
+        float* f = reinterpret_cast<float*>(aligned);
+        *f = 45.6;
+        cout << "Float: " << *f << endl;
+        cout << "Bytes:";
+        for (char c: aligned) {
+            cout << " 0x" << hex << static_cast<int>(c) << dec;
+        }
+        cout << endl;
+    }
+    
     void test() {
         printAlignments();
+        charArrayAsFloat();
     }
     
 }
