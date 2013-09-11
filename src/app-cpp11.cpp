@@ -5,6 +5,8 @@
 #include <thread>
 #include <mutex>
 #include <typeinfo>
+#include <cstdlib>
+#include <cstdint>
 
 using namespace std;
 
@@ -141,12 +143,30 @@ namespace testalign {
              << alignof(T) << " / " << sizeof(T) << endl;
     }
     
-    void test() {
+    void printAlignments() {
+        cout << "Alignments :" << endl;
         PRINT_ALIGN_OF(char);
         PRINT_ALIGN_OF(int8_t);
         PRINT_ALIGN_OF(int16_t);
         PRINT_ALIGN_OF(int32_t);
         PRINT_ALIGN_OF(int64_t);
+        PRINT_ALIGN_OF(float);
+        PRINT_ALIGN_OF(double);
+    }
+    
+    void test() {
+        printAlignments();
+    }
+    
+}
+
+
+// Test attributes
+
+namespace testattributes {
+    
+    [[noreturn]] void fuck() {
+        exit(EXIT_FAILURE);
     }
     
 }
