@@ -7,6 +7,10 @@
 #include <typeinfo>
 #include <cstdlib>
 #include <cstdint>
+#include <sstream>
+#include <type_traits>
+#include <functional>
+
 
 using namespace std;
 
@@ -25,20 +29,21 @@ namespace testrvalues {
         
     public:
         
-        Value(): _x(-1) {
-        }
-        
         explicit Value(int x): _x(x) {
-            cout << "Value @ " << this << ": Default constructor, for " << x << endl;
+            cout << "Value @ " << this << ": Explicit constructor, for " << x << endl;
         }
         
         Value(Value const& src): _x(src._x) {
-            cout << "Value @ " << this << ": Copy constructor, from " << src._x << endl;
+            cout << "Value @ " << this << ": Copy constructor, from " << &src << endl;
         }
         
         Value(Value&& src): _x(src._x) {
             src._x = -1;
-            cout << "Value @ " << this << ": Move constructor, from " << src._x << endl;
+            cout << "Value @ " << this << ": Move constructor, from " << &src << endl;
+        }
+        
+        ~Value() {
+            cout << "Value @ " << this << ": Delete" << endl;
         }
         
         Value& operator =(Value const& src) {
@@ -68,12 +73,14 @@ namespace testrvalues {
     };
     
     Value createValue() {
-        return Value(999);
+        Value created(999);
+        cout << "created value: " << created.get() << " @ " << &created << endl;
+        return created;
     }
     
     void test() {
         Value v1(0);
-        Value v2 = move(createValue());
+        Value v2(move(createValue()));
         cout << "v1 = @ " << &v1 << endl;
         cout << "v2 = @ " << &v2 << endl;
         
@@ -123,6 +130,9 @@ namespace testthreads {
     }
     
     
+    
+    
+    
     void test() {
         sayHello();
     }
@@ -136,6 +146,199 @@ namespace testthreads {
 
 
 namespace testalign {
+    
+    template<typename T>
+    struct RefForNonIntegral {
+        
+        typedef typename conditional<is_integral<T>::value, T, typename add_lvalue_reference<T>::type>::type type;
+        
+    };
+    
+    class TestValue {
+        
+    public:
+        
+        TestValue(int v): _v(v) {
+            cout << "@ " << this << ": TestValue(int v) with v = " << v << endl;
+        }
+        
+        TestValue(TestValue const& src): _v(src._v) {
+            cout << "@ " << this << ": TestValue(TestValue const& src) with src = " << src << endl;
+        }
+        
+        TestValue(TestValue&& src): _v(src._v) {
+            cout << "@ " << this << ": TestValue(TestValue&& src) with src = " << src << endl;
+        }
+        
+        ~TestValue() {
+            cout << "@ " << this << ": ~TestValue() with this->_v = " << _v << endl;
+        }
+        
+        long v() const {
+            return _v;
+        }
+        
+    private:
+        
+        long _v;
+        
+        friend ostream& operator <<(ostream& out, TestValue const& testValue);
+        
+    };
+    
+    ostream& operator <<(ostream& out, TestValue const& testValue) {
+        return out << "TestValue(" << testValue.v() << ")";
+    }
+    
+    
+    template<typename T>
+    class Optional {
+        
+    public:
+        
+        Optional(): _defined(false) {
+            cout << "CONSTRUCTOR: Optional()" << endl;
+        }
+
+        Optional(Optional const& src): _defined(src._defined) {
+            cout << "CONSTRUCTOR: Optional(Optional const& src) with src = " << src << endl;
+            if (_defined) {
+                new (&_storage) T(*src);
+            }
+        }
+        
+        Optional(Optional&& src): _defined(src._defined) {
+            cout << "CONSTRUCTOR: Optional(Optional&& src) with src = " << src << endl;
+            if (_defined) {
+                new (&_storage) T(move(*src));
+            }
+        }
+
+        Optional(T const& v): _defined(true) {
+            cout << "CONSTRUCTOR: Optional(T const& v) with v = " << v << endl;
+            new (&_storage) T(v);
+        }
+
+        Optional(T&& v): _defined(true) {
+            cout << "CONSTRUCTOR: Optional(T && v) with v = " << v << endl;
+            new (&_storage) T(move(v));
+        }
+    
+        ~Optional() {
+            reset();
+        }
+        
+        Optional& operator =(Optional const& src) {
+            reset();
+            _defined = src._defined;
+            if (_defined) {
+                new (&_storage) T(*src);
+            }
+            return *this;
+        }
+        
+        Optional& operator =(Optional&& src) {
+            reset();
+            _defined = src._defined;
+            if (_defined) {
+                new (&_storage) T(move(*src));
+                src._defined = false;
+            }
+            return *this;
+        }
+        
+        Optional& operator =(T const& v) {
+            reset();
+            _defined = true;
+            new (&_storage) T(v);
+            return *this;
+        }
+        
+        Optional& operator =(T&& v) {
+            reset();
+            _defined = true;
+            new (&_storage) T(move(v));
+            return *this;
+        }
+        
+        T& operator *() {
+            // FIXME Assert defined !!!
+            T* pt = reinterpret_cast<T*>(&_storage);
+            return *pt;
+        }
+        
+        T const& operator *() const {
+            // FIXME Assert defined !!!
+            T const* pt = reinterpret_cast<T const*>(&_storage);
+            return *pt;
+        }
+        
+        T* operator ->() {
+            // FIXME Assert defined !!!
+            return reinterpret_cast<T*>(&_storage);
+        }
+        
+        T const* operator ->() const {
+            // FIXME Assert defined !!!
+            return reinterpret_cast<T const*>(&_storage);
+        }
+
+        bool operator ==(Optional<T> const other) const {
+            bool result = false;
+            if (_defined && other._defined) {
+                result = (**this == *other);
+            }
+            else if (!_defined && !other._defined) {
+                result = true;
+            }
+            return result;
+        }
+        
+        explicit operator bool() const {
+            return _defined;
+        }
+        
+        void reset() {
+            if (_defined) {
+                T* pt = reinterpret_cast<T*>(&_storage);
+                pt->~T();
+                _defined = false;
+            }
+        }
+        
+        template<typename F, typename R = typename result_of<F(T const&)>::type>
+        Optional<R> apply(F func) const {
+            if (_defined) {
+                return Optional<R>(func(**this));
+            }
+            else {
+                return Optional<R>();
+            }
+        }
+
+    private:
+        
+        bool _defined;
+        
+        typename aligned_storage<sizeof(T), alignof(T)>::type _storage;
+        
+    };
+    
+    
+    template<typename T>
+    ostream& operator <<(ostream& out, Optional<T> const& optional) {
+        out << "Optional(defined = ";
+        if (optional) {
+            out << "true, value = " << *optional;
+        }
+        else {
+            out << "false";
+        }
+        out << ')';
+        return out;
+    }
+    
+    
     
     template<typename T>
     void printAlignOf(char const* typeName) {
@@ -166,9 +369,64 @@ namespace testalign {
         cout << endl;
     }
     
+    void placementNew() {
+        alignas(string) char aligned[sizeof(string)];
+        cout << "sizeof(aligned) = " << sizeof(aligned) << endl;
+        cout << "@ aligned = " << &aligned << endl;
+        
+        string* pt = new (aligned) string("Hello");
+        cout << "@ pt = " << pt << endl;
+        cout << "*pt = " << *pt << endl;
+        
+        pt->~string();
+    }
+    
+    void testOptional() {
+        {
+            Optional<int> x(6);
+            Optional<int> y;
+            Optional<int> z(7);
+
+            cout << "x: " << x << endl;
+            cout << "y: " << y << endl;
+            cout << "z: " << z << endl;
+
+            y = x;
+            z = x;
+
+            cout << "x: " << x << endl;
+            cout << "y: " << y << endl;
+            cout << "z: " << z << endl;
+
+            x.reset();
+            y.reset();
+
+            cout << "x: " << x << endl;
+            cout << "y: " << y << endl;
+            cout << "z: " << z << endl;
+
+            x = 90;
+            Optional<double> xDouble = x.apply([] (int v) { return v * 1.123; });
+            cout << "Test X: " << xDouble << endl;
+        }
+        
+        cout << endl;
+        
+        {
+            Optional<TestValue> x;
+            Optional<TestValue> y(x);
+            Optional<TestValue> z(1);
+            x = 2;
+            z.reset();
+            z = 3;
+        }
+    }
+    
     void test() {
         printAlignments();
         charArrayAsFloat();
+        placementNew();
+        testOptional();
     }
     
 }
@@ -180,6 +438,61 @@ namespace testattributes {
     
     [[noreturn]] void fuck() {
         exit(EXIT_FAILURE);
+    }
+    
+}
+
+
+// Test templates
+
+namespace testtemplates {
+    
+    template<typename... A>
+    inline void pass(const A&...) {
+    }
+    
+    template<typename... A>
+    void print(const A&... args) {
+        cout << string(10, '.') << endl;
+        
+        //(operator <<)(cout, args)...;
+        
+        pass((cout << args << ' ')...);
+        cout << endl;
+        cout << string(10, '.') << endl;
+    }
+    
+    template<typename... A>
+    string concat(string const& sep, const A&... args) {
+        stringstream concatenatedStream;
+        pass((concatenatedStream << args << sep)...);
+        
+        string concatenated = concatenatedStream.str();
+        if (sizeof...(A)) {
+            concatenated.erase(concatenated.length() - sep.size());
+        }
+        return concatenated;
+    }
+    
+    void test() {
+        cout << concat(", ", 'A', 2, 3.4, "BCD") << endl;
+    }
+    
+}
+
+
+// Test misc
+
+namespace testmisc {
+    
+    
+    void aboutNullprt() {
+        int* x = nullptr;
+        cout << "@ in x: " << x << endl;
+    }
+    
+    void test() {
+        aboutNullprt();
     }
     
 }
@@ -202,5 +515,7 @@ int main(void) {
     runTest("Test containers", &testcontainers::test);
     runTest("Test threads", &testthreads::test);
     runTest("Test align", &testalign::test);
+    runTest("Test templates", &testtemplates::test);
+    runTest("Test misc", &testmisc::test);
     return 0;
 }
