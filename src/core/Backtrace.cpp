@@ -63,11 +63,10 @@ namespace core {
 		Dl_info dynLinkInfo;
 		if (dladdr(addr, &dynLinkInfo) != 0) {
 			if (dynLinkInfo.dli_saddr != NULL) {
-				string symbolName = Reflection::demangleName(dynLinkInfo.dli_sname);
                 StackElement element(
                     dynLinkInfo.dli_fname,
 				    dynLinkInfo.dli_fbase,
-					symbolName,
+					Reflection::demangleName(dynLinkInfo.dli_sname),
 					dynLinkInfo.dli_saddr
                 );
 				return optional<StackElement>(element);
