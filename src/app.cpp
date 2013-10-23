@@ -419,9 +419,10 @@ int main() {
 	cout << "sizeof(Papa)        = " << sizeof(Papa) << endl;
 	cout << "sizeof(Enfant)      = " << sizeof(Enfant) << endl;
 	cout << "sizeof(PetitEnfant) = " << sizeof(PetitEnfant) << endl;
+    cout << endl;
 
     Backtrace backtrace;
-    cout << backtrace << endl;
+    cout << "Backtrace :" << endl << backtrace << endl;
 	
 	return 0;
 }
