@@ -2,7 +2,6 @@
 
 #include "core/StackElement.hpp"
 #include "core/Reflection.hpp"
-#include "util/Containers.hpp"
 
 #include <dlfcn.h>
 #include <execinfo.h>
@@ -18,7 +17,6 @@ using boost::optional;
 namespace core {
 	
 	using namespace std;
-	using namespace util;
 	
 	Backtrace::Backtrace(bool initElements) {
 		if (initElements) {
@@ -63,10 +61,11 @@ namespace core {
 		Dl_info dynLinkInfo;
 		if (dladdr(addr, &dynLinkInfo) != 0) {
 			if (dynLinkInfo.dli_saddr != NULL) {
+                string name = Reflection::demangleName(dynLinkInfo.dli_sname);
                 StackElement element(
                     dynLinkInfo.dli_fname,
 				    dynLinkInfo.dli_fbase,
-					Reflection::demangleName(dynLinkInfo.dli_sname),
+					name,
 					dynLinkInfo.dli_saddr
                 );
 				return optional<StackElement>(element);

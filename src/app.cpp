@@ -1,5 +1,6 @@
 // Quelques tests en C++
 
+#include "core/Backtrace.hpp"
 #include "core/Exception.hpp"
 #include "core/Reflection.hpp"
 #include "logger/Logger.hpp"
@@ -418,6 +419,9 @@ int main() {
 	cout << "sizeof(Papa)        = " << sizeof(Papa) << endl;
 	cout << "sizeof(Enfant)      = " << sizeof(Enfant) << endl;
 	cout << "sizeof(PetitEnfant) = " << sizeof(PetitEnfant) << endl;
+
+    Backtrace backtrace;
+    cout << backtrace << endl;
 	
 	return 0;
 }

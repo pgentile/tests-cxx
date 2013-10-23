@@ -42,6 +42,8 @@ namespace core {
 	
 	};
 	
+	ostream& operator <<(ostream& out, const Backtrace& backtrace);
+	
 }
 
 #endif
