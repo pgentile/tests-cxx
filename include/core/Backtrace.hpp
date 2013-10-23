@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 
+#include <boost/optional.hpp>
+
+
 namespace core {
 	
 	using namespace std;
@@ -19,23 +22,25 @@ namespace core {
 
 		Backtrace(const Backtrace& src);
 		
+		Backtrace(Backtrace&& src);
+		
 		~Backtrace();
 		
 		Backtrace& operator =(const Backtrace& src);
-
-		const vector<StackElement*>& elements() const;
+		
+		Backtrace& operator =(Backtrace&& src);
+        
+		const vector<StackElement>& elements() const {
+            return _elements;
+		}
 
 	private:
 		
-		StackElement* _createElement(void* addr);
+		boost::optional<StackElement> _createElement(void* addr);
 		
-		vector<StackElement*> _elements;
+		vector<StackElement> _elements;
 	
 	};
-	
-	inline const vector<StackElement*>& Backtrace::elements() const {
-		return _elements;
-	}
 	
 }
 

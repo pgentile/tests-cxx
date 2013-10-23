@@ -15,11 +15,15 @@ namespace core {
 		
 		StackElement(const string& sharedObjectPath, void* sharedObjectAddr, const string& symbolName, void* symbolAddr);
 		
+        StackElement(StackElement&& source);
+		
 		StackElement(const StackElement& source);
 		
 		~StackElement();
 		
 		StackElement& operator =(const StackElement& source);
+		
+		StackElement& operator =(StackElement&& source);
 		
 		const string& sharedObjectPath() const;
 		

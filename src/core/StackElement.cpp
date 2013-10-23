@@ -1,5 +1,8 @@
 #include "core/StackElement.hpp"
 
+#include <algorithm>
+
+
 namespace core {
 	
 	using namespace std;
@@ -10,6 +13,14 @@ namespace core {
 			_sharedObjectAddr(sharedObjectAddr),
 	 		_symbolName(symbolName),
 			_symbolAddr(symbolAddr)
+	{
+	}
+	
+	StackElement::StackElement(StackElement&& source):
+	    _sharedObjectPath(move(source._sharedObjectPath)),
+		_sharedObjectAddr(source._sharedObjectAddr),
+	 	_symbolName(move(source._symbolName)),
+		_symbolAddr(source._symbolAddr)
 	{
 	}
 	
@@ -31,6 +42,14 @@ namespace core {
 		_symbolName = source._symbolName;
 		_symbolAddr = source._symbolAddr;
 		return *this;
+	}
+	
+	StackElement& StackElement::operator =(StackElement&& source) {
+	    _sharedObjectPath = move(source._sharedObjectPath);
+		_sharedObjectAddr = source._sharedObjectAddr;
+		_symbolName = move(source._symbolName);
+		_symbolAddr = source._symbolAddr;
+        return *this;
 	}
 	
 	ostream& operator <<(ostream& out, const StackElement& element) {

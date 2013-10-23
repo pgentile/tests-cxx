@@ -49,10 +49,9 @@ namespace core {
 		out << endl;
 		
 		out << "Backtrace:";
-		const vector<StackElement*>& elements = exception.backtrace().elements();
 		unsigned int index = 0;
-		for (StackElement* element: elements) {
-			out << endl << '\t' << index << ": " << *element;
+		for (StackElement const& element: exception.backtrace().elements()) {
+			out << endl << '\t' << index << ": " << element;
 			index++;
 		}
 		

@@ -1,26 +1,40 @@
 #include "core/Reflection.hpp"
 
+#include <memory>
 #include <cstdlib>
 #include <cxxabi.h>
 
+using namespace std;
+
+
+namespace {
+    
+    struct FreePointer {
+        
+        template<typename T>
+        void operator ()(T* pt) {
+            free(pt);
+        }
+        
+    };
+    
+}
+
+
 namespace core {
 
-	const string Reflection::getRealTypeName(const type_info& typeInfo) {
+	string Reflection::getRealTypeName(const type_info& typeInfo) {
 		const char* name = typeInfo.name();
 		return demangleName(name);
 	}
 	
-	const string Reflection::demangleName(const char* name) {
+	string Reflection::demangleName(const char* name) {
 		int abiStatus;
-		char* realNamePt = abi::__cxa_demangle(name, NULL, NULL, &abiStatus);
-		string realName;
+        unique_ptr<char, FreePointer> realName(abi::__cxa_demangle(name, NULL, NULL, &abiStatus));
 		if (abiStatus == 0) {
-			realName = realNamePt;
-		} else {
-			realName = name;
+            return realName.get();
 		}
-		free(realNamePt);
-		return realName;
+        return name;
 	}
 
 }

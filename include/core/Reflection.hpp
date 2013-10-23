@@ -13,9 +13,9 @@ namespace core {
 		
 	public:
 
-		static const string getRealTypeName(const type_info& typeInfo);
+		static string getRealTypeName(const type_info& typeInfo);
 		
-		static const string demangleName(const char* name);
+		static string demangleName(const char* name);
 
 	private:
 		

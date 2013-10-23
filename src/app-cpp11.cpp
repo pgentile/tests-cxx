@@ -498,6 +498,67 @@ namespace testmisc {
 }
 
 
+// Test allocators
+
+namespace testallocators {
+    
+    template<typename T, size_t S>
+    class StackAllocator
+    {
+        
+    public:
+        
+        typedef T value_type;
+        
+        template<typename O>
+        struct rebind {
+            
+            typedef StackAllocator<O, S> other;
+            
+        };
+        
+        T* allocate(size_t n) {
+            cout << "Allocate " << n << " elements" << endl;
+            if (_currentSize + n > S) {
+                throw bad_alloc();
+            }
+            T* pt = reinterpret_cast<T*>(&_storage) + _currentSize;
+            _currentSize += n;
+            return pt;
+        }
+        
+        void deallocate(T* ptr, size_t n) {
+            
+        }
+        
+        size_t max_size() const {
+            return S;
+        }
+        
+    private:
+        
+        typename aligned_storage<sizeof(T), alignof(T)>::type _storage[S];
+        
+        size_t _currentSize;
+        
+    };
+    
+    
+    void useMyAllocator() {
+        vector<int, StackAllocator<int, 10>> v = {1, 2, 3};
+        v.push_back(4);
+        for (int x: v) {
+            cout << "Valeur dans x : " << x << endl;
+        }
+    }
+    
+    void test() {
+        useMyAllocator();
+    }
+    
+}
+
+
 template<typename T>
 void runTest(char const* title, T func) {
     cout << separator('=') << endl;
@@ -517,5 +578,6 @@ int main(void) {
     runTest("Test align", &testalign::test);
     runTest("Test templates", &testtemplates::test);
     runTest("Test misc", &testmisc::test);
+    runTest("Test allocators", &testallocators::test);
     return 0;
 }

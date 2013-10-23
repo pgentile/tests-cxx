@@ -7,8 +7,13 @@
 #include <dlfcn.h>
 #include <execinfo.h>
 #include <iostream>
+#include <algorithm>
+
+using boost::optional;
+
 
 #define BACKTRACE_MAX_SIZE 100
+
 
 namespace core {
 	
@@ -22,51 +27,61 @@ namespace core {
 		
 			for (int i = 0; i < nbEntries; i++) {
 				void* addr = allAddr[i];
-				StackElement* element = _createElement(addr);
-				if (element != NULL) {
-					_elements.push_back(element);
+				optional<StackElement> element = _createElement(addr);
+				if (element) {
+					_elements.push_back(*element);
 				}
 			}
 		}
 	}
 	
-	Backtrace::Backtrace(const Backtrace& src) {
-		Containers::copyElements(src._elements, _elements);
+	Backtrace::Backtrace(const Backtrace& src):
+	    _elements(src._elements)
+	{
 	}
 	
+	Backtrace::Backtrace(Backtrace&& src):
+	    _elements(move(src._elements))
+	{
+	}
+    
 	Backtrace::~Backtrace() {
-		Containers::deletePointedObjects(_elements);
 	}
 	
 	Backtrace& Backtrace::operator =(const Backtrace& src) {
 		_elements.clear();
-		Containers::copyElements(src._elements, _elements);
+        copy(src._elements.cbegin(), src._elements.cend(), _elements.begin());
 		return *this;
 	}
 	
-	StackElement* Backtrace::_createElement(void* addr) {
-		StackElement* element = NULL;
+	Backtrace& Backtrace::operator =(Backtrace&& src) {
+        _elements = move(src._elements);
+        return *this;
+	}
+	
+	optional<StackElement> Backtrace::_createElement(void* addr) {
 		Dl_info dynLinkInfo;
 		if (dladdr(addr, &dynLinkInfo) != 0) {
 			if (dynLinkInfo.dli_saddr != NULL) {
 				string symbolName = Reflection::demangleName(dynLinkInfo.dli_sname);
-				element = new StackElement(dynLinkInfo.dli_fname, dynLinkInfo.dli_fbase,
-						symbolName, dynLinkInfo.dli_saddr);
+                StackElement element(
+                    dynLinkInfo.dli_fname,
+				    dynLinkInfo.dli_fbase,
+					symbolName,
+					dynLinkInfo.dli_saddr
+                );
+				return optional<StackElement>(element);
 			}
 		}	
-		return element;
+		return optional<StackElement>();
 	}
 	
 	ostream& operator <<(ostream& out, const Backtrace& backtrace) {
-		const vector<StackElement*>& elements = backtrace.elements();
-		vector<StackElement*>::const_iterator elementIt;
-		vector<StackElement*>::const_iterator elementItEnd = elements.end();
-		unsigned int index = 0;
-		for (elementIt = elements.begin(); elementIt != elementItEnd; ++elementIt) {
-			const StackElement* element = *elementIt;
-			out << index << ": " << *element << endl;
+        unsigned int index = 0;
+        for (StackElement const& element: backtrace.elements()) {
+            out << index << ": " << element << endl;
 			index++;
-		}
+        }
 		return out;
 	}
 	
