@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "date/LocalDateTime.hpp"
 #include "model/cliche/ComptePayeur.hpp"
@@ -18,13 +19,25 @@ class Pfi
     
 public:
     
-    void build(model::data::PfiData& data, date::LocalDateTime const& date);
+    Pfi(std::shared_ptr<model::data::PfiData> const& data, date::LocalDateTime const& date);
     
+    uint64_t getId() const {
+        return _data->getId();
+    }
+    
+    std::string const& getIdFonc() const {
+        return _data->getIdFonc();
+    }
+    
+    std::shared_ptr<ComptePayeur> getComptePayeur() const {
+        return _comptePayeur;
+    }
+
 private:
     
-    model::data::PfiData* _data;
+    std::shared_ptr<model::data::PfiData> _data;
     
-    ComptePayeur _comptePayeur;
+    std::shared_ptr<ComptePayeur> _comptePayeur;
 
 };
 

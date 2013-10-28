@@ -2,6 +2,7 @@
 
 #include "model/cliche/ComptePayeur.hpp"
 
+using namespace std;
 using date::LocalDateTime;
 using model::data::ComptePayeurData;
 using model::data::PfiData;
@@ -10,15 +11,21 @@ using model::data::PfiData;
 namespace model {
 namespace cliche {
 
-void Pfi::build(PfiData& data, date::LocalDateTime const& date) {
-    _data = &data;
+Pfi::Pfi(shared_ptr<PfiData> const& data, LocalDateTime const& date):
+    _data(data)
+{
+    if (!data->getValidite()->contains(date)) {
+        throw logic_error("PFI inactif a la date donnee");
+    }
     
-    for (auto const comptePayeurData: data.getComptesPayeurs()) {
+    for (auto const comptePayeurData: data->getComptesPayeurs()) {
         if (comptePayeurData->getValidite()->contains(date)) {
-            _comptePayeur.build(*comptePayeurData, date);
+            _comptePayeur.reset(new ComptePayeur(comptePayeurData, date));
             break;
         }
-        // FIXME Controler la presence du compte payeur
+    }
+    if (!_comptePayeur) {
+        throw logic_error("Compte payeur non trouve");
     }
 }
 

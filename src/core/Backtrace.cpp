@@ -25,9 +25,9 @@ namespace core {
 		
 			for (int i = 0; i < nbEntries; i++) {
 				void* addr = allAddr[i];
-				optional<StackElement> element = _createElement(addr);
+				optional<StackElement> element(_createElement(addr));
 				if (element) {
-					_elements.push_back(*element);
+					_elements.push_back(move(*element));
 				}
 			}
 		}
@@ -68,7 +68,7 @@ namespace core {
 					name,
 					dynLinkInfo.dli_saddr
                 );
-				return optional<StackElement>(element);
+				return optional<StackElement>(move(element));
 			}
 		}	
 		return optional<StackElement>();

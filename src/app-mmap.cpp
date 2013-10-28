@@ -75,7 +75,7 @@ public:
     
     ~FileDescriptor() {
         EXCEPTION_SAFE_BEGIN();
-        if (close(_fd) == -1) {
+        if (_fd != -1 && close(_fd) == -1) {
             throw system_error(errno, system_category());
         }
         EXCEPTION_SAFE_END();

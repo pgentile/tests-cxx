@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "model/data/ComptePayeurData.hpp"
 
@@ -15,11 +16,19 @@ class ComptePayeur
     
 public:
     
-    void build(model::data::ComptePayeurData& data, date::LocalDateTime const& date);
+    ComptePayeur(std::shared_ptr<model::data::ComptePayeurData> const& data, date::LocalDateTime const& date);
+    
+    uint64_t getId() const {
+        return _data->getId();
+    }
+    
+    std::string const& getIdFonc() const {
+        return _data->getIdFonc();
+    }
     
 private:
 
-    model::data::ComptePayeurData* _data;
+    std::shared_ptr<model::data::ComptePayeurData> _data;
 
 };
 

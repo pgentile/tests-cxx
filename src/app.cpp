@@ -6,6 +6,7 @@
 #include "logger/Logger.hpp"
 #include "ndbm/RawStoreFile.hpp"
 #include "patterns/ExceptionSafe.hpp"
+#include "patterns/Singleton.hpp"
 
 #include <cstddef>
 #include <cerrno>
@@ -31,6 +32,7 @@
 using namespace std;
 
 using namespace core;
+using namespace patterns;
 
 using boost::numeric::converter;
 using boost::noncopyable;
@@ -400,6 +402,21 @@ public:
 };
 
 
+class ExampleSingleton: public Singleton<ExampleSingleton> {
+    
+public:
+    
+    ExampleSingleton() {
+        cout << __PRETTY_FUNCTION__ << endl;
+    }
+    
+    virtual ~ExampleSingleton() {
+        cout << __PRETTY_FUNCTION__ << endl;
+    }
+    
+};
+
+
 int main() {
 	// shared_ptr<Node> rootNode = createTree();
 	// cout << endl << rootNode->treeView() << endl << endl;
@@ -421,8 +438,14 @@ int main() {
 	cout << "sizeof(PetitEnfant) = " << sizeof(PetitEnfant) << endl;
     cout << endl;
 
+    cout << "Backtrace :" << endl;
     Backtrace backtrace;
-    cout << "Backtrace :" << endl << backtrace << endl;
+    cout << backtrace << endl;
+    
+    cout << endl;
+    
+    ExampleSingleton& example = ExampleSingleton::instance();
+    cout << &example << endl;
 	
 	return 0;
 }
