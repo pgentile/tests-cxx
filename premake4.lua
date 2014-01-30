@@ -39,8 +39,8 @@ solution "TestCPP"
 	}
 	
 	flags { "ExtraWarnings", "FatalWarnings", "Symbols", "EnableSSE", "EnableSSE2" }
-	buildoptions { "-std=c++11", "-fpic" }
-	linkoptions { "-std=c++11", "-fpic" }
+	buildoptions { "-std=c++11", "-fPIC" }
+	linkoptions { "-std=c++11", "-fPIC" }
 	
 	libdirs {
 		POCO_LIB_DIR,
@@ -139,3 +139,9 @@ solution "TestCPP"
         kind "ConsoleApp"
         targetdir "bin"
         sources { "app-cpp11.cpp" }
+
+  	project "detach-thread"
+  	    kind "ConsoleApp"
+  	    targetdir "bin"
+  		links { "common" }
+  	    sources { "detach-thread.cpp" }

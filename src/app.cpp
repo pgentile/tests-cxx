@@ -46,7 +46,7 @@ T* alloc(size_t count = 1, bool zero = false) {
 	} else {
 		pt = malloc(count * sizeof(T));
 	}
-	return (T*) pt;
+	return static_cast<T*>(pt);
 }
 
 class MutableInteger
