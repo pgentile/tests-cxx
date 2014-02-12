@@ -9,7 +9,7 @@ namespace log
 	
 	using namespace std;
 
-	class Log
+	class Log final
 	{
 		
 	public:

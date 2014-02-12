@@ -16,7 +16,7 @@ namespace logger
 	
 	using namespace std;
 	
-	class Level
+	class Level final
 	{
 		friend ostream& operator<<(ostream& out, const Level& level);
 		
@@ -113,7 +113,7 @@ namespace logger
 
 	};
 	
-	class EventQueue
+	class EventQueue final
 	{
 		
 		public:
@@ -136,7 +136,7 @@ namespace logger
 		
 	};
 
-	class Consumer
+	class Consumer final
 	{
 		public:
 			Consumer(EventQueue& queue);
@@ -148,7 +148,7 @@ namespace logger
 			vector<Event*> _extractedEvents;
 	};
 
-	class LoggerManager
+	class LoggerManager final
 	{
 		public:
 			LoggerManager(const Level& threshold = Level::all, unsigned int queueSize = defaultQueueSize);

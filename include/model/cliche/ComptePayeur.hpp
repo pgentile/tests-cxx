@@ -11,7 +11,7 @@
 namespace model {
 namespace cliche {
 
-class ComptePayeur
+class ComptePayeur final
 {
     
 public:

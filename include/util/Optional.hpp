@@ -5,46 +5,39 @@
 #include <memory>
 #include <algorithm>
 #include <type_traits>
-
+#include <functional>
+#include <cassert>
+#include <utility>
 
 
 namespace util
 {
-    
-    using std::cout;
-    using std::endl;
-
 
     template<typename T>
-    class Optional {
+    class Optional final {
         
     public:
         
         Optional(): _defined(false) {
-            cout << "CONSTRUCTOR: Optional()" << endl;
         }
 
         Optional(Optional const& src): _defined(src._defined) {
-            cout << "CONSTRUCTOR: Optional(Optional const& src) with src = " << src << endl;
             if (_defined) {
-                new (&_storage) T(*src);
+                new (&_storage) T(src.ref());
             }
         }
         
         Optional(Optional&& src): _defined(src._defined) {
-            cout << "CONSTRUCTOR: Optional(Optional&& src) with src = " << src << endl;
             if (_defined) {
-                new (&_storage) T(std::move(*src));
+                new (&_storage) T(std::move(src.ref()));
             }
         }
 
-        Optional(T const& v): _defined(true) {
-            cout << "CONSTRUCTOR: Optional(T const& v) with v = " << v << endl;
+        explicit Optional(T const& v): _defined(true) {
             new (&_storage) T(v);
         }
 
-        Optional(T&& v): _defined(true) {
-            cout << "CONSTRUCTOR: Optional(T && v) with v = " << v << endl;
+        explicit Optional(T&& v): _defined(true) {
             new (&_storage) T(std::move(v));
         }
     
@@ -53,67 +46,92 @@ namespace util
         }
         
         Optional& operator =(Optional const& src) {
-            reset();
-            _defined = src._defined;
-            if (_defined) {
-                new (&_storage) T(*src);
+            if (src._defined) {
+                ref() = src.ref();
+                _defined = true;
+            }
+            else if (_defined) {
+                pt()->~T();
+                _defined = false;
             }
             return *this;
         }
         
         Optional& operator =(Optional&& src) {
-            reset();
-            _defined = src._defined;
-            if (_defined) {
-                new (&_storage) T(std::move(*src));
-                src._defined = false;
+            if (src._defined) {
+                ref() = std::move(src.ref());
+                _defined = true;
+            }
+            else if (_defined) {
+                pt()->~T();
+                _defined = false;
             }
             return *this;
         }
         
         Optional& operator =(T const& v) {
-            reset();
+            if (_defined) {
+                ref() = v;
+            }
+            else {
+                new (&_storage) T(v);
+            }
             _defined = true;
-            new (&_storage) T(v);
             return *this;
         }
         
         Optional& operator =(T&& v) {
-            reset();
+            if (_defined) {
+                ref() = std::move(v);
+            }
+            else {
+                new (&_storage) T(std::move(v));
+            }
             _defined = true;
-            new (&_storage) T(std::move(v));
             return *this;
         }
         
         T& operator *() {
-            // FIXME Assert defined !!!
-            T* pt = reinterpret_cast<T*>(&_storage);
-            return *pt;
+            assert(_defined);
+            return ref();
         }
         
         T const& operator *() const {
-            // FIXME Assert defined !!!
-            T const* pt = reinterpret_cast<T const*>(&_storage);
-            return *pt;
+            assert(_defined);
+            return ref();
         }
         
         T* operator ->() {
-            // FIXME Assert defined !!!
-            return reinterpret_cast<T*>(&_storage);
+            assert(_defined);
+            return pt();
         }
         
         T const* operator ->() const {
-            // FIXME Assert defined !!!
-            return reinterpret_cast<T const*>(&_storage);
+            assert(_defined);
+            return pt();
         }
 
         bool operator ==(Optional<T> const other) const {
             bool result = false;
-            if (_defined && other._defined) {
-                result = (**this == *other);
+            if (this == &other) {
+                result = true;
+            }
+            else if (_defined && other._defined) {
+                result = ref() == other.ref();
             }
             else if (!_defined && !other._defined) {
                 result = true;
+            }
+            return result;
+        }
+        
+        bool operator <(Optional<T> const other) const {
+            bool result = false;
+            if (!_defined && other._defined) {
+                result = true;
+            }
+            else if (_defined && other._defined) {
+                result = **this < *other;
             }
             return result;
         }
@@ -124,16 +142,35 @@ namespace util
         
         void reset() {
             if (_defined) {
-                T* pt = reinterpret_cast<T*>(&_storage);
-                pt->~T();
+                pt()->~T();
                 _defined = false;
+            }
+        }
+        
+        void swap(Optional& other) {
+            if (this != &other) {
+                if (_defined && other._defined) {
+                    T temp = std::move(ref());
+                    ref() = std::move(other.ref());
+                    other.ref() = std::move(temp);
+                }
+                else if (_defined) {
+                    other.ref() = std::move(ref());
+                    other._defined = true;
+                    _defined = false;
+                }
+                else if (other._defined) {
+                    ref() = std::move(other.ref());
+                    _defined = true;
+                    other._defined = false;
+                }
             }
         }
         
         template<typename F, typename R = typename std::result_of<F(T const&)>::type>
         Optional<R> apply(F func) const {
             if (_defined) {
-                return Optional<R>(func(**this));
+                return Optional<R>(func(ref()));
             }
             else {
                 return Optional<R>();
@@ -146,11 +183,30 @@ namespace util
         
         typename std::aligned_storage<sizeof(T), alignof(T)>::type _storage;
         
+        T* pt() {
+            return reinterpret_cast<T*>(&_storage);
+        }
+        
+        T const* pt() const {
+            return reinterpret_cast<T const*>(&_storage);
+        }
+        
+        T& ref() {
+            return *pt();
+        }
+        
+        T const& ref() const {
+            return *pt();
+        }
+        
     };
-    
+
+}
+
+namespace std {
     
     template<typename T>
-    std::ostream& operator <<(std::ostream& out, Optional<T> const& optional) {
+    ostream& operator <<(ostream& out, util::Optional<T> const& optional) {
         out << "Optional(defined = ";
         if (optional) {
             out << "true, value = " << *optional;
@@ -161,7 +217,25 @@ namespace util
         out << ')';
         return out;
     }
-
+    
+    template<typename T>
+    struct hash<util::Optional<T>> {
+        
+        size_t operator()(util::Optional<T> const& optional) {
+            size_t h = 0;
+            if (optional) {
+                h = hash(*optional);
+            }
+            return h;
+        }
+        
+    };
+    
+    template<typename T>
+    void swap(util::Optional<T>& left, util::Optional<T>& right) {
+        left.swap(right);
+    }
+    
 }
 
 #endif

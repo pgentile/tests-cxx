@@ -1,6 +1,6 @@
 #include "date/LocalDateTimeRange.hpp"
 
-using boost::optional;
+using namespace util;
 
 
 namespace date {
@@ -16,7 +16,7 @@ LocalDateTimeRange::LocalDateTimeRange(LocalDateTime start, LocalDateTime end):
 {
 }
 
-LocalDateTimeRange::LocalDateTimeRange(LocalDateTime start, optional<LocalDateTime> end):
+LocalDateTimeRange::LocalDateTimeRange(LocalDateTime start, Optional<LocalDateTime> end):
     _start(start),
     _end(end)
 {

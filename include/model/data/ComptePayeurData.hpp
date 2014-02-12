@@ -5,13 +5,14 @@
 #include <string>
 #include <memory>
 
+#include "util/Optional.hpp"
 #include "date/LocalDateTimeRange.hpp"
 
 
 namespace model {
 namespace data {
 
-class ComptePayeurData
+class ComptePayeurData final
 {
 
 public:
@@ -32,11 +33,11 @@ public:
         _idFonc = idFonc;
     }
     
-    std::shared_ptr<date::LocalDateTimeRange> getValidite() const {
-        return _validite;
+    date::LocalDateTimeRange const& getValidite() const {
+        return *_validite;
     }
     
-    void setValidite(std::shared_ptr<date::LocalDateTimeRange> validite) {
+    void setValidite(date::LocalDateTimeRange const& validite) {
         _validite = validite;
     }
 
@@ -46,7 +47,7 @@ private:
     
     std::string _idFonc;
     
-    std::shared_ptr<date::LocalDateTimeRange> _validite;
+    util::Optional<date::LocalDateTimeRange> _validite;
     
 };
 

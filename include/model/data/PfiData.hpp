@@ -6,6 +6,7 @@
 #include <vector>
 #include <memory>
 
+#include "util/Optional.hpp"
 #include "date/LocalDateTimeRange.hpp"
 #include "model/data/ComptePayeurData.hpp"
 
@@ -13,7 +14,7 @@
 namespace model {
 namespace data {
 
-class PfiData
+class PfiData final
 {
 
 public:
@@ -34,11 +35,11 @@ public:
         _idFonc = idFonc;
     }
     
-    std::shared_ptr<date::LocalDateTimeRange> getValidite() const {
-        return _validite;
+    date::LocalDateTimeRange const& getValidite() const {
+        return *_validite;
     }
     
-    void setValidite(std::shared_ptr<date::LocalDateTimeRange> validite) {
+    void setValidite(date::LocalDateTimeRange const& validite) {
         _validite = validite;
     }
     
@@ -46,7 +47,7 @@ public:
         return _comptesPayeurs;
     }
     
-    std::vector<std::shared_ptr<ComptePayeurData> > const& getComptesPayeurs() const {
+    std::vector<std::shared_ptr<ComptePayeurData>> const& getComptesPayeurs() const {
         return _comptesPayeurs;
     }
     
@@ -60,9 +61,9 @@ private:
     
     std::string _idFonc;
     
-    std::shared_ptr<date::LocalDateTimeRange> _validite;
+    util::Optional<date::LocalDateTimeRange> _validite;
     
-    std::vector<std::shared_ptr<ComptePayeurData> > _comptesPayeurs;
+    std::vector<std::shared_ptr<ComptePayeurData>> _comptesPayeurs;
     
 };
 

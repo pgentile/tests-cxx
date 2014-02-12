@@ -8,7 +8,7 @@ namespace core {
 	
 	using namespace std;
 	
-	class StackElement
+	class StackElement final
 	{
 		
 	public:

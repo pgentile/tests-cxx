@@ -14,13 +14,13 @@ namespace cliche {
 Pfi::Pfi(shared_ptr<PfiData> const& data, LocalDateTime const& date):
     _data(data)
 {
-    if (!data->getValidite()->contains(date)) {
+    if (!data->getValidite().contains(date)) {
         throw logic_error("PFI inactif a la date donnee");
     }
     
     for (auto const comptePayeurData: data->getComptesPayeurs()) {
-        if (comptePayeurData->getValidite()->contains(date)) {
-            _comptePayeur.reset(new ComptePayeur(comptePayeurData, date));
+        if (comptePayeurData->getValidite().contains(date)) {
+            _comptePayeur = ComptePayeur(comptePayeurData, date);
             break;
         }
     }

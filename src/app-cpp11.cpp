@@ -177,6 +177,20 @@ namespace testalign {
             cout << "@ " << this << ": ~TestValue() with this->_v = " << _v << endl;
         }
         
+        TestValue& operator =(TestValue const& src) {
+            cout << "@ " << this << ": operator =(TestValue const& src) with src = " << src << endl;
+            _v = src._v;
+            
+            return *this;
+        }
+        
+        TestValue& operator =(TestValue&& src) {
+            cout << "@ " << this << ": operator =(TestValue&& src) with src = " << src << endl;
+            _v = src._v;
+            
+            return *this;
+        }
+        
         long v() const {
             return _v;
         }
@@ -272,6 +286,19 @@ namespace testalign {
             x = 2;
             z.reset();
             z = 3;
+        }
+        
+        cout << endl;
+        
+        {
+            Optional<TestValue> x(1);
+            Optional<TestValue> y;
+            
+            cout << "x = " << x << ", y = " << y << endl;
+            
+            swap(x, y);
+            
+            cout << "x = " << x << ", y = " << y << endl;
         }
     }
     
@@ -428,12 +455,12 @@ void runTest(char const* title, T func) {
 
 
 int main(void) {
-    runTest("Test rvalues", &testrvalues::test);
-    runTest("Test containers", &testcontainers::test);
-    runTest("Test threads", &testthreads::test);
+    // runTest("Test rvalues", &testrvalues::test);
+    // runTest("Test containers", &testcontainers::test);
+    // runTest("Test threads", &testthreads::test);
     runTest("Test align", &testalign::test);
-    runTest("Test templates", &testtemplates::test);
-    runTest("Test misc", &testmisc::test);
-    runTest("Test allocators", &testallocators::test);
+    // runTest("Test templates", &testtemplates::test);
+    // runTest("Test misc", &testmisc::test);
+    // runTest("Test allocators", &testallocators::test);
     return 0;
 }

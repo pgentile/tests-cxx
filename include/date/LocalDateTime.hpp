@@ -6,7 +6,7 @@
 
 namespace date {
 
-class LocalDateTime
+class LocalDateTime final
 {
     
 public:

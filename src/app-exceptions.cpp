@@ -3,6 +3,7 @@
 #include <ios>
 #include <string>
 #include <exception>
+#include <stdexcept>
 
 #include "patterns/ExceptionSafe.hpp"
 
@@ -16,19 +17,20 @@ public:
     virtual ~X() throw() {
         EXCEPTION_SAFE_BEGIN();
         cout << __func__ << endl;
-        throw exception();
+        throw runtime_error("Ca marche pas");
         EXCEPTION_SAFE_END();
     }
     
 };
 
 
-class Y: public X {
+class Y {
     
 public:
     
-    virtual ~Y() throw() {
-        cout << __func__ << endl;
+    void run() {
+        X x;
+        throw runtime_error("Banane");
     }
     
 };
@@ -36,7 +38,13 @@ public:
 
 
 int main(int argc, char const* argv[]) {
-    Y y = Y();
-    cout << __func__ << ": addr(y) = " << hex << &y << dec << endl;
-	return 0;
+    try {
+        Y y;
+        y.run();
+    	return 0;
+    }
+    catch (exception const& e) {
+        cout << __func__ << ": erreur attrapee : " << e.what() << endl;
+    }
+    return 1;
 }

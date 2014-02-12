@@ -4,16 +4,15 @@
 #include <string>
 #include <vector>
 
-#include <boost/optional.hpp>
+#include "util/Optional.hpp"
+#include "core/StackElement.hpp"
 
 
 namespace core {
 	
 	using namespace std;
-	
-	class StackElement;
-	
-	class Backtrace
+		
+	class Backtrace final
 	{
 		
 	public:
@@ -36,7 +35,7 @@ namespace core {
 
 	private:
 		
-		boost::optional<StackElement> _createElement(void* addr);
+		util::Optional<StackElement> _createElement(void* addr);
 		
 		vector<StackElement> _elements;
 	

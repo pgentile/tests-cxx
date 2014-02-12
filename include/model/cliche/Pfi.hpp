@@ -6,6 +6,7 @@
 #include <vector>
 #include <memory>
 
+#include "util/Optional.hpp"
 #include "date/LocalDateTime.hpp"
 #include "model/cliche/ComptePayeur.hpp"
 #include "model/data/PfiData.hpp"
@@ -14,7 +15,7 @@
 namespace model {
 namespace cliche {
 
-class Pfi
+class Pfi final
 {
     
 public:
@@ -29,15 +30,19 @@ public:
         return _data->getIdFonc();
     }
     
-    std::shared_ptr<ComptePayeur> getComptePayeur() const {
-        return _comptePayeur;
+    ComptePayeur& getComptePayeur() {
+        return *_comptePayeur;
+    }
+    
+    ComptePayeur const& getComptePayeur() const {
+        return *_comptePayeur;
     }
 
 private:
     
     std::shared_ptr<model::data::PfiData> _data;
     
-    std::shared_ptr<ComptePayeur> _comptePayeur;
+    util::Optional<ComptePayeur> _comptePayeur;
 
 };
 

@@ -3,12 +3,13 @@
 
 #include "boost/optional.hpp"
 
+#include "util/Optional.hpp"
 #include "date/LocalDateTime.hpp"
 
 
 namespace date {
 
-class LocalDateTimeRange
+class LocalDateTimeRange final
 {
     
 public:
@@ -17,13 +18,13 @@ public:
     
     LocalDateTimeRange(LocalDateTime start, LocalDateTime end);
     
-    LocalDateTimeRange(LocalDateTime start, boost::optional<LocalDateTime> end);
+    LocalDateTimeRange(LocalDateTime start, util::Optional<LocalDateTime> end);
 
     LocalDateTime const& getStart() const {
         return _start;
     }
     
-    boost::optional<LocalDateTime> const& getEnd() const {
+    util::Optional<LocalDateTime> const& getEnd() const {
         return _end;
     }
     
@@ -33,7 +34,7 @@ private:
     
     LocalDateTime _start;
     
-    boost::optional<LocalDateTime> _end;
+    util::Optional<LocalDateTime> _end;
 
 };
 

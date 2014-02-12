@@ -11,10 +11,10 @@
 
 #define EXCEPTION_SAFE_END() \
 	} \
-	catch (const std::exception& caughtException ## __LINE__) { \
+	catch (const std::exception& _caughtException) { \
 	    try { \
 		    std::cerr << __func__ << ": Caught exception" << std::endl; \
-		    std::cerr << __func__ << ": Reason: " << caughtException ## __LINE__.what() << std::endl; \
+		    std::cerr << __func__ << ": Reason: " << _caughtException.what() << std::endl; \
 		} \
 		catch (...) {} \
 	} \

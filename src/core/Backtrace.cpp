@@ -8,7 +8,7 @@
 #include <iostream>
 #include <algorithm>
 
-using boost::optional;
+using namespace util;
 
 
 #define BACKTRACE_MAX_SIZE 100
@@ -25,10 +25,8 @@ namespace core {
 		
 			for (int i = 0; i < nbEntries; i++) {
 				void* addr = allAddr[i];
-				optional<StackElement> element(_createElement(addr));
-				if (element) {
-					_elements.push_back(move(*element));
-				}
+				Optional<StackElement> element = _createElement(addr);
+				_elements.push_back(move(*element));
 			}
 		}
 	}
@@ -57,7 +55,7 @@ namespace core {
         return *this;
 	}
 	
-	optional<StackElement> Backtrace::_createElement(void* addr) {
+	Optional<StackElement> Backtrace::_createElement(void* addr) {
 		Dl_info dynLinkInfo;
 		if (dladdr(addr, &dynLinkInfo) != 0) {
 			if (dynLinkInfo.dli_saddr != NULL) {
@@ -68,10 +66,10 @@ namespace core {
 					name,
 					dynLinkInfo.dli_saddr
                 );
-				return optional<StackElement>(move(element));
+				return Optional<StackElement>(move(element));
 			}
 		}	
-		return optional<StackElement>();
+		return Optional<StackElement>();
 	}
 	
 	ostream& operator <<(ostream& out, const Backtrace& backtrace) {
