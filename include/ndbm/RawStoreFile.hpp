@@ -11,7 +11,7 @@ namespace ndbm {
 	
 	public:
 		
-		RawStoreFile(const std::string& filenameStart, int flags, int mode);
+		RawStoreFile(const std::string& filenameStart, int flags, mode_t mode);
 		
 		~RawStoreFile();
 		
@@ -33,7 +33,7 @@ namespace ndbm {
 		
 		int _flags;
 		
-		int _mode;
+		mode_t _mode;
 		
 		DBM* _dbm;
 		

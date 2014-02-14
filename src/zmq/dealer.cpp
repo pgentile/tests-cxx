@@ -48,7 +48,7 @@ namespace {
 
 void handleInterrupt(int signal) {
 	interrupted = 1;
-	std::cout << "Interrupt handled" << std::endl;
+	std::cout << "Interrupt handled for signal " << signal << std::endl;
 }
 
 

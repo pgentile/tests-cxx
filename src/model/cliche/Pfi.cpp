@@ -20,7 +20,7 @@ Pfi::Pfi(shared_ptr<PfiData> const& data, LocalDateTime const& date):
     
     for (auto const comptePayeurData: data->getComptesPayeurs()) {
         if (comptePayeurData->getValidite().contains(date)) {
-            _comptePayeur = ComptePayeur(comptePayeurData, date);
+            _comptePayeur = ComptePayeur(comptePayeurData);
             break;
         }
     }

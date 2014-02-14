@@ -39,7 +39,7 @@ solution "TestCPP"
 	}
 	
 	flags { "ExtraWarnings", "FatalWarnings", "Symbols", "EnableSSE", "EnableSSE2" }
-	buildoptions { "-std=c++11", "-fPIC" }
+	buildoptions { "-std=c++11", "-fPIC", "-Wextra", "-Wsign-conversion", "-Wconversion" }
 	linkoptions { "-std=c++11", "-fPIC" }
 	
 	libdirs {
@@ -145,3 +145,8 @@ solution "TestCPP"
   	    targetdir "bin"
   		links { "common" }
   	    sources { "detach-thread.cpp" }
+  	  
+  	  project "streams"
+  	    kind "ConsoleApp"
+  	    targetdir "bin"
+  	    sources { "streams.cpp" }

@@ -11,9 +11,12 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include <boost/numeric/conversion/cast.hpp>
+
 #include "patterns/ExceptionSafe.hpp"
 
 using namespace std;
+using boost::numeric_cast;
 
 
 namespace memmapped {
@@ -208,7 +211,7 @@ public:
         _mapped(mapped),
         _start(start),
         _end(end),
-        _lock(start, end - start)
+        _lock(start, numeric_cast<size_t>(end - start))
     {
     }
     
@@ -216,7 +219,7 @@ public:
     }
     
     void sync(int flags) {
-        ::memmapped::sync(_start, _end - _start, flags);
+        ::memmapped::sync(_start, numeric_cast<size_t>(_end - _start), flags);
     }
     
     T* start() const {
@@ -265,17 +268,21 @@ ostream& operator <<(ostream& out, MemView<T> const& view) {
 using namespace memmapped;
 
 
-int main(int argc, char const* argv[]) {
+int main() {
     cout << "Test mmap" << endl;
     
     size_t count = 10;
     size_t length = count * sizeof(char);
     
     FileDescriptor descriptor("bite", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-    ftruncate(descriptor.fd(), length);
+    ftruncate(descriptor.fd(), numeric_cast<off_t>(length));
     
     MemMapped mapped(descriptor, length, PROT_READ | PROT_WRITE, MAP_SHARED);
-    MemView<char> view(mapped, mapped.addr<char>(0), mapped.addr<char>(count));
+    MemView<char> view(
+        mapped,
+        mapped.addr<char>(0),
+        mapped.addr<char>(numeric_cast<ptrdiff_t>(count))
+    );
     
     cout << "About MemMapped: " << mapped << endl;
     cout << "About MemView: " << view << endl;

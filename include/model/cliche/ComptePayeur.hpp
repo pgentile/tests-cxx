@@ -16,7 +16,7 @@ class ComptePayeur final
     
 public:
     
-    ComptePayeur(std::shared_ptr<model::data::ComptePayeurData> const& data, date::LocalDateTime const& date);
+    explicit ComptePayeur(std::shared_ptr<model::data::ComptePayeurData> const& data);
     
     uint64_t getId() const {
         return _data->getId();

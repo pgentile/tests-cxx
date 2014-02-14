@@ -37,7 +37,7 @@ public:
 
 
 
-int main(int argc, char const* argv[]) {
+int main() {
     try {
         Y y;
         y.run();

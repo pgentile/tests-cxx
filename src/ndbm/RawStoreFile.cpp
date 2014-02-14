@@ -7,7 +7,7 @@ namespace ndbm {
 	using namespace core;
 	
 	
-	RawStoreFile::RawStoreFile(const std::string& filenameStart, int flags, int mode):
+	RawStoreFile::RawStoreFile(const std::string& filenameStart, int flags, mode_t mode):
 			_filenameStart(filenameStart),
 			_flags(flags),
 			_mode(mode),

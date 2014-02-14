@@ -227,7 +227,7 @@ namespace testalign {
     void charArrayAsFloat() {
         alignas(float) char aligned[sizeof(float)];
         float* f = reinterpret_cast<float*>(aligned);
-        *f = 45.6;
+        *f = 45.6f;
         cout << "Float: " << *f << endl;
         cout << "Bytes:";
         for (char c: aligned) {
@@ -292,13 +292,26 @@ namespace testalign {
         
         {
             Optional<TestValue> x(1);
-            Optional<TestValue> y;
+            Optional<TestValue> y(2);
             
             cout << "x = " << x << ", y = " << y << endl;
             
             swap(x, y);
             
             cout << "x = " << x << ", y = " << y << endl;
+        }
+        
+        {
+            cout << "sizeof(TestValue) = " << sizeof(TestValue) << endl;
+            cout << "sizeof(Optional<TestValue>) = " << sizeof(Optional<TestValue>) << endl;
+            cout << "sizeof(bool) = " << sizeof(bool) << endl;
+            cout << "sizeof(Optional<bool>) = " << sizeof(Optional<bool>) << endl;
+            cout << "sizeof(int) = " << sizeof(int) << endl;
+            cout << "sizeof(Optional<int>) = " << sizeof(Optional<int>) << endl;
+            cout << "sizeof(long) = " << sizeof(long) << endl;
+            cout << "sizeof(Optional<long>) = " << sizeof(Optional<long>) << endl;
+            cout << "sizeof(long long) = " << sizeof(long long) << endl;
+            cout << "sizeof(Optional<long long>) = " << sizeof(Optional<long long>) << endl;
         }
     }
     
@@ -410,7 +423,7 @@ namespace testallocators {
             return pt;
         }
         
-        void deallocate(T* ptr, size_t n) {
+        void deallocate(T* /*ptr*/, size_t /*n*/) {
             
         }
         

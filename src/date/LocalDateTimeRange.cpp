@@ -23,7 +23,7 @@ LocalDateTimeRange::LocalDateTimeRange(LocalDateTime start, Optional<LocalDateTi
 }
 
 bool LocalDateTimeRange::contains(LocalDateTime const& date) const {
-    return false; // FIXME
+    return _start.getValue() <= date.getValue() && (!_end || date.getValue() < _end->getValue());
 }
 
 }

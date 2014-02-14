@@ -140,6 +140,10 @@ namespace util
             return _defined;
         }
         
+        bool operator!() const {
+            return !_defined;
+        }
+        
         void reset() {
             if (_defined) {
                 pt()->~T();
@@ -176,7 +180,24 @@ namespace util
                 return Optional<R>();
             }
         }
+        
+        T& orDefault(T& def) {
+            if (_defined) {
+                return ref();
+            }
+            else {
+                return def;
+            }
+        }
 
+        T const& orDefault(T const& def) const {
+            if (_defined) {
+                return ref();
+            }
+            else {
+                return def;
+            }
+        }
     private:
         
         bool _defined;

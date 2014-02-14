@@ -8,7 +8,7 @@ using model::data::ComptePayeurData;
 namespace model {
 namespace cliche {
 
-ComptePayeur::ComptePayeur(shared_ptr<ComptePayeurData> const& data, LocalDateTime const& date):
+ComptePayeur::ComptePayeur(shared_ptr<ComptePayeurData> const& data):
     _data(data)
 {
 }
