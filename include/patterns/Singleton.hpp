@@ -49,7 +49,7 @@ namespace patterns
 			{
                 std::call_once(_onceFlag, _createInstance);
                 T* instancePt = _instance;
-				if (instancePt == NULL) {
+				if (instancePt == nullptr) {
 					throw UnexistingSingletonError(_error);
 				}
 				return *instancePt;
@@ -103,7 +103,7 @@ namespace patterns
     std::once_flag Singleton<T>::_onceFlag;
 	
 	template<class T>
-    std::atomic<T*> Singleton<T>::_instance;
+    std::atomic<T*> Singleton<T>::_instance(nullptr);
 	
 	template<class T>
 	std::string Singleton<T>::_error;

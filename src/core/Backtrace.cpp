@@ -26,7 +26,9 @@ namespace core {
 			for (int i = 0; i < nbEntries; i++) {
 				void* addr = allAddr[i];
 				Optional<StackElement> element = _createElement(addr);
-				_elements.push_back(move(*element));
+				if (element) {
+				    _elements.push_back(move(*element));
+			    }
 			}
 		}
 	}

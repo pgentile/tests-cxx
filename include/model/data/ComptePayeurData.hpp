@@ -1,5 +1,5 @@
-#ifndef MODEL_DATA_COMPTEPAYEUR_HPP
-#define MODEL_DATA_COMPTEPAYEUR_HPP
+#ifndef MODEL_DATA_COMPTE_PAYEUR_HPP
+#define MODEL_DATA_COMPTE_PAYEUR_HPP
 
 #include <cstdint>
 #include <string>

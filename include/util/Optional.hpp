@@ -198,6 +198,7 @@ namespace util
                 return def;
             }
         }
+
     private:
         
         bool _defined;
@@ -241,15 +242,15 @@ namespace std {
     
     template<typename T>
     struct hash<util::Optional<T>> {
-        
+
         size_t operator()(util::Optional<T> const& optional) {
-            size_t h = 0;
-            if (optional) {
-                h = hash(*optional);
-            }
-            return h;
+            size_t const prime = 31;
+            size_t result = 1;
+            result = prime * result + (optional ? 1 : 0);
+            result = prime * result + (optional ? hash(*optional) : 0);
+            return result;
         }
-        
+
     };
     
     template<typename T>

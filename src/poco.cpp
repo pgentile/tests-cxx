@@ -29,7 +29,7 @@ public:
 	virtual ~RequestHandler() {
 	}
 	
-	virtual void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) {
+	virtual void handleRequest(HTTPServerRequest& /*request*/, HTTPServerResponse& response) {
 		response.setStatusAndReason(HTTPResponse::HTTP_OK, "OK");
 		response.setContentType("text/plain");
 		
@@ -50,7 +50,7 @@ public:
 	virtual ~RequestHandlerFactory() {
 	}
 
-	virtual HTTPRequestHandler* createRequestHandler(HTTPServerRequest const& request) {
+	virtual HTTPRequestHandler* createRequestHandler(HTTPServerRequest const& /*request*/) {
 		return new RequestHandler();
 	}
 	
@@ -84,7 +84,7 @@ protected:
 		options.addOption(portOpt);
 	}
 		
-	virtual int main(vector<string> const& args) {
+	virtual int main(vector<string> const& /*args*/) {
 		if (!_displayHelp) {
 			cout << "Test POCO, port = " << _port << endl;
 			
@@ -109,13 +109,13 @@ protected:
 
 private:	
 	
-	void handleHelp(string const& name, string const& value) {
+	void handleHelp(string const& /*name*/, string const& /*value*/) {
 		_displayHelp = true;
 		displayHelp();
 		stopOptionsProcessing();
 	}
 	
-	void handlePort(string const& name, string const& value) {
+	void handlePort(string const& /*name*/, string const& value) {
 		istringstream valueParser(value);
 		valueParser >> _port;
 	}
