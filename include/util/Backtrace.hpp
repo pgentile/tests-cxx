@@ -9,8 +9,6 @@
 
 namespace util {
 	
-	using namespace std;
-	
     class StackElement;
 		
 	class Backtrace final
@@ -30,17 +28,17 @@ namespace util {
 		
 		Backtrace& operator =(Backtrace&& src);
         
-        const vector<StackElement>& elements() const {
+        const std::vector<StackElement>& elements() const {
             return _elements;
 		}
 
 	private:
 
-		vector<StackElement> _elements;
+		std::vector<StackElement> _elements;
 	
 	};
 	
-	ostream& operator <<(ostream& out, const Backtrace& backtrace);
+	std::ostream& operator <<(std::ostream& out, const Backtrace& backtrace);
 	
 	
 	class StackElement final

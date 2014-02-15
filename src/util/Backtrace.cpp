@@ -7,6 +7,8 @@
 
 #include "util/Reflection.hpp"
 
+using namespace std;
+
 
 #define BACKTRACE_MAX_SIZE 100
 
