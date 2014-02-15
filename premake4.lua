@@ -32,6 +32,7 @@ function use_poco()
 end
 
 function use_zmq()
+  includedirs "vendors/cppzmq/include"
 	links "zmq"
 end
 
