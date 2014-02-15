@@ -1,11 +1,9 @@
 #include "ndbm/RawStoreFile.hpp"
 
-#include "core/Exception.hpp"
+#include <stdexcept>
+
 
 namespace ndbm {
-	
-	using namespace core;
-	
 	
 	RawStoreFile::RawStoreFile(const std::string& filenameStart, int flags, mode_t mode):
 			_filenameStart(filenameStart),
@@ -20,13 +18,13 @@ namespace ndbm {
 	
 	void RawStoreFile::open() {
 		if (_dbm != NULL) {
-			throw Exception("Fichier DBM deja ouvert");
+			throw std::runtime_error("Fichier DBM deja ouvert");
 		}
 		
 		const char* filenameStartPt = _filenameStart.c_str();
 		_dbm = dbm_open(filenameStartPt, _flags, _mode);
 		if (_dbm == NULL) {
-			throw Exception("Erreur a l'ouverture de la base DBM");
+			throw std::runtime_error("Erreur a l'ouverture de la base DBM");
 		}
 	}
 	

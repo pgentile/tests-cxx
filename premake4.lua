@@ -76,7 +76,6 @@ solution "TestCPP"
 			"threading/ReadWriteLock.cpp", 
 			"util/Singleton.cpp",
 			"core/Backtrace.cpp",
-			"core/Exception.cpp",
 			"core/Reflection.cpp",
 			"core/StackElement.cpp",
 			"logger/Logger.cpp",

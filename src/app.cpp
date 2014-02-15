@@ -1,7 +1,6 @@
 // Quelques tests en C++
 
 #include "core/Backtrace.hpp"
-#include "core/Exception.hpp"
 #include "core/Reflection.hpp"
 #include "logger/Logger.hpp"
 #include "ndbm/RawStoreFile.hpp"
@@ -19,6 +18,7 @@
 #include <string>
 #include <iterator>
 #include <memory>
+#include <stdexcept>
 #include <unordered_map>
 #include <cstdint>
 
