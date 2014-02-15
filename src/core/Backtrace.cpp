@@ -13,6 +13,30 @@ using namespace util;
 #define BACKTRACE_MAX_SIZE 100
 
 
+namespace {
+    
+    using namespace core;
+
+	Optional<StackElement> createStackElement(void* addr) {
+		Dl_info dynLinkInfo;
+		if (dladdr(addr, &dynLinkInfo) != 0) {
+			if (dynLinkInfo.dli_saddr != NULL) {
+                string name = demangleName(dynLinkInfo.dli_sname);
+                StackElement element(
+                    dynLinkInfo.dli_fname,
+				    dynLinkInfo.dli_fbase,
+					name,
+					dynLinkInfo.dli_saddr
+                );
+				return Optional<StackElement>(move(element));
+			}
+		}	
+		return Optional<StackElement>();
+	}
+
+}
+
+
 namespace core {
 	
 	using namespace std;
@@ -27,7 +51,7 @@ namespace core {
 		
 			for (int i = 0; i < nbEntries; i++) {
 				void* addr = allAddr[i];
-				Optional<StackElement> element = _createElement(addr);
+				Optional<StackElement> element = createStackElement(addr);
 				if (element) {
 				    _elements.push_back(move(*element));
 			    }
@@ -57,23 +81,6 @@ namespace core {
 	Backtrace& Backtrace::operator =(Backtrace&& src) {
         _elements = move(src._elements);
         return *this;
-	}
-	
-	Optional<StackElement> Backtrace::_createElement(void* addr) {
-		Dl_info dynLinkInfo;
-		if (dladdr(addr, &dynLinkInfo) != 0) {
-			if (dynLinkInfo.dli_saddr != NULL) {
-                string name = demangleName(dynLinkInfo.dli_sname);
-                StackElement element(
-                    dynLinkInfo.dli_fname,
-				    dynLinkInfo.dli_fbase,
-					name,
-					dynLinkInfo.dli_saddr
-                );
-				return Optional<StackElement>(move(element));
-			}
-		}	
-		return Optional<StackElement>();
 	}
 	
 	ostream& operator <<(ostream& out, const Backtrace& backtrace) {

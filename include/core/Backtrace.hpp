@@ -35,9 +35,7 @@ namespace core {
 		}
 
 	private:
-		
-		util::Optional<StackElement> _createElement(void* addr);
-		
+
 		vector<StackElement> _elements;
 	
 	};
