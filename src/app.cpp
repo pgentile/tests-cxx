@@ -1,9 +1,9 @@
 // Quelques tests en C++
 
-#include "core/Backtrace.hpp"
-#include "core/Reflection.hpp"
 #include "logger/Logger.hpp"
 #include "ndbm/RawStoreFile.hpp"
+#include "util/Backtrace.hpp"
+#include "util/Reflection.hpp"
 #include "util/ExceptionSafe.hpp"
 #include "util/Singleton.hpp"
 
@@ -31,7 +31,6 @@
 
 using namespace std;
 
-using namespace core;
 using namespace util;
 
 using boost::numeric::converter;

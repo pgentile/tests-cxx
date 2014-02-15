@@ -1,13 +1,11 @@
-#include "core/Backtrace.hpp"
-
-#include "core/Reflection.hpp"
+#include "util/Backtrace.hpp"
 
 #include <dlfcn.h>
 #include <execinfo.h>
 #include <iostream>
 #include <algorithm>
 
-using namespace util;
+#include "util/Reflection.hpp"
 
 
 #define BACKTRACE_MAX_SIZE 100
@@ -15,7 +13,7 @@ using namespace util;
 
 namespace {
     
-    using namespace core;
+    using namespace util;
 
 	Optional<StackElement> createStackElement(void* addr) {
 		Dl_info dynLinkInfo;
@@ -37,7 +35,7 @@ namespace {
 }
 
 
-namespace core {
+namespace util {
 	
 	using namespace std;
 	

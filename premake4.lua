@@ -75,8 +75,8 @@ solution "TestCPP"
 		sources { 
 			"threading/ReadWriteLock.cpp", 
 			"util/Singleton.cpp",
-			"core/Backtrace.cpp",
-			"core/Reflection.cpp",
+			"util/Backtrace.cpp",
+			"util/Reflection.cpp",
 			"logger/Logger.cpp",
 			"ndbm/RawStoreFile.cpp",
 			"date/LocalDateTime.cpp",

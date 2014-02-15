@@ -1,5 +1,5 @@
-#ifndef CORE_BACKTRACE_HPP
-#define CORE_BACKTRACE_HPP
+#ifndef UTIL_BACKTRACE_HPP
+#define UTIL_BACKTRACE_HPP
 
 #include <string>
 #include <vector>
@@ -7,7 +7,7 @@
 #include "util/Optional.hpp"
 
 
-namespace core {
+namespace util {
 	
 	using namespace std;
 	
@@ -30,7 +30,7 @@ namespace core {
 		
 		Backtrace& operator =(Backtrace&& src);
         
-		const vector<StackElement>& elements() const {
+        const vector<StackElement>& elements() const {
             return _elements;
 		}
 

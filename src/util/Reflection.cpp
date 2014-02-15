@@ -1,4 +1,4 @@
-#include "core/Reflection.hpp"
+#include "util/Reflection.hpp"
 
 #include <memory>
 #include <cstdlib>
@@ -21,12 +21,13 @@ namespace {
 }
 
 
-namespace core {
+namespace util {
 
 	string getRealTypeName(const type_info& typeInfo) {
 		const char* name = typeInfo.name();
 		return demangleName(name);
 	}
+	
 	
 	string demangleName(const char* name) {
 		int abiStatus;

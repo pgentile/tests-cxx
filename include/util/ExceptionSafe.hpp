@@ -5,12 +5,12 @@
 #include <iostream>
 #include <string>
 
-#include "core/Backtrace.hpp"
+#include "util/Backtrace.hpp"
 
 
 #define EXCEPTION_SAFE_BACKTRACE() \
     std::cerr << std::string(80, '=') << std::endl; \
-    core::Backtrace _backtrace; \
+    util::Backtrace _backtrace; \
     std::cerr << _backtrace; \
     std::cerr << std::string(80, '=') << std::endl;
 
