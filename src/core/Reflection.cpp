@@ -23,12 +23,12 @@ namespace {
 
 namespace core {
 
-	string Reflection::getRealTypeName(const type_info& typeInfo) {
+	string getRealTypeName(const type_info& typeInfo) {
 		const char* name = typeInfo.name();
 		return demangleName(name);
 	}
 	
-	string Reflection::demangleName(const char* name) {
+	string demangleName(const char* name) {
 		int abiStatus;
         unique_ptr<char, FreePointer> realName(abi::__cxa_demangle(name, NULL, NULL, &abiStatus));
 		if (abiStatus == 0) {

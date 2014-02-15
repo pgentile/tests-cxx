@@ -4,27 +4,13 @@
 #include <string>
 #include <typeinfo>
 
+
 namespace core {
 	
-	using namespace std;
-	
-	class Reflection
-	{
+	std::string getRealTypeName(const std::type_info& typeInfo);
 		
-	public:
+	std::string demangleName(const char* name);
 
-		static string getRealTypeName(const type_info& typeInfo);
-		
-		static string demangleName(const char* name);
-
-	private:
-		
-		Reflection();
-		
-		~Reflection();
-		
-	};
-	
 }
 
 #endif
