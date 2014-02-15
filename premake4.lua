@@ -77,7 +77,6 @@ solution "TestCPP"
 			"util/Singleton.cpp",
 			"core/Backtrace.cpp",
 			"core/Reflection.cpp",
-			"core/StackElement.cpp",
 			"logger/Logger.cpp",
 			"ndbm/RawStoreFile.cpp",
 			"date/LocalDateTime.cpp",
