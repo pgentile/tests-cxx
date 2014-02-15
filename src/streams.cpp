@@ -13,7 +13,7 @@
 
 #include "util/Optional.hpp"
 #include "util/ScopeGuard.hpp"
-#include "patterns/ExceptionSafe.hpp"
+#include "util/ExceptionSafe.hpp"
 
 using std::cout;
 using std::endl;

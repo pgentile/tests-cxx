@@ -74,7 +74,7 @@ solution "TestCPP"
 		extra_warnings()
 		sources { 
 			"threading/ReadWriteLock.cpp", 
-			"patterns/Singleton.cpp",
+			"util/Singleton.cpp",
 			"core/Backtrace.cpp",
 			"core/Exception.cpp",
 			"core/Reflection.cpp",

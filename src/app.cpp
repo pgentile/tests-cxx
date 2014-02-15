@@ -5,8 +5,8 @@
 #include "core/Reflection.hpp"
 #include "logger/Logger.hpp"
 #include "ndbm/RawStoreFile.hpp"
-#include "patterns/ExceptionSafe.hpp"
-#include "patterns/Singleton.hpp"
+#include "util/ExceptionSafe.hpp"
+#include "util/Singleton.hpp"
 
 #include <cstddef>
 #include <cerrno>
@@ -32,7 +32,7 @@
 using namespace std;
 
 using namespace core;
-using namespace patterns;
+using namespace util;
 
 using boost::numeric::converter;
 using boost::noncopyable;

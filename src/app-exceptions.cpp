@@ -5,7 +5,7 @@
 #include <exception>
 #include <stdexcept>
 
-#include "patterns/ExceptionSafe.hpp"
+#include "util/ExceptionSafe.hpp"
 
 using namespace std;
 

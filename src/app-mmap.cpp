@@ -13,7 +13,7 @@
 
 #include <boost/numeric/conversion/cast.hpp>
 
-#include "patterns/ExceptionSafe.hpp"
+#include "util/ExceptionSafe.hpp"
 
 using namespace std;
 using boost::numeric_cast;

@@ -1,11 +1,11 @@
-#include "patterns/Singleton.hpp"
+#include "util/Singleton.hpp"
 
 #include <mutex>
 
 using namespace std;
 
 
-namespace patterns
+namespace util
 {
 
 	void registerDestructor(void (*destructorFunc)(void))

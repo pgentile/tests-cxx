@@ -4,7 +4,7 @@
 #include <functional>
 #include <memory>
 
-#include "patterns/ExceptionSafe.hpp"
+#include "util/ExceptionSafe.hpp"
 
 
 namespace util

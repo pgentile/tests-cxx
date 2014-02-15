@@ -1,5 +1,5 @@
-#ifndef PATTERNS_SINGLETON_H
-#define PATTERNS_SINGLETON_H
+#ifndef UTIL_SINGLETON_HPP
+#define UTIL_SINGLETON_HPP
 
 #include <exception>
 #include <sstream>
@@ -11,7 +11,7 @@
 #include <atomic>
 
 
-namespace patterns
+namespace util
 {	
 	
 	class UnexistingSingletonError: public std::runtime_error

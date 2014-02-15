@@ -1,5 +1,5 @@
-#ifndef PATTERNS_EXCEPTION_SAFE_H
-#define PATTERNS_EXCEPTION_SAFE_H
+#ifndef UTIL_EXCEPTION_SAFE_HPP
+#define UTIL_EXCEPTION_SAFE_HPP
 
 #include <exception>
 #include <iostream>

@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <cstring>
 
-#include "patterns/ExceptionSafe.hpp"
+#include "util/ExceptionSafe.hpp"
 
 namespace threading
 {
