@@ -11,6 +11,7 @@
 
 #include <boost/numeric/conversion/cast.hpp>
 
+#include "io/memmapped/memory.hpp"
 #include "util/ExceptionSafe.hpp"
 
 
@@ -63,61 +64,29 @@ namespace memmapped {
         void* sync(ptrdiff_t offset, size_t length, int flags) {
             void* start = addr<char>(offset);
             assert(static_cast<char*>(start) + length < end());
-            sync(start, length, flags);
+            memory::sync(start, length, flags);
             return start;
         }
 
         void* protect(ptrdiff_t offset, size_t length, int protections) {
             void* start = addr<char>(offset);
             assert(static_cast<char*>(start) + length < end());
-            protect(start, length, protections);
+            memory::protect(start, length, protections);
             return start;
         }
 
         void* lock(ptrdiff_t offset, size_t length) {
             void* start = addr<char>(offset);
             assert(static_cast<char*>(start) + length < end());
-            lock(start, length);
+            memory::lock(start, length);
             return start;
         }
 
         void* unlock(ptrdiff_t offset, size_t length) {
             void* start = addr<char>(offset);
             assert(static_cast<char*>(start) + length < end());
-            unlock(start, length);
+            memory::unlock(start, length);
             return start;
-        }
-        
-        static void sync(void* addr, size_t length, int flags) {
-            int rc = msync(addr, length, flags);
-            if (rc == -1) {
-                throw system_error(errno, system_category());
-            }
-        }
-
-        static void protect(void* addr, size_t length, int protections) {
-            int rc = mprotect(addr, length, protections);
-            if (rc == -1) {
-                throw system_error(errno, system_category());
-            }
-        }
-
-        static void lock(void* addr, size_t length) {
-            int rc = mlock(addr, length);
-            if (rc == -1) {
-                throw system_error(errno, system_category());
-            }
-        }
-
-        static void unlock(void* addr, size_t length) {
-            int rc = munlock(addr, length);
-            if (rc == -1) {
-                throw system_error(errno, system_category());
-            }
-        }
-
-        static int getPageSize() {
-            return getpagesize();
         }
 
         friend ostream& operator <<(ostream& out, MemMapped const& mapped);
@@ -154,7 +123,7 @@ namespace memmapped {
 
         ~Lock() {
             EXCEPTION_SAFE_BEGIN();
-            MemMapped::unlock(_addr, _length);
+            memory::unlock(_addr, _length);
             EXCEPTION_SAFE_END();
         }
 
