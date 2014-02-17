@@ -1,4 +1,4 @@
-#include "util/Reflection.hpp"
+#include "util/reflection.hpp"
 
 #include <memory>
 #include <cstdlib>
@@ -22,6 +22,7 @@ namespace {
 
 
 namespace util {
+namespace reflection {
 
 	string getRealTypeName(const type_info& typeInfo) {
 		const char* name = typeInfo.name();
@@ -38,4 +39,5 @@ namespace util {
         return name;
 	}
 
-}
+} // namespace reflection
+} // namespace util

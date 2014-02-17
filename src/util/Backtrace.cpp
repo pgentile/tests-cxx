@@ -5,9 +5,11 @@
 #include <iostream>
 #include <algorithm>
 
-#include "util/Reflection.hpp"
+#include "util/reflection.hpp"
 
 using namespace std;
+using namespace util;
+using namespace util::reflection;
 
 
 #define BACKTRACE_MAX_SIZE 100
@@ -15,8 +17,6 @@ using namespace std;
 
 namespace {
     
-    using namespace util;
-
 	Optional<StackElement> createStackElement(void* addr) {
 		Dl_info dynLinkInfo;
 		if (dladdr(addr, &dynLinkInfo) != 0) {
@@ -38,9 +38,6 @@ namespace {
 
 
 namespace util {
-	
-	using namespace std;
-	
 	
 	// Classe Backtrace
 	

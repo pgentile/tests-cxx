@@ -77,7 +77,7 @@ solution "TestCPP"
 			"threading/ReadWriteLock.cpp", 
 			"util/Singleton.cpp",
 			"util/Backtrace.cpp",
-			"util/Reflection.cpp",
+			"util/reflection.cpp",
 			"logger/Logger.cpp",
 			"ndbm/RawStoreFile.cpp",
 			"date/LocalDateTime.cpp",

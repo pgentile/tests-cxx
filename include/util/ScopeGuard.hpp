@@ -15,9 +15,13 @@ namespace util
         
     public:
         
-        ScopeGuard(std::function<void()> cleaner):
+        explicit ScopeGuard(std::function<void()> cleaner):
             _cleaner(cleaner)
         {
+        }
+        
+        ScopeGuard(): ScopeGuard(nullptr) {
+            
         }
         
         ScopeGuard(ScopeGuard&& src):

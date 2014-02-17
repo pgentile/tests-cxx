@@ -6,11 +6,13 @@
 
 
 namespace util {
+namespace reflection {
 	
 	std::string getRealTypeName(const std::type_info& typeInfo);
 		
 	std::string demangleName(const char* name);
 
-}
+} // namespace reflection
+} // namespace util
 
 #endif

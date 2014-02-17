@@ -1,6 +1,7 @@
 #ifndef IO_MEMMAPPED_MEM_MAPPED_HPP
 #define IO_MEMMAPPED_MEM_MAPPED_HPP
 
+#include <cassert>
 #include <iostream>
 #include <system_error>
 #include <unistd.h>
@@ -10,7 +11,6 @@
 
 #include <boost/numeric/conversion/cast.hpp>
 
-#include "io/memmapped/Memory.hpp"
 #include "util/ExceptionSafe.hpp"
 
 
@@ -20,48 +20,6 @@ namespace memmapped {
     using namespace std;
     using boost::numeric_cast;
     
-    class FileDescriptor
-    {
-
-    public:
-
-        FileDescriptor(string const & filename, int flags):
-            _fd(open(filename.c_str(), flags))
-        {
-            if (_fd == -1) {
-                throw system_error(errno, system_category());
-            }
-        }
-
-        FileDescriptor(string const & filename, int flags, int mode):
-            _fd(open(filename.c_str(), flags, mode))
-        {
-            if (_fd == -1) {
-                throw system_error(errno, system_category());
-            }
-        }
-
-        ~FileDescriptor() {
-            EXCEPTION_SAFE_BEGIN();
-            if (_fd != -1 && close(_fd) == -1) {
-                throw system_error(errno, system_category());
-            }
-            EXCEPTION_SAFE_END();
-        }
-
-        int fd() const {
-            return _fd;
-        }
-
-    private:
-
-        FileDescriptor(FileDescriptor const &);
-
-        FileDescriptor& operator =(FileDescriptor const &);
-
-        int _fd;
-    };
-    
     
     class MemMapped {
 
@@ -69,9 +27,9 @@ namespace memmapped {
 
         MemMapped(size_t length, int protections, int flags, int fd, off_t offset = 0):
             _length(length),
-            _start(NULL)
+            _start(nullptr)
         {
-            _start = mmap(NULL, length, protections, flags, fd, offset);
+            _start = mmap(nullptr, length, protections, flags, fd, offset);
             if (_start == MAP_FAILED) {
                 throw system_error(errno, system_category());
             }
@@ -103,27 +61,31 @@ namespace memmapped {
         }
         
         void* sync(ptrdiff_t offset, size_t length, int flags) {
-            void* addr = this->addr<char>(offset);
-            sync(addr, length, flags);
-            return addr;
+            void* start = addr<char>(offset);
+            assert(static_cast<char*>(start) + length < end());
+            sync(start, length, flags);
+            return start;
         }
 
         void* protect(ptrdiff_t offset, size_t length, int protections) {
-            void* addr = this->addr<char>(offset);
-            protect(addr, length, protections);
-            return addr;
+            void* start = addr<char>(offset);
+            assert(static_cast<char*>(start) + length < end());
+            protect(start, length, protections);
+            return start;
         }
 
         void* lock(ptrdiff_t offset, size_t length) {
-            void* addr = this->addr<char>(offset);
-            lock(addr, length);
-            return addr;
+            void* start = addr<char>(offset);
+            assert(static_cast<char*>(start) + length < end());
+            lock(start, length);
+            return start;
         }
 
         void* unlock(ptrdiff_t offset, size_t length) {
-            void* addr = this->addr<char>(offset);
-            unlock(addr, length);
-            return addr;
+            void* start = addr<char>(offset);
+            assert(static_cast<char*>(start) + length < end());
+            unlock(start, length);
+            return start;
         }
         
         static void sync(void* addr, size_t length, int flags) {
@@ -220,6 +182,7 @@ namespace memmapped {
             _start(mapped.addr<T>(offset)),
             _length(length)
         {
+            assert(end() <= mapped.end());
         }
 
         ~MemView() {
