@@ -4,6 +4,7 @@
 #include <system_error>
 #include <cerrno>
 #include <sys/mman.h>
+#include <sys/types.h>
 
 using namespace std;
 

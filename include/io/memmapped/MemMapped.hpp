@@ -4,6 +4,7 @@
 #include <cassert>
 #include <iostream>
 #include <system_error>
+#include <type_traits>
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -19,8 +20,9 @@ namespace io {
 namespace memmapped {
     
     using namespace std;
-    using boost::numeric_cast;
     
+    template<typename T>
+    class MemView;
     
     class MemMapped {
 
@@ -35,13 +37,35 @@ namespace memmapped {
                 throw system_error(errno, system_category());
             }
         }
+        
+        MemMapped(MemMapped const &) = delete;
+        
+        MemMapped(MemMapped&& src):
+            _length(src._length),
+            _start(src._start)
+        {
+            src._start = nullptr;
+        }
 
         ~MemMapped() {
             EXCEPTION_SAFE_BEGIN();
-            if (munmap(_start, _length) == -1) {
-                throw system_error(errno, system_category());
+            if (_start != nullptr) {
+                if (munmap(_start, _length) == -1) {
+                    throw system_error(errno, system_category());
+                }
             }
             EXCEPTION_SAFE_END();
+        }
+        
+        MemMapped& operator =(MemMapped const &) = delete;
+        
+        MemMapped& operator =(MemMapped&& src) {
+            _length = src._length;
+            _start = src._start;
+            
+            src._start = nullptr;
+            
+            return *this;
         }
 
         void* start() const {
@@ -49,55 +73,32 @@ namespace memmapped {
         }
 
         void* end() const {
-            return static_cast<char*>(_start) + _length;
+            return reinterpret_cast<char*>(_start) + _length;
         }
 
         template<typename T>
-        T* addr(ptrdiff_t offset) const {
-            return static_cast<char*>(_start) + offset;
+        T* addr(size_t offset) const {
+            return reinterpret_cast<T*>(_start) + offset;
         }
 
         size_t length() const {
             return _length;
         }
         
-        void* sync(ptrdiff_t offset, size_t length, int flags) {
-            void* start = addr<char>(offset);
-            assert(static_cast<char*>(start) + length < end());
-            memory::sync(start, length, flags);
-            return start;
+        template<typename T>
+        MemView<typename std::enable_if<std::is_pod<T>::value, T>::type> view(size_t offset, size_t length) {
+            return MemView<T>(*this, offset, length);
         }
-
-        void* protect(ptrdiff_t offset, size_t length, int protections) {
-            void* start = addr<char>(offset);
-            assert(static_cast<char*>(start) + length < end());
-            memory::protect(start, length, protections);
-            return start;
+        
+        template<typename T>
+        MemView<T> viewAll() {
+            assert(_length % sizeof(T) == 0);
+            return view<T>(0, _length / sizeof(T));
         }
-
-        void* lock(ptrdiff_t offset, size_t length) {
-            void* start = addr<char>(offset);
-            assert(static_cast<char*>(start) + length < end());
-            memory::lock(start, length);
-            return start;
-        }
-
-        void* unlock(ptrdiff_t offset, size_t length) {
-            void* start = addr<char>(offset);
-            assert(static_cast<char*>(start) + length < end());
-            memory::unlock(start, length);
-            return start;
-        }
-
-        friend ostream& operator <<(ostream& out, MemMapped const& mapped);
 
     private:
 
-        MemMapped(MemMapped const &);
-
-        MemMapped& operator =(MemMapped const &);
-
-        size_t const _length;
+        size_t _length;
 
         void* _start;
 
@@ -105,40 +106,12 @@ namespace memmapped {
 
 
     std::ostream& operator <<(std::ostream& out, MemMapped const& mapped) {
-        out << "MemMapped(length = " << mapped._length
-            << ", start = " << mapped._start << ")";
+        out << "MemMapped(length = " << mapped.length()
+            << ", start = " << mapped.start()
+            << ", end  " << mapped.end() << ")";
         return out;
     }
     
-    
-    class Lock {
-
-    public:
-
-        Lock(MemMapped& mapped, ptrdiff_t offset, size_t length):
-            _addr(mapped.lock(offset, length)),
-            _length(length)
-        {
-        }
-
-        ~Lock() {
-            EXCEPTION_SAFE_BEGIN();
-            memory::unlock(_addr, _length);
-            EXCEPTION_SAFE_END();
-        }
-
-    private:
-
-        Lock(Lock const &);
-
-        Lock& operator =(Lock const &);
-        
-        void* _addr;
-
-        size_t const _length;
-
-    };
-
 
     template<typename T>
     class MemView
@@ -146,7 +119,7 @@ namespace memmapped {
 
     public:
 
-        MemView(MemMapped & mapped, ptrdiff_t offset, size_t length):
+        MemView(MemMapped & mapped, size_t offset, size_t length):
             _mapped(mapped),
             _start(mapped.addr<T>(offset)),
             _length(length)
@@ -154,11 +127,19 @@ namespace memmapped {
             assert(end() <= mapped.end());
         }
 
+        MemView(MemView const &) = delete;
+        
+        MemView(MemView&& src) = default;
+
         ~MemView() {
         }
 
+        MemView& operator =(MemView const &) = delete;
+        
+        MemView& operator =(MemView&& src) = default;
+
         void sync(int flags) {
-            MemMapped::sync(_start, _length * sizeof(T), flags);
+            memory::sync(_start, _length * sizeof(T), flags);
         }
 
         T* start() const {
@@ -169,22 +150,30 @@ namespace memmapped {
             return _start + _length;
         }
 
+        T* addr(size_t offset) const {
+            return _start + offset;
+        }
+        
+        T& ref(size_t offset) const {
+            return *addr(offset);
+        }
+        
+        MemView<T> view(ptrdiff_t offset, size_t length) {
+            ptrdiff_t currentOffset = reinterpret_cast<char*>(_start) - reinterpret_cast<char*>(_mapped.start());
+            MemView<T> childView = MemView<T>(_mapped, currentOffset + offset, length);
+            assert(childView.end() <= end());
+            return childView;
+        }
+        
         size_t length() const {
             return _length;
         }
 
-        template<typename TT>
-        friend ostream& operator <<(ostream& out, MemView<TT> const& view);
-
     private:
 
-        MemView(MemView const &);
+        MemMapped& _mapped;
 
-        MemView& operator =(MemView const &);
-
-        MemMapped & _mapped;
-
-        T* _start;
+        T* const _start;
 
         size_t _length;
 
@@ -193,9 +182,9 @@ namespace memmapped {
 
     template<typename T>
     std::ostream& operator <<(std::ostream& out, MemView<T> const& view) {
-        out << "MemView(start = " << static_cast<void const *>(view._start)
-            << ", length = " << view.length()
-            << ")";
+        out << "MemView(length = " << view.length()
+            << ", start = " << static_cast<void const *>(view.start())
+            << ", end = " << static_cast<void const *>(view.end()) << ")";
         return out;
     }
 

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstring>
 #include <fcntl.h>
 
 #include <boost/numeric/conversion/cast.hpp>
@@ -12,11 +13,20 @@ using namespace util;
 using boost::numeric_cast;
 
 
+struct Tx {
+    int a;
+    char b;
+    long c;
+    char d[100];
+};
+
+
 int main() {
     cout << "Test mmap" << endl;
+    cout << "Block size = " << sizeof(Tx) << endl;
     
     size_t count = 10;
-    size_t length = count * sizeof(char);
+    size_t length = count * sizeof(Tx);
     
     int fd = open("bite", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
     if (fd == -1) {
@@ -26,23 +36,35 @@ int main() {
 
     ftruncate(fd, numeric_cast<off_t>(length));
     
-    MemMapped mapped(length, PROT_READ | PROT_WRITE, MAP_SHARED, fd);
-    MemView<char> view(mapped, 0, count);
+    typedef Tx MappedType;
     
-    char* addr = view.start();
+    MemMapped mapped(length, PROT_READ | PROT_WRITE, MAP_SHARED, fd);
+    MemView<MappedType> view = mapped.viewAll<MappedType>();
+    // MemView<MappedType> view = mapped.view<MappedType>(0, length - 1);
+    MemView<MappedType> view2 = view.view(1, count - 2);
+    
+    for (size_t i = 0; i < view2.length(); i++) {
+        MappedType& t = view2.ref(i);
+        t.a += numeric_cast<int>(i) + 1;
+        t.b = 'G';
+        t.c = 10001 + numeric_cast<long>(i);
+        strncpy(t.d, "pierre", 6);
+    }
+    /*
+    MappedType* addr = view.start();
     *addr = 'A';
     
     addr = view.end() - 1;
     *addr = 'Z';
     
-    cout << "start, incusive = " << static_cast<void*>(view.start()) << endl;
-    cout << "end, exclusive  = " << static_cast<void*>(view.end()) << endl;
-    cout << "size            = " << (view.end() - view.start()) << endl;
+    view2.ref(0) = 'B';
+    */
     
-    //view.sync(MS_SYNC);
+    // view.sync(MS_SYNC);
     
     cout << "About MemMapped: " << mapped << endl;
     cout << "About MemView: " << view << endl;
+    cout << "About MemView2: " << view2 << endl;
         
     return 0;
 }
