@@ -1,6 +1,8 @@
 #include "logger/Log.hpp"
 
 #include <cstdlib>
+#include <thread>
+#include <unistd.h>
 
 
 namespace log
