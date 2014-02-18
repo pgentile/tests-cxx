@@ -81,7 +81,9 @@ solution "TestCPP"
 			"logger/Logger.cpp",
 			"ndbm/RawStoreFile.cpp",
 			"date/LocalDateTime.cpp",
-			"date/LocalDateTimeRange.cpp"
+			"date/LocalDateTimeRange.cpp",
+			"io/memmapped/memory.cpp",
+			"io/memmapped/MemMapped.cpp"
 		}
 	
 	project "model"

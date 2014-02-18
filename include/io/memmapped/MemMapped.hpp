@@ -1,26 +1,22 @@
 #ifndef IO_MEMMAPPED_MEM_MAPPED_HPP
 #define IO_MEMMAPPED_MEM_MAPPED_HPP
 
+#include <cstddef>
 #include <cassert>
 #include <iostream>
-#include <system_error>
 #include <type_traits>
-#include <unistd.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
 #include <fcntl.h>
+#include <sys/mman.h>
 
 #include <boost/numeric/conversion/cast.hpp>
 
 #include "io/memmapped/memory.hpp"
-#include "util/ExceptionSafe.hpp"
 
 
 namespace io {
 namespace memmapped {
     
     using namespace std;
-    using boost::numeric_cast;
     
     template<typename T>
     class MemView;
@@ -29,51 +25,17 @@ namespace memmapped {
 
     public:
 
-        MemMapped(size_t length, int protections, int flags, int fd, off_t offset = 0):
-            _start(nullptr),
-            _end(nullptr),
-            _length(length)
-        {
-            _start = mmap(nullptr, length, protections, flags, fd, offset);
-            if (_start == MAP_FAILED) {
-                throw system_error(errno, system_category());
-            }
-            _end = reinterpret_cast<char*>(_start) + length;
-        }
+        MemMapped(size_t length, int protections, int flags, int fd, off_t offset = 0);
         
         MemMapped(MemMapped const &) = delete;
         
-        MemMapped(MemMapped&& src):
-            _start(src._start),
-            _end(src._end),
-            _length(src._length)
-        {    
-            src._start = nullptr;
-            src._end = nullptr;
-        }
+        MemMapped(MemMapped&& src);
 
-        ~MemMapped() {
-            EXCEPTION_SAFE_BEGIN();
-            if (_start != nullptr) {
-                if (munmap(_start, _length) == -1) {
-                    throw system_error(errno, system_category());
-                }
-            }
-            EXCEPTION_SAFE_END();
-        }
+        ~MemMapped();
         
         MemMapped& operator =(MemMapped const &) = delete;
         
-        MemMapped& operator =(MemMapped&& src) {
-            _start = src._start;
-            _end = src._end;
-            _length = src._length;
-            
-            src._start = nullptr;
-            src._end = nullptr;
-            
-            return *this;
-        }
+        MemMapped& operator =(MemMapped&& src);
 
         void* start() const {
             return _start;
@@ -126,14 +88,6 @@ namespace memmapped {
     };
 
 
-    std::ostream& operator <<(std::ostream& out, MemMapped const& mapped) {
-        out << "MemMapped(length = " << mapped.length()
-            << ", start = " << mapped.start()
-            << ", end  " << mapped.end() << ")";
-        return out;
-    }
-    
-
     template<typename T>
     class MemView
     {
@@ -146,7 +100,7 @@ namespace memmapped {
             _mapped(mapped),
             _start(start),
             _end(end),
-            _length(numeric_cast<size_t>(end - start))
+            _length(boost::numeric_cast<size_t>(end - start))
         {
         }
 
@@ -198,16 +152,23 @@ namespace memmapped {
 
     };
 
-
-    template<typename T>
-    std::ostream& operator <<(std::ostream& out, MemView<T> const& view) {
-        out << "MemView(length = " << view.length()
-            << ", start = " << static_cast<void const *>(view.start())
-            << ", end = " << static_cast<void const *>(view.end()) << ")";
-        return out;
-    }
-
 } // namespace memmapped
 } // namespace io
+
+
+namespace std {
+    
+    ostream& operator <<(ostream& out, io::memmapped::MemMapped const& mapped);
+
+
+template<typename T>
+ostream& operator <<(ostream& out, io::memmapped::MemView<T> const& view) {
+    out << "MemView(length = " << view.length()
+        << ", start = " << static_cast<void const *>(view.start())
+        << ", end = " << static_cast<void const *>(view.end()) << ")";
+    return out;
+}
+    
+} // namespace std
 
 #endif
