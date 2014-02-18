@@ -173,12 +173,10 @@ public:
         LOG(name << ", mode = " << mode);
         
         FILE* f = fopen(name, mode);
-        util::ScopeGuard fileGuard = util::makeFuncGuard(&f, fclose);
-        
         if (f == nullptr) {
-            fileGuard.dismiss();
-            throwSystemError(errno);
+            throwSystemError();
         }
+        util::ScopeGuard fileGuard = MAKE_SIMPLE_SCOPE_GUARD(fclose(f));
         
         File file(f, name, bufferSize);
         fileGuard.dismiss();
@@ -259,7 +257,7 @@ public:
         
         int fd = getDescriptor();
         if (ftruncate(fd, length) != 0) {
-            throwSystemError(errno);
+            throwSystemError();
         }
     }
     
@@ -315,12 +313,8 @@ private:
         }
     }
     
-    [[ noreturn ]] static void throwSystemError(int errNum) {
-        throw std::system_error(errNum, std::system_category());
-    }
-    
-    [[ noreturn ]] void throwSystemError() {
-        throwSystemError(errno);
+    [[ noreturn ]] static void throwSystemError() {
+        throw std::system_error(errno, std::system_category());
     }
     
     FILE* _file;

@@ -5,6 +5,14 @@
 #include <memory>
 
 #include "util/ExceptionSafe.hpp"
+#include "macros.h"
+
+
+#define SCOPE_GUARD(WHAT) ::util::ScopeGuard ANONYMOUS_VAR(_scopeGuard)(WHAT)
+
+#define MAKE_SIMPLE_SCOPE_GUARD(WHAT) ::util::ScopeGuard([&] () { WHAT; })
+
+#define SIMPLE_SCOPE_GUARD(WHAT) SCOPE_GUARD([&] () { WHAT; })
 
 
 namespace util

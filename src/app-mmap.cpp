@@ -25,14 +25,14 @@ int main() {
     cout << "Test mmap" << endl;
     cout << "Block size = " << sizeof(Tx) << endl;
     
-    size_t count = 10;
+    size_t count = 300;
     size_t length = count * sizeof(Tx);
     
-    int fd = open("bite", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+    int fd = open("tx", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
     if (fd == -1) {
         throw system_error(errno, system_category());
     }
-    ScopeGuard fdGuard = makeFuncGuard(&fd, close);
+    SIMPLE_SCOPE_GUARD(close(fd));
 
     ftruncate(fd, numeric_cast<off_t>(length));
     
@@ -40,8 +40,7 @@ int main() {
     
     MemMapped mapped(length, PROT_READ | PROT_WRITE, MAP_SHARED, fd);
     MemView<MappedType> view = mapped.viewAll<MappedType>();
-    // MemView<MappedType> view = mapped.view<MappedType>(0, length - 1);
-    MemView<MappedType> view2 = view.view(1, count - 2);
+    MemView<MappedType> view2 = mapped.view<MappedType>(1, 10);
     
     for (size_t i = 0; i < view2.length(); i++) {
         MappedType& t = view2.ref(i);
@@ -50,21 +49,11 @@ int main() {
         t.c = 10001 + numeric_cast<long>(i);
         strncpy(t.d, "pierre", 6);
     }
-    /*
-    MappedType* addr = view.start();
-    *addr = 'A';
     
-    addr = view.end() - 1;
-    *addr = 'Z';
-    
-    view2.ref(0) = 'B';
-    */
-    
-    // view.sync(MS_SYNC);
+    // view2.sync(MS_SYNC); // FIXME
     
     cout << "About MemMapped: " << mapped << endl;
     cout << "About MemView: " << view << endl;
-    cout << "About MemView2: " << view2 << endl;
         
     return 0;
 }

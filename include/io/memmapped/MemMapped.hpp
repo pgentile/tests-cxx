@@ -20,6 +20,7 @@ namespace io {
 namespace memmapped {
     
     using namespace std;
+    using boost::numeric_cast;
     
     template<typename T>
     class MemView;
@@ -29,22 +30,26 @@ namespace memmapped {
     public:
 
         MemMapped(size_t length, int protections, int flags, int fd, off_t offset = 0):
-            _length(length),
-            _start(nullptr)
+            _start(nullptr),
+            _end(nullptr),
+            _length(length)
         {
             _start = mmap(nullptr, length, protections, flags, fd, offset);
             if (_start == MAP_FAILED) {
                 throw system_error(errno, system_category());
             }
+            _end = reinterpret_cast<char*>(_start) + length;
         }
         
         MemMapped(MemMapped const &) = delete;
         
         MemMapped(MemMapped&& src):
-            _length(src._length),
-            _start(src._start)
-        {
+            _start(src._start),
+            _end(src._end),
+            _length(src._length)
+        {    
             src._start = nullptr;
+            src._end = nullptr;
         }
 
         ~MemMapped() {
@@ -60,10 +65,12 @@ namespace memmapped {
         MemMapped& operator =(MemMapped const &) = delete;
         
         MemMapped& operator =(MemMapped&& src) {
-            _length = src._length;
             _start = src._start;
+            _end = src._end;
+            _length = src._length;
             
             src._start = nullptr;
+            src._end = nullptr;
             
             return *this;
         }
@@ -73,34 +80,48 @@ namespace memmapped {
         }
 
         void* end() const {
-            return reinterpret_cast<char*>(_start) + _length;
-        }
-
-        template<typename T>
-        T* addr(size_t offset) const {
-            return reinterpret_cast<T*>(_start) + offset;
+            return _end;
         }
 
         size_t length() const {
             return _length;
         }
+
+        template<typename T>
+        T* addr(size_t offset) const {
+            T* pt = reinterpret_cast<T*>(_start) + offset;
+            assert(_start <= pt && pt <= _end);
+            return pt;
+        }
+
+        template<typename T>
+        MemView<typename std::enable_if<std::is_pod<T>::value, T>::type> view(void* start, void* end) {
+            assert(start < end);
+            assert(_start <= start && end <= _end);
+            T* startPt = reinterpret_cast<T*>(start);
+            T* endPt = reinterpret_cast<T*>(end);
+            return MemView<T>(*this, startPt, endPt);
+        }
         
         template<typename T>
         MemView<typename std::enable_if<std::is_pod<T>::value, T>::type> view(size_t offset, size_t length) {
-            return MemView<T>(*this, offset, length);
+            T* start = addr<T>(offset);
+            T* end = start + length;
+            return view<T>(start, end);
         }
         
         template<typename T>
         MemView<T> viewAll() {
-            assert(_length % sizeof(T) == 0);
-            return view<T>(0, _length / sizeof(T));
+            return view<T>(_start, _end);
         }
 
     private:
 
-        size_t _length;
-
         void* _start;
+        
+        void* _end;
+        
+        size_t _length;
 
     };
 
@@ -119,12 +140,14 @@ namespace memmapped {
 
     public:
 
-        MemView(MemMapped & mapped, size_t offset, size_t length):
+        typedef T type;
+
+        MemView(MemMapped & mapped, T* start, T* end):
             _mapped(mapped),
-            _start(mapped.addr<T>(offset)),
-            _length(length)
+            _start(start),
+            _end(end),
+            _length(numeric_cast<size_t>(end - start))
         {
-            assert(end() <= mapped.end());
         }
 
         MemView(MemView const &) = delete;
@@ -147,9 +170,13 @@ namespace memmapped {
         }
 
         T* end() const {
-            return _start + _length;
+            return _end;
         }
-
+        
+        size_t length() const {
+            return _length;
+        }
+        
         T* addr(size_t offset) const {
             return _start + offset;
         }
@@ -158,24 +185,16 @@ namespace memmapped {
             return *addr(offset);
         }
         
-        MemView<T> view(ptrdiff_t offset, size_t length) {
-            ptrdiff_t currentOffset = reinterpret_cast<char*>(_start) - reinterpret_cast<char*>(_mapped.start());
-            MemView<T> childView = MemView<T>(_mapped, currentOffset + offset, length);
-            assert(childView.end() <= end());
-            return childView;
-        }
-        
-        size_t length() const {
-            return _length;
-        }
 
     private:
 
         MemMapped& _mapped;
 
         T* const _start;
+        
+        T* const _end;
 
-        size_t _length;
+        size_t const _length;
 
     };
 
