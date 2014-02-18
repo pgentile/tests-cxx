@@ -1,18 +1,20 @@
-#ifndef MODEL_DATA_COMPTE_PAYEUR_HPP
-#define MODEL_DATA_COMPTE_PAYEUR_HPP
+#ifndef MODEL_DATA_CLIENT_HPP
+#define MODEL_DATA_CLIENT_HPP
 
 #include <cstdint>
 #include <string>
+#include <vector>
 #include <memory>
 
 #include "util/Optional.hpp"
 #include "date/LocalDateTimeRange.hpp"
+#include "model/data/CompteData.hpp"
 
 
 namespace model {
 namespace data {
 
-class ComptePayeurData final
+class ClientData final
 {
 
 public:
@@ -40,6 +42,18 @@ public:
     void setValidite(date::LocalDateTimeRange const& validite) {
         _validite = validite;
     }
+    
+    std::vector<std::shared_ptr<CompteData>>& getComptesPayeurs() {
+        return _comptesPayeurs;
+    }
+    
+    std::vector<std::shared_ptr<CompteData>> const& getComptesPayeurs() const {
+        return _comptesPayeurs;
+    }
+    
+    void setComptesPayeurs(std::vector<std::shared_ptr<CompteData>> const& comptesPayeurs) {
+        _comptesPayeurs = comptesPayeurs;
+    }
 
 private:
     
@@ -48,6 +62,8 @@ private:
     std::string _idFonc;
     
     util::Optional<date::LocalDateTimeRange> _validite;
+    
+    std::vector<std::shared_ptr<CompteData>> _comptesPayeurs;
     
 };
 

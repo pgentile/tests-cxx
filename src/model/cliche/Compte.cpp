@@ -1,14 +1,14 @@
-#include "model/cliche/ComptePayeur.hpp"
+#include "model/cliche/Compte.hpp"
 
 using namespace std;
 using date::LocalDateTime;
-using model::data::ComptePayeurData;
+using model::data::CompteData;
 
 
 namespace model {
 namespace cliche {
 
-ComptePayeur::ComptePayeur(shared_ptr<ComptePayeurData> const& data):
+Compte::Compte(shared_ptr<CompteData> const& data):
     _data(data)
 {
 }

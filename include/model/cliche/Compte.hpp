@@ -1,22 +1,22 @@
-#ifndef MODEL_CLICHE_COMPTE_PAYEUR_HPP
-#define MODEL_CLICHE_COMPTE_PAYEUR_HPP
+#ifndef MODEL_CLICHE_COMPTE_HPP
+#define MODEL_CLICHE_COMPTE_HPP
 
 #include <cstdint>
 #include <string>
 #include <vector>
 #include <memory>
 
-#include "model/data/ComptePayeurData.hpp"
+#include "model/data/CompteData.hpp"
 
 namespace model {
 namespace cliche {
 
-class ComptePayeur final
+class Compte final
 {
     
 public:
     
-    explicit ComptePayeur(std::shared_ptr<model::data::ComptePayeurData> const& data);
+    explicit Compte(std::shared_ptr<model::data::CompteData> const& data);
     
     uint64_t getId() const {
         return _data->getId();
@@ -28,7 +28,7 @@ public:
     
 private:
 
-    std::shared_ptr<model::data::ComptePayeurData> _data;
+    std::shared_ptr<model::data::CompteData> _data;
 
 };
 
