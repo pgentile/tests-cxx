@@ -27,7 +27,7 @@ namespace {
 
 extern "C" void* routine(void*) {
     while (true) {
-        cout << "Prout, " << *(echo._x) << endl;
+        cout << "Detache, " << *(echo._x) << endl;
     }
     cout << "Fin du thread" << endl;
     
