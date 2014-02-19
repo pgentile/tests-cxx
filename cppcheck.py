@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import sys
 import tempfile
 import subprocess
 from contextlib import closing
@@ -80,6 +81,9 @@ for include in get_compiler_includes():
     command += ['-I', include]
 
 command += ['--file-list=-']
+
+# Arguments de la ligne de commande
+command += sys.argv[1:]
 
 with tempfile.TemporaryFile() as temp_f:
     build_file_list(temp_f)
