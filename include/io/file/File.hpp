@@ -29,6 +29,18 @@ public:
     File& operator =(File const&) = delete;
 
     File& operator =(File&& src);
+    
+    template<typename T>
+    void write(T const* value, size_t length) {
+        if (fwrite(value, sizeof(T), length, _file) < length) {
+            throwSystemError();
+        }
+    }
+    
+    template<typename T>
+    void write(T const& value) {
+        write<T>(&value, 1);
+    }
 
     void write(std::string const& s);
 

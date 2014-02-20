@@ -28,11 +28,17 @@ File File::open(char const* name, char const* mode, size_t bufferSize) {
 File::File(FILE* file, string&& name, size_t bufferSize):
     _file(file),
     _name(move(name)),
-    _buffer(new char[bufferSize]),
+    _buffer(),
     _closed(false)
 {
-    if (setvbuf(_file, _buffer.get(), _IOFBF, bufferSize) != 0) {
-        throw runtime_error("Can't set buffer size");
+    if (bufferSize == 0) {
+        setvbuf(_file, nullptr, _IONBF, 0);
+    }
+    else if (bufferSize != DEFAULT_BUFFER_SIZE) {
+        _buffer.reset(new char[bufferSize]);
+        if (setvbuf(_file, _buffer.get(), _IOFBF, bufferSize) != 0) {
+            throw runtime_error("Can't set buffer size");
+        }
     }
 }
 
