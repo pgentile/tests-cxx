@@ -1,17 +1,21 @@
 #include <iostream>
 #include <cstring>
 #include <system_error>
-#include <fcntl.h>
 
 #include <boost/numeric/conversion/cast.hpp>
 
 #include "io/memmapped/MemMapped.hpp"
+#include "io/file/File.hpp"
 #include "util/ScopeGuard.hpp"
 
 using namespace std;
 using namespace io::memmapped;
+using namespace io::file;
 using namespace util;
 using boost::numeric_cast;
+
+
+#define LOG(MSG) (cout << __func__ << ", L" << __LINE__ << ": " << MSG << endl)
 
 
 struct Tx {
@@ -23,38 +27,49 @@ struct Tx {
 
 
 int main() {
-    cout << "Test mmap" << endl;
-    cout << "Block size = " << sizeof(Tx) << endl;
-    
-    size_t count = 300;
-    size_t length = count * sizeof(Tx);
-    
-    int fd = open("tx", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-    if (fd == -1) {
-        throw system_error(errno, system_category());
-    }
-    SIMPLE_SCOPE_GUARD(close(fd));
-
-    ftruncate(fd, numeric_cast<off_t>(length));
-    
     typedef Tx MappedType;
     
-    MemMapped mapped(length, PROT_READ | PROT_WRITE, MAP_SHARED, fd);
+    LOG("sizeof(File) = " << sizeof(File));
+    LOG("sizeof(MemMapped) = " << sizeof(MemMapped));
+    LOG("sizeof(MemView) = " << sizeof(MemView<MappedType>));
+    
+    LOG("Test mmap");
+    LOG("Block size = " << sizeof(MappedType));
+    
+    size_t count = 300;
+    size_t length = count * sizeof(MappedType);
+    
+    File file = File::open("tx", "w+");
+    file.truncate(numeric_cast<off_t>(length));
+    
+    // Ce qui est fabrique par ce bloc sera efface
+    {
+        MappedType t;
+        t.a = 8956;
+        t.b = 'Z';
+        t.c = 1024;
+        strncpy(t.d, "1234", 4);
+        
+        file.write(t);
+        file.flush();
+    }
+    
+    MemMapped mapped(length, PROT_READ | PROT_WRITE, MAP_SHARED, file.getDescriptor());
     MemView<MappedType> view = mapped.viewAll<MappedType>();
-    MemView<MappedType> view2 = mapped.view<MappedType>(1, 10);
+    MemView<MappedType> view2 = mapped.view<MappedType>(0, 10);
     
     for (size_t i = 0; i < view2.length(); i++) {
         MappedType& t = view2.ref(i);
         t.a += numeric_cast<int>(i) + 1;
         t.b = 'G';
         t.c = 10001 + numeric_cast<long>(i);
-        strncpy(t.d, "pierre", 6);
+        strncpy(t.d, "123456", 6);
     }
     
     // view2.sync(MS_SYNC); // FIXME
     
-    cout << "About MemMapped: " << mapped << endl;
-    cout << "About MemView: " << view << endl;
+    LOG("About MemMapped: " << mapped);
+    LOG("About MemView: " << view);
         
     return 0;
 }
