@@ -14,6 +14,7 @@
 #include "util/Optional.hpp"
 #include "util/ScopeGuard.hpp"
 #include "util/ExceptionSafe.hpp"
+#include "io/file/File.hpp"
 
 using std::cout;
 using std::endl;
@@ -162,175 +163,9 @@ void testLocale() {
 }
 
 
-class File final
-{
-
-public:
-    
-    static size_t const DEFAULT_BUFFER_SIZE = BUFSIZ;
-    
-    static File open(char const* name, char const* mode, size_t bufferSize = DEFAULT_BUFFER_SIZE) {
-        LOG(name << ", mode = " << mode);
-        
-        FILE* f = fopen(name, mode);
-        if (f == nullptr) {
-            throwSystemError();
-        }
-        util::ScopeGuard fileGuard = MAKE_SIMPLE_SCOPE_GUARD(fclose(f));
-        
-        File file(f, name, bufferSize);
-        fileGuard.dismiss();
-        return file;
-    }
-
-    File(File const&) = delete;
-    
-    File(File&& src):
-        _file(src._file),
-        _name(std::move(src._name)),
-        _buffer(src._buffer),
-        _closed(src._closed)
-    {
-        OBJ_LOG("Moving " << &src);
-        
-        src._file = nullptr;
-        src._buffer = nullptr;
-        src._closed = true;
-    }
-    
-    ~File() {
-        OBJ_LOG("Delete file");
-        EXCEPTION_SAFE_BEGIN();
-        close();
-        delete[] _buffer;
-        EXCEPTION_SAFE_END();
-    }
-    
-    File& operator =(File const&) = delete;
-    
-    File& operator=(File&& src) {
-        _file = src._file;
-        _name = std::move(src._name);
-        _buffer = src._buffer;
-        _closed = src._closed;
-        
-        src._file = nullptr;
-        src._buffer = nullptr;
-        src._closed = true;
-        
-        return *this;
-    }
-    
-    void write(std::string const& s) {
-        write(s.c_str(), s.size());
-    }
-    
-    void write(char const* s, size_t length) {
-        if (fwrite(s, sizeof(char), length, _file) < length) {
-            throwSystemError();
-        }
-    }
-    
-    void write(char const* s) {
-        OBJ_LOG("Write a string " << s);
-        if (fputs(s, _file) == EOF) {
-            throwSystemError();
-        }
-    }
-    
-    void write(char c) {
-        if (fputc(c, _file) == EOF) {
-            throwSystemError();
-        }
-    }
-    
-    void flush() {
-        if (fflush(_file) == EOF) {
-            throwSystemError();
-        }
-    }
-    
-    void truncate(off_t length) {
-        flush();
-        
-        OBJ_LOG("Current position = " << tell() << ", truncate length = " << length);
-        
-        int fd = getDescriptor();
-        if (ftruncate(fd, length) != 0) {
-            throwSystemError();
-        }
-    }
-    
-    long int tell() {
-        long int position = ftell(_file);
-        if (position < 0) {
-            throwSystemError();
-        }
-        return position;
-    }
-    
-    void close() {
-        OBJ_LOG("Close, state = " << _closed);
-        if (!_closed) {
-            _closed = true;
-            if (fclose(_file) != 0) {
-                throwSystemError();
-            }
-        }
-    }
-    
-    int getDescriptor() {
-        if (_closed) {
-            throw std::runtime_error("File is closed");
-        }
-        return fileno(_file);
-    }
-    
-    bool isOpen() const {
-        return !_closed;
-    }
-    
-    std::string const& getName() const {
-        return _name;
-    }
-
-private:
-    
-    File(FILE* file, std::string const& name, size_t bufferSize):
-        _file(file),
-        _name(name),
-        _buffer(nullptr),
-        _closed(false)
-    {
-        OBJ_LOG("Associate a buffer of " << bufferSize << " bytes");
-        
-        std::unique_ptr<char[]> buffer(new char[bufferSize]);
-        if (setvbuf(_file, buffer.get(), _IOFBF, bufferSize) == 0) {
-            _buffer = buffer.release();
-        }
-        else {
-            throw std::runtime_error("Can't set buffer size");
-        }
-    }
-    
-    [[ noreturn ]] static void throwSystemError() {
-        throw std::system_error(errno, std::system_category());
-    }
-    
-    FILE* _file;
-    
-    std::string _name;
-    
-    char* _buffer;
-    
-    bool _closed;
-
-};
-
-
 void testOutputFile() {
     try {
-        File file = File::open("abc.txt", "r", 32 * 1024);
+        io::file::File file = io::file::File::open("abc.txt", "w", 32 * 1024);
         file.write("123");
         file.truncate(1024);
         file.close();
@@ -340,12 +175,6 @@ void testOutputFile() {
     }
     catch (std::exception const& e) {
         LOG("Error : " << e.what());
-    }
-    
-    int* i = nullptr;
-    {
-        i = new int(5);
-        util::ScopeGuard guard = util::makeDeleteGuard(&i);
     }
 }
 
