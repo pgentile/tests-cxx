@@ -18,26 +18,41 @@ namespace util
         
     public:
         
-        Optional(): _defined(false) {
+        Optional():
+            _defined(false),
+            _storage()
+        {
         }
 
-        Optional(Optional const& src): _defined(src._defined) {
+        Optional(Optional const& src):
+            _defined(src._defined),
+            _storage()
+        {
             if (_defined) {
                 new (&_storage) T(src.ref());
             }
         }
         
-        Optional(Optional&& src): _defined(src._defined) {
+        Optional(Optional&& src):
+            _defined(src._defined),
+            _storage()
+        {
             if (_defined) {
                 new (&_storage) T(std::move(src.ref()));
             }
         }
 
-        explicit Optional(T const& v): _defined(true) {
+        explicit Optional(T const& v):
+            _defined(true),
+            _storage()
+        {
             new (&_storage) T(v);
         }
 
-        explicit Optional(T&& v): _defined(true) {
+        explicit Optional(T&& v):
+            _defined(true),
+            _storage()
+        {
             new (&_storage) T(std::move(v));
         }
     
@@ -75,8 +90,8 @@ namespace util
             }
             else {
                 new (&_storage) T(v);
+                _defined = true;
             }
-            _defined = true;
             return *this;
         }
         
@@ -86,8 +101,8 @@ namespace util
             }
             else {
                 new (&_storage) T(std::move(v));
+                _defined = true;
             }
-            _defined = true;
             return *this;
         }
         
