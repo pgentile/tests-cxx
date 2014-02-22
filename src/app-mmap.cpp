@@ -39,37 +39,46 @@ int main() {
     size_t count = 300;
     size_t length = count * sizeof(MappedType);
     
-    File file = File::open("tx", "w+");
-    file.truncate(numeric_cast<off_t>(length));
+    try {
+        File file = File::open("tx", "w+");
+        file.truncate(numeric_cast<off_t>(length));
     
-    // Ce qui est fabrique par ce bloc sera efface
-    {
-        MappedType t;
-        t.a = 8956;
-        t.b = 'Z';
-        t.c = 1024;
-        strncpy(t.d, "1234", 4);
+        // Ce qui est fabrique par ce bloc sera efface
+        {
+            MappedType t;
+            memset(&t, '\0', sizeof(MappedType));
         
-        file.write(t);
-        file.flush();
+            t.a = 8956;
+            t.b = 'Z';
+            t.c = 1024;
+            strncpy(t.d, "1234", 4);
+        
+            file.write(t);
+            file.flush();
+        
+            LOG("Position courante : " << file.tell());
+        }
+    
+        MemMapped mapped(length, PROT_READ | PROT_WRITE, MAP_SHARED, file.getDescriptor());
+        MemView<MappedType> view = mapped.viewAll<MappedType>();
+        MemView<MappedType> view2 = mapped.view<MappedType>(0, 10);
+    
+        for (size_t i = 0; i < view2.length(); i++) {
+            MappedType& t = view2.ref(i);
+            t.a += numeric_cast<int>(i) + 1;
+            t.b = 'G';
+            t.c = 10001 + numeric_cast<long>(i);
+            strncpy(t.d, "123456", 6);
+        }
+    
+        // view2.sync(MS_SYNC); // FIXME
+    
+        LOG("About MemMapped: " << mapped);
+        LOG("About MemView: " << view);
     }
-    
-    MemMapped mapped(length, PROT_READ | PROT_WRITE, MAP_SHARED, file.getDescriptor());
-    MemView<MappedType> view = mapped.viewAll<MappedType>();
-    MemView<MappedType> view2 = mapped.view<MappedType>(0, 10);
-    
-    for (size_t i = 0; i < view2.length(); i++) {
-        MappedType& t = view2.ref(i);
-        t.a += numeric_cast<int>(i) + 1;
-        t.b = 'G';
-        t.c = 10001 + numeric_cast<long>(i);
-        strncpy(t.d, "123456", 6);
+    catch (exception const& e) {
+        LOG("Exception attrapee : " << e.what());
     }
-    
-    // view2.sync(MS_SYNC); // FIXME
-    
-    LOG("About MemMapped: " << mapped);
-    LOG("About MemView: " << view);
         
     return 0;
 }

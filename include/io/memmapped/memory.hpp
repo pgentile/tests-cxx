@@ -22,7 +22,7 @@ inline int getPageSize() {
     return getpagesize();
 }
 
-}
+} // namespace memory
 } // namespace memmapped
 } // namespace io
 

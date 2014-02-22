@@ -16,7 +16,7 @@ namespace util {
 		
 	public:
 		
-		explicit Backtrace(bool initElements = true);
+		explicit Backtrace(Optional<unsigned int> strip = Optional<unsigned int>());
 
 		Backtrace(const Backtrace& src);
 		

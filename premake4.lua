@@ -193,3 +193,10 @@ solution "TestCPP"
         targetdir "bin"
         links { "common" }
         sources { "streams.cpp" }
+    
+    project "test-optional"
+        kind "ConsoleApp"
+        extra_warnings()
+        targetdir "bin"
+        links { "common" }
+        sources { "test-optional.cpp" }

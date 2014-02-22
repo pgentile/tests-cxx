@@ -5,11 +5,14 @@
 #include <iostream>
 #include <algorithm>
 
+#include <boost/numeric/conversion/cast.hpp>
+
 #include "util/reflection.hpp"
 
 using namespace std;
 using namespace util;
 using namespace util::reflection;
+using boost::numeric_cast;
 
 
 #define BACKTRACE_MAX_SIZE 100
@@ -41,18 +44,19 @@ namespace util {
 	
 	// Classe Backtrace
 	
-	Backtrace::Backtrace(bool initElements) {
-		if (initElements) {
-			void* allAddr[BACKTRACE_MAX_SIZE];
-			int nbEntries = backtrace(allAddr, BACKTRACE_MAX_SIZE);
-		
-			for (int i = 0; i < nbEntries; i++) {
-				void* addr = allAddr[i];
-				Optional<StackElement> element = createStackElement(addr);
-				if (element) {
-				    _elements.push_back(move(*element));
-			    }
-			}
+	Backtrace::Backtrace(Optional<unsigned int> strip) {
+		void* allAddr[BACKTRACE_MAX_SIZE];
+		unsigned int nbEntries = numeric_cast<unsigned int>(backtrace(allAddr, BACKTRACE_MAX_SIZE));
+	
+	    // Ajouter + 1 pour exclure le constructeur du backtrace
+        unsigned int realStrip = strip.apply([] (unsigned int n) { return n + 1; }).orDefault(0);
+	
+		for (unsigned int i = realStrip; i < nbEntries; i++) {
+			void* addr = allAddr[i];
+			Optional<StackElement> element = createStackElement(addr);
+			if (element) {
+			    _elements.push_back(move(*element));
+		    }
 		}
 	}
 	

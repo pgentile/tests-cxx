@@ -253,10 +253,13 @@ namespace testalign {
             Optional<int> x(6);
             Optional<int> y;
             Optional<int> z(7);
+            
+            Optional<long> a(z);
 
             cout << "x: " << x << endl;
             cout << "y: " << y << endl;
             cout << "z: " << z << endl;
+            cout << "a: " << a << endl;
 
             y = x;
             z = x;

@@ -9,6 +9,8 @@
 #include <cassert>
 #include <utility>
 
+#include "util/ExceptionSafe.hpp"
+
 
 namespace util
 {
@@ -42,14 +44,14 @@ namespace util
             }
         }
 
-        explicit Optional(T const& v):
+        Optional(T const& v):
             _defined(true),
             _storage()
         {
             new (&_storage) T(v);
         }
 
-        explicit Optional(T&& v):
+        Optional(T&& v):
             _defined(true),
             _storage()
         {
@@ -57,13 +59,20 @@ namespace util
         }
     
         ~Optional() {
+            EXCEPTION_SAFE_BEGIN();
             reset();
+            EXCEPTION_SAFE_END();
         }
         
         Optional& operator =(Optional const& src) {
             if (src._defined) {
-                ref() = src.ref();
-                _defined = true;
+                if (_defined) {
+                    ref() = src.ref();
+                }
+                else {
+                    new (&_storage) T(src.ref());
+                    _defined = true;
+                }
             }
             else if (_defined) {
                 pt()->~T();
@@ -74,8 +83,13 @@ namespace util
         
         Optional& operator =(Optional&& src) {
             if (src._defined) {
-                ref() = std::move(src.ref());
-                _defined = true;
+                if (_defined) {
+                    ref() = std::move(src.ref());
+                }
+                else {
+                    new (&_storage) T(std::move(src.ref()));
+                    _defined = true;
+                }
             }
             else if (_defined) {
                 pt()->~T();
@@ -157,6 +171,16 @@ namespace util
         
         bool operator!() const {
             return !_defined;
+        }
+        
+        template<typename R>
+        operator Optional<R>() const {
+            if (_defined) {
+                return Optional<R>(static_cast<R>(ref()));
+            }
+            else {
+                return Optional<R>();
+            }
         }
         
         void reset() {
