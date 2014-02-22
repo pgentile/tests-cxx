@@ -9,7 +9,7 @@
 #include <fcntl.h>
 
 #include "io/memmapped/memory.hpp"
-#include "util/ExceptionSafe.hpp"
+#include "util/exceptionsafe.hpp"
 
 using namespace std;
 

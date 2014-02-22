@@ -9,7 +9,7 @@
 #include <cassert>
 #include <utility>
 
-#include "util/ExceptionSafe.hpp"
+#include "util/exceptionsafe.hpp"
 
 
 namespace util
@@ -57,7 +57,7 @@ namespace util
         {
             new (&_storage) T(std::move(v));
         }
-    
+
         ~Optional() {
             EXCEPTION_SAFE_BEGIN();
             reset();
@@ -140,7 +140,7 @@ namespace util
             return pt();
         }
 
-        bool operator ==(Optional<T> const other) const {
+        bool operator ==(Optional const other) const {
             bool result = false;
             if (this == &other) {
                 result = true;
@@ -154,7 +154,7 @@ namespace util
             return result;
         }
         
-        bool operator <(Optional<T> const other) const {
+        bool operator <(Optional const other) const {
             bool result = false;
             if (!_defined && other._defined) {
                 result = true;
@@ -173,13 +173,13 @@ namespace util
             return !_defined;
         }
         
-        template<typename R>
-        operator Optional<R>() const {
+        template<typename TT>
+        operator Optional<TT>() const {
             if (_defined) {
-                return Optional<R>(static_cast<R>(ref()));
+                return Optional<TT>(static_cast<TT>(ref()));
             }
             else {
-                return Optional<R>();
+                return Optional<TT>();
             }
         }
         

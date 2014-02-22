@@ -44,9 +44,17 @@ public:
         return *this;
     }
     
+    string& getString() {
+        return _s;
+    }
+    
+    string const& getString() const {
+        return _s;
+    }
+    
     friend ostream& operator <<(ostream& out, BaseClass const& bc);
 
-protected:
+private:
     
     string _s;
     
@@ -90,9 +98,8 @@ public:
     }
     
     explicit operator string() const {
-        OBJ_LOG("Conversion en string pour " << this);
-        OBJ_LOG("Conversion en string pour " << &_s);
-        return _s;
+        OBJ_LOG("Conversion en string pour " << *this);
+        return getString();
     }
     
     friend ostream& operator <<(ostream& out, DerivedClass const& bc);
@@ -193,14 +200,28 @@ void testDerivedTypes() {
         
         LOG("To String");
         
+        a2 = DerivedClass("zzz");
+        
         Optional<string> c1 = static_cast<Optional<string>>(static_cast<string>(*a1));
-        Optional<string> c2 = static_cast<Optional<string>>(a2);
+        Optional<string> c2(a2);
         
         LOG("a1 = " << a1);
         LOG("a2 = " << a2);
         
         LOG("c1 = " << c1);
         LOG("c2 = " << c2);
+        
+        LOG("Apply");
+        
+        b1 = b1.apply([] (BaseClass const& obj) {
+            return BaseClass(string("APPLY1 " + obj.getString()));
+        });
+        b2 = b2.apply([] (BaseClass const& obj) {
+            return BaseClass(string("APPLY2 " + obj.getString()));
+        });
+    
+        LOG("b1 = " << b1);
+        LOG("b2 = " << b2);
         
         LOG("Fin");
     }

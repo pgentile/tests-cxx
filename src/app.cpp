@@ -4,7 +4,7 @@
 #include "ndbm/RawStoreFile.hpp"
 #include "util/Backtrace.hpp"
 #include "util/reflection.hpp"
-#include "util/ExceptionSafe.hpp"
+#include "util/exceptionsafe.hpp"
 #include "util/Singleton.hpp"
 
 #include <cstddef>
