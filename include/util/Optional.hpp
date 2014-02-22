@@ -169,9 +169,7 @@ namespace util
         void swap(Optional& other) {
             if (this != &other) {
                 if (_defined && other._defined) {
-                    T temp = std::move(ref());
-                    ref() = std::move(other.ref());
-                    other.ref() = std::move(temp);
+                    ::std::swap(ref(), other.ref());
                 }
                 else if (_defined) {
                     other.ref() = std::move(ref());
