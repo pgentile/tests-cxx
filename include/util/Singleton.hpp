@@ -13,27 +13,8 @@
 
 namespace util
 {	
-	
-	class UnexistingSingletonError: public std::runtime_error
-	{
-		
-	public:
-		
-		inline UnexistingSingletonError(const std::string& reason): runtime_error(_createMessage(reason))
-		{
-		}
-	
-	private:
-		
-		static std::string _createMessage(const std::string& reason)
-		{
-			return "Can't create singleton: " + reason;
-		}
-		
-	};
-	
-	
-	extern void registerDestructor(void (*destructorFunc)(void));
+
+	void registerDestructor(void (*destructorFunc)(void));
 	
 
 	/**
@@ -48,11 +29,10 @@ namespace util
 			static T& instance()
 			{
                 std::call_once(_onceFlag, _createInstance);
-                T* instancePt = _instance;
-				if (instancePt == nullptr) {
-					throw UnexistingSingletonError(_error);
-				}
-				return *instancePt;
+                if (_exception) {
+                    std::rethrow_exception(_exception);
+                }
+				return *_instance;
 			}
 			
             Singleton(Singleton const&) = delete;
@@ -75,14 +55,11 @@ namespace util
 				try {
 					_instance = new T();
 					registerDestructor(_deleteInstance);
-				} catch (const std::exception& e) {
-					_error = e.what();
+				}
+				catch (...) {
+                    _exception = std::current_exception();
 					delete _instance;
-					_instance = NULL;
-				} catch (...) {
-                    _error = "Can't create singleton";
-					delete _instance;
-					_instance = NULL;
+					_instance = nullptr;
 				}
 			}
 			
@@ -95,7 +72,7 @@ namespace util
 					
 			static std::atomic<T*> _instance;
 			
-			static std::string _error;
+			static std::exception_ptr _exception;
 	
 	};
 	
@@ -106,7 +83,7 @@ namespace util
     std::atomic<T*> Singleton<T>::_instance(nullptr);
 	
 	template<class T>
-	std::string Singleton<T>::_error;
+	std::exception_ptr Singleton<T>::_exception;
 
 }
 
