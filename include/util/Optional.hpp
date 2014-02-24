@@ -5,7 +5,6 @@
 #include <memory>
 #include <algorithm>
 #include <type_traits>
-#include <functional>
 #include <cassert>
 #include <utility>
 
@@ -215,9 +214,7 @@ namespace util
             if (_defined) {
                 return Optional<R>(func(ref()));
             }
-            else {
-                return Optional<R>();
-            }
+            return Optional<R>();
         }
         
         template<typename F, typename R = typename std::result_of<F(T const&)>::type::type>
@@ -225,9 +222,7 @@ namespace util
             if (_defined) {
                 return func(ref());
             }
-            else {
-                return Optional<R>();
-            }
+            return Optional<R>();
         }
         
         T& orDefault(T& def) {
