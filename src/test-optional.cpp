@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <sstream>
 
 #include "util/Optional.hpp"
 
@@ -228,8 +229,22 @@ void testDerivedTypes() {
 }
 
 
+void testFlatMap() {
+    Optional<long> a = 5;
+    
+    Optional<std::string> aAsString = a.flatMap([] (long x) {
+        stringstream stream;
+        stream << "VALUE=" << x;
+        return Optional<string>(stream.str());
+    });
+    
+    LOG("aAsString = " << aAsString);
+}
+
+
 int main() {
     // testBasicTypes();
-    testDerivedTypes();
+    // testDerivedTypes();
+    testFlatMap();
     return 0;
 }

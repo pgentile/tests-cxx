@@ -20,6 +20,8 @@ namespace util
         
     public:
         
+        typedef T type;
+        
         Optional():
             _defined(false),
             _storage()
@@ -212,6 +214,16 @@ namespace util
         Optional<R> apply(F func) const {
             if (_defined) {
                 return Optional<R>(func(ref()));
+            }
+            else {
+                return Optional<R>();
+            }
+        }
+        
+        template<typename F, typename R = typename std::result_of<F(T const&)>::type::type>
+        Optional<R> flatMap(F func) const {
+            if (_defined) {
+                return func(ref());
             }
             else {
                 return Optional<R>();
