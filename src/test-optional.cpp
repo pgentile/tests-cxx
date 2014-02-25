@@ -112,7 +112,6 @@ ostream& operator <<(ostream& out, DerivedClass const& dc) {
 }
 
 
-/*
 void testBasicTypes() {
     LOG("Test basic types");
     
@@ -130,7 +129,6 @@ void testBasicTypes() {
         LOG("b2 = " << b2);
     }
 }
-*/
 
 
 void testDerivedTypes() {
@@ -243,8 +241,8 @@ void testFlatMap() {
 
 
 int main() {
-    // testBasicTypes();
-    // testDerivedTypes();
+    testBasicTypes();
+    testDerivedTypes();
     testFlatMap();
     return 0;
 }

@@ -200,3 +200,10 @@ solution "TestCPP"
         targetdir "bin"
         links { "common" }
         sources { "test-optional.cpp" }
+
+    project "test-try"
+        kind "ConsoleApp"
+        extra_warnings()
+        targetdir "bin"
+        links { "common" }
+        sources { "test-try.cpp" }
