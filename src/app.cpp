@@ -390,7 +390,7 @@ public:
 		
 	}
 
-	~TestNoThrow() throw() {
+	~TestNoThrow() noexcept {
 		EXCEPTION_SAFE_BEGIN();
 		stringstream message;
 		message << __func__ << " : Test...";

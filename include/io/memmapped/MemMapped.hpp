@@ -31,7 +31,7 @@ namespace memmapped {
         
         MemMapped(MemMapped&& src);
 
-        ~MemMapped();
+        ~MemMapped() noexcept;
         
         MemMapped& operator =(MemMapped const &) = delete;
         

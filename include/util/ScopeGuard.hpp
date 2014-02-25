@@ -8,6 +8,8 @@
 #include "macros.h"
 
 
+#include <iostream>
+
 #define SCOPE_GUARD(WHAT) ::util::ScopeGuard ANONYMOUS_VAR(_scopeGuard)(WHAT)
 
 #define MAKE_SIMPLE_SCOPE_GUARD(WHAT) ::util::ScopeGuard([&] () { WHAT; })
@@ -21,27 +23,32 @@ namespace util
     class ScopeGuard final
     {
         
-    public:
+    public:    
         
-        explicit ScopeGuard(std::function<void()> cleaner):
+        ScopeGuard():
+            _cleaner(nullptr)
+        {
+        }
+        
+        explicit ScopeGuard(std::function<void()> const& cleaner):
             _cleaner(cleaner)
         {
         }
         
-        ScopeGuard(): ScopeGuard(nullptr) {
-            
+        explicit ScopeGuard(std::function<void()>&& cleaner):
+            _cleaner(std::move(cleaner))
+        {
         }
         
         ScopeGuard(ScopeGuard&& src):
-            _cleaner(src._cleaner)
+            _cleaner(std::move(src._cleaner))
         {
-            src._cleaner = nullptr;
         }
         
         ScopeGuard(ScopeGuard const&) = delete;
         
-        ~ScopeGuard() throw () {
-            if (_cleaner != nullptr) {
+        ~ScopeGuard() noexcept {
+            if (_cleaner) {
                 EXCEPTION_SAFE_BEGIN();
                 _cleaner();
                 EXCEPTION_SAFE_END();
@@ -49,8 +56,7 @@ namespace util
         }
         
         ScopeGuard& operator =(ScopeGuard&& src) {
-            _cleaner = src._cleaner;
-            src._cleaner = nullptr;
+            _cleaner = std::move(src._cleaner);
             return *this;
         }
         
@@ -65,30 +71,6 @@ namespace util
         std::function<void()> _cleaner;
 
     };
-    
-    
-    template<typename T, typename C>
-    ScopeGuard makeFuncGuard(T* target, C cleaner) {
-        return ScopeGuard([=] { cleaner(*target); });
-    }
-    
-    
-    template<typename T, typename C>
-    ScopeGuard makeObjGuard(T* target, C cleaner) {
-        return ScopeGuard([=] { (target->*cleaner)(); });
-    }
-    
-    
-    template<typename T, typename D = std::default_delete<T>>
-    ScopeGuard makeDeleteGuard(T** target, D deleter = D()) {
-        return ScopeGuard([target, &deleter] { deleter(*target); *target = nullptr; });
-    }
-    
-
-    template<typename T, typename D = std::default_delete<T[]>>
-    ScopeGuard makeDeleteArrayGuard(T** target, D deleter = D()) {
-        return makeDeleteGuard(target, deleter);
-    }
 
 }
 

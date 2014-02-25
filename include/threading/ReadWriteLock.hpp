@@ -20,7 +20,7 @@ namespace threading {
 		
 		ReadWriteLock();
 		
-		~ReadWriteLock();
+		~ReadWriteLock() noexcept;
 		
         ReadWriteLock(ReadWriteLock const&) = delete;
         ReadWriteLock& operator =(ReadWriteLock const&) = delete;
@@ -38,7 +38,7 @@ namespace threading {
 			
 			ReadLock(ReadWriteLock& lock);
 			
-			~ReadLock();
+			~ReadLock() noexcept;
 			
             ReadLock(ReadLock const&) = delete;
             ReadLock& operator =(ReadLock const&) = delete;
@@ -56,7 +56,7 @@ namespace threading {
 			
 			WriteLock(ReadWriteLock& lock);
 			
-			~WriteLock();
+			~WriteLock() noexcept;
 			
             WriteLock(WriteLock const&) = delete;
             WriteLock& operator =(WriteLock const&) = delete;

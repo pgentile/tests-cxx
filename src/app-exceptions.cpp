@@ -14,7 +14,7 @@ class X {
   
 public:
     
-    virtual ~X() throw() {
+    virtual ~X() noexcept {
         EXCEPTION_SAFE_BEGIN();
         cout << __func__ << endl;
         throw runtime_error("Ca marche pas");

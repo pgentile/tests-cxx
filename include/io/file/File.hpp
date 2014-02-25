@@ -24,7 +24,7 @@ public:
 
     File(File&& src);
 
-    ~File();
+    ~File() noexcept;
 
     File& operator =(File const&) = delete;
 

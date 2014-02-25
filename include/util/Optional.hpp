@@ -59,7 +59,7 @@ namespace util
             new (&_storage) T(std::move(v));
         }
 
-        ~Optional() {
+        ~Optional() noexcept {
             EXCEPTION_SAFE_BEGIN();
             reset();
             EXCEPTION_SAFE_END();
