@@ -73,6 +73,13 @@ namespace memmapped {
         }
         
         template<typename T>
+        MemView<typename std::enable_if<std::is_pod<T>::value, T>::type> viewFrom(void* start, size_t length) {
+            T* startPt = reinterpret_cast<T*>(start);
+            T* endPt = startPt + length;
+            return MemView<T>(*this, startPt, endPt);
+        }
+        
+        template<typename T>
         MemView<T> viewAll() {
             return view<T>(_start, _end);
         }

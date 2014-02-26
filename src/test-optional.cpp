@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "util/Optional.hpp"
+#include "util/ScopeGuard.hpp"
 
 using namespace std;
 using namespace util;
@@ -240,9 +241,27 @@ void testFlatMap() {
 }
 
 
+Optional<BaseClass> createBaseOptional() {
+    SIMPLE_SCOPE_GUARD(LOG("Optional<DerivedClass> cree"));
+    Optional<BaseClass> opt = Optional<BaseClass>::createInPlace("Hello !");
+    LOG("addr(opt) = " << &opt);
+    return opt;
+}
+
+
+void testReturnValueOptim() {
+    LOG("Test return value optim");
+    Optional<BaseClass> optional = createBaseOptional();
+    LOG("addr(optional) = " << &optional);
+    LOG("RVO = " << optional);
+}
+
+
 int main() {
-    testBasicTypes();
-    testDerivedTypes();
-    testFlatMap();
+    // testBasicTypes();
+    // testDerivedTypes();
+    // testFlatMap();
+    // createDerivedOptional();
+    testReturnValueOptim();
     return 0;
 }

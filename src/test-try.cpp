@@ -30,5 +30,20 @@ int main() {
         cout << "Transformed: " << *(transformMe(5)) << endl;
     }
     
+    {
+        Try<Optional<int>> tryOptional(Optional<int>{1});
+        
+        cout << "Try = " << *tryOptional << endl;
+        
+        Try<int> tryInt = tryOptional.flatMap([] (Optional<int> const& optional) {
+            if (optional) {
+                return Try<int>(*optional);
+            }
+            return Try<int>(make_exception_ptr(runtime_error("Undefined")));
+        });
+        
+        cout << "FlatMap: " << *tryInt << endl;
+    }
+    
     return 0;
 }

@@ -17,7 +17,7 @@ class TryImpl {
 
 public:
 
-    virtual ~TryImpl() {
+    virtual ~TryImpl() noexcept {
     }
     
     virtual T& get() = 0;
@@ -46,7 +46,7 @@ public:
     {
     }
 
-    virtual ~SuccessImpl() {
+    virtual ~SuccessImpl() noexcept {
     }
     
     virtual T& get() override {
@@ -57,7 +57,7 @@ public:
         return _value;
     }
     
-    virtual bool isSuccess() const {
+    virtual bool isSuccess() const override {
         return true;
     }
     
@@ -80,20 +80,21 @@ public:
     FailureImpl(std::exception_ptr exc):
         _exc(exc)
     {
+        assert(static_cast<bool>(exc));
     }
 
-    virtual ~FailureImpl() {
+    virtual ~FailureImpl() noexcept {
     }
     
-    virtual T& get() override {
+    [[ noreturn ]] virtual T& get() override {
         std::rethrow_exception(_exc);
     }
     
-    virtual T const& get() const override {
+    [[ noreturn ]] virtual T const& get() const override {
         std::rethrow_exception(_exc);
     }
     
-    virtual bool isSuccess() const {
+    virtual bool isSuccess() const override {
         return false;
     }
     
@@ -124,7 +125,6 @@ public:
     Try(std::exception_ptr exc): Try(new FailureImpl<T>(exc)) {
     }
     
-    
     Try(Try const& src): Try(nullptr) {
         if (src) {
             _impl.reset(new SuccessImpl<T>(*src));
@@ -138,6 +138,9 @@ public:
     Try(Try&& src):
         _impl(std::move(src._impl))
     {
+    }
+    
+    ~Try() noexcept {
     }
     
     Try& operator =(Try&& src) {
@@ -172,19 +175,19 @@ public:
         return !(_impl->isSuccess());
     }
     
-    explicit operator Optional<T>() const  {
+    explicit operator Optional<T>() const {
         if (_impl->isSuccess()) {
             return Optional<T>(_impl->get());
         }
         return Optional<T>();
     }
-    
+
     std::exception_ptr getException() const {
         return _impl->getException();
     }
     
     template<typename F, typename R = typename std::result_of<F(T const&)>::type>
-    Try<R> apply(F func) const {
+    Try<R> apply(F const& func) const {
         if (_impl->isSuccess()) {
             return Try(func(_impl->get()));
         }
@@ -192,16 +195,16 @@ public:
     }
     
     template<typename F, typename R = typename std::result_of<F(T const&)>::type::type>
-    Try<R> flatMap(F func) const {
+    Try<R> flatMap(F const& func) const {
         if (_impl->isSuccess()) {
             return func(_impl->get());
         }
-        return Try(_impl->getException());
+        return Try<R>(_impl->getException());
     }
     
     template<typename I>
-    static std::function<Try<T>(I) noexcept> of(std::function<T(I)> const& func) {
-        return [func] (I const& value) {
+    static std::function<Try<T>(I) noexcept> of(std::function<T(I)> func) {
+        return [func] (I const& value) noexcept {
             try {
                 return Try<T>(func(value));
             }

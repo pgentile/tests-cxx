@@ -65,6 +65,14 @@ namespace util
             EXCEPTION_SAFE_END();
         }
         
+        template<typename... A>
+        static Optional<T> createInPlace(A&&... args) {
+            Optional<T> optional;
+            optional.setInPlace(args...);
+            return optional;
+        }
+        
+        
         Optional& operator =(Optional const& src) {
             if (src._defined) {
                 if (_defined) {
@@ -210,7 +218,7 @@ namespace util
         }
         
         template<typename F, typename R = typename std::result_of<F(T const&)>::type>
-        Optional<R> apply(F func) const {
+        Optional<R> apply(F const& func) const {
             if (_defined) {
                 return Optional<R>(func(ref()));
             }
@@ -218,7 +226,7 @@ namespace util
         }
         
         template<typename F, typename R = typename std::result_of<F(T const&)>::type::type>
-        Optional<R> flatMap(F func) const {
+        Optional<R> flatMap(F const& func) const {
             if (_defined) {
                 return func(ref());
             }
@@ -242,13 +250,22 @@ namespace util
                 return def;
             }
         }
+        
+        template<typename... A>
+        void setInPlace(A&&... args) {
+            if (_defined) {
+                pt()->~T();
+            }
+            new (&_storage) T(args...);
+            _defined = true;
+        }
 
     private:
-        
+
         bool _defined;
         
         typename std::aligned_storage<sizeof(T), alignof(T)>::type _storage;
-        
+
         T* pt() {
             return reinterpret_cast<T*>(&_storage);
         }

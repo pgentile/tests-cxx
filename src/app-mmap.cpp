@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cstring>
 #include <system_error>
+#include <type_traits>
+#include <cstddef>
 
 #include <boost/numeric/conversion/cast.hpp>
 
@@ -26,7 +28,7 @@ struct Tx {
 };
 
 
-int main() {
+void simpleTest() {
     typedef Tx MappedType;
     
     LOG("sizeof(File) = " << sizeof(File));
@@ -79,6 +81,47 @@ int main() {
     catch (exception const& e) {
         LOG("Exception attrapee : " << e.what());
     }
-        
+}
+
+
+struct Header {
+    
+};
+
+
+int main() {
+    typedef typename aligned_storage<sizeof(long), alignof(max_align_t)>::type VersionStorage;
+    typedef typename aligned_storage<100, alignof(max_align_t)>::type HeaderStorage;
+    typedef typename aligned_storage<100, alignof(max_align_t)>::type BlockStorage;
+    
+    constexpr size_t const count = 10000;
+    constexpr size_t const fileLength = sizeof(VersionStorage) + sizeof(HeaderStorage) + sizeof(BlockStorage) * count;
+    
+    LOG("Tx file size = " << fileLength);
+    LOG("Size = " << sizeof(VersionStorage) << ", align = " << alignof(VersionStorage));
+    LOG("Size = " << sizeof(HeaderStorage) << ", align = " << alignof(HeaderStorage));
+    LOG("Size = " << sizeof(BlockStorage) << ", align = " << alignof(BlockStorage));
+    
+    File file = File::open("tx", "w+");
+    file.truncate(numeric_cast<off_t>(fileLength));
+    
+    MemMapped mapped(fileLength, PROT_READ | PROT_WRITE, MAP_SHARED, file.getDescriptor());
+    LOG("mapped = " << mapped);
+    
+    MemView<VersionStorage> versionView = mapped.view<VersionStorage>(0, 1);
+    LOG("versionView = " << versionView);
+    
+    long* version = reinterpret_cast<long*>(versionView.start());
+    *version = 10;
+    
+    MemView<HeaderStorage> headerView = mapped.viewFrom<HeaderStorage>(versionView.end(), 1);
+    LOG("headerView = " << headerView);
+    
+    char* header = reinterpret_cast<char*>(headerView.start());
+    strcpy(header, "MAGIC TX");
+    
+    MemView<BlockStorage> blockView = mapped.viewFrom<BlockStorage>(headerView.end(), count);
+    LOG("blockView = " << blockView);
+    
     return 0;
 }

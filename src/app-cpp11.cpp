@@ -5,6 +5,7 @@
 #include <thread>
 #include <mutex>
 #include <typeinfo>
+#include <cstddef>
 #include <cstdlib>
 #include <cstdint>
 #include <sstream>
@@ -132,10 +133,6 @@ namespace testthreads {
         }
     }
     
-    
-    
-    
-    
     void test() {
         sayHello();
     }
@@ -222,6 +219,18 @@ namespace testalign {
         PRINT_ALIGN_OF(int64_t);
         PRINT_ALIGN_OF(float);
         PRINT_ALIGN_OF(double);
+        PRINT_ALIGN_OF(bool);
+        PRINT_ALIGN_OF(int);
+        PRINT_ALIGN_OF(long);
+        PRINT_ALIGN_OF(long long);
+        PRINT_ALIGN_OF(long double);
+        PRINT_ALIGN_OF(Optional<bool>);
+        PRINT_ALIGN_OF(Optional<short>);
+        PRINT_ALIGN_OF(Optional<int>);
+        PRINT_ALIGN_OF(Optional<long>);
+        
+        typedef typename aligned_storage<sizeof(char), alignof(max_align_t)>::type Aligned;
+        PRINT_ALIGN_OF(Aligned);
     }
     
     void charArrayAsFloat() {
@@ -320,9 +329,9 @@ namespace testalign {
     
     void test() {
         printAlignments();
-        charArrayAsFloat();
-        placementNew();
-        testOptional();
+        // charArrayAsFloat();
+        // placementNew();
+        // testOptional();
     }
     
 }
@@ -458,8 +467,8 @@ namespace testallocators {
 }
 
 
-template<typename T>
-void runTest(char const* title, T func) {
+template<typename F>
+void runTest(char const* title, F const& func) {
     cout << separator('=') << endl;
     cout << title << endl;
     cout << separator('=') << endl << endl;
