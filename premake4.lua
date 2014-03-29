@@ -139,12 +139,13 @@ solution "TestCPP"
         links { "common" }
         sources { "zmq/handler.cpp" }
 
-    project "poco"
-        kind "ConsoleApp"
-        targetdir "bin"
-        use_poco()
-        links { "common" }
-        sources { "poco.cpp" }
+    -- Projet desactive : Poco occupe trop de place sur le disque
+    -- project "poco"
+    --     kind "ConsoleApp"
+    --     targetdir "bin"
+    --     use_poco()
+    --     links { "common" }
+    --     sources { "poco.cpp" }
 
     project "app-strtol"
         kind "ConsoleApp"
