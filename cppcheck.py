@@ -61,14 +61,27 @@ def get_compiler_includes():
     return includes
 
 
-def build_file_list(f):
+def list_source_files():
+    """Lister les fichiers sources"""
     for basedir, dirnames, filenames in os.walk('.'):
         for filename in filenames:
             basename, ext = os.path.splitext(filename)
             ext = ext.lstrip('.')
-            if ext not in ('c', 'h', 'cpp', 'hpp'):
-                break
-            f.write(os.path.join(basedir, filename) + '\n')
+            if ext in ('c', 'h', 'cpp', 'hpp'):
+                yield os.path.join(basedir, filename)
+
+
+def build_file_list():
+    """Construire la liste des fichiers sources"""
+    f = tempfile.TemporaryFile()
+    try:
+        for filename in list_source_files():
+            f.write(filename + '\n')
+        f.seek(0, os.SEEK_SET)
+    except:
+        f.close()
+        raise
+    return f
 
 
 # Executer cppcheck
@@ -85,7 +98,5 @@ command += ['--file-list=-']
 # Arguments de la ligne de commande
 command += sys.argv[1:]
 
-with tempfile.TemporaryFile() as temp_f:
-    build_file_list(temp_f)
-    temp_f.seek(0, os.SEEK_SET)
+with build_file_list() as temp_f:
     subprocess.check_call(command, stdin=temp_f)
