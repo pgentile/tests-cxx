@@ -2,6 +2,8 @@
 #define DATE_LOCALDATETIME_HPP
 
 #include <cstdint>
+#include <iostream>
+#include <boost/numeric/conversion/cast.hpp>
 
 
 namespace date {
@@ -13,10 +15,58 @@ public:
     
     explicit LocalDateTime(uint64_t value);
     
-    uint64_t getValue() const {
-        return _value;
+    LocalDateTime(uint32_t year, uint32_t month, uint32_t day, uint32_t hour, uint32_t minute, uint32_t second);
+    
+    uint32_t year() const {
+        return boost::numeric_cast<uint32_t>(_value / 10000000000UL);
     }
-
+    
+    uint32_t month() const {
+        return boost::numeric_cast<uint32_t>((_value / 100000000UL) % 100UL);
+    }
+    
+    uint32_t day() const {
+        return boost::numeric_cast<uint32_t>((_value / 1000000UL) % 100UL);
+    }
+    
+    uint32_t hour() const {
+        return boost::numeric_cast<uint32_t>((_value / 10000UL) % 100UL);
+    }
+    
+    uint32_t minute() const {
+        return boost::numeric_cast<uint32_t>((_value / 100UL) % 100UL);
+    }
+    
+    uint32_t second() const {
+        return boost::numeric_cast<uint32_t>(_value % 100UL);
+    }
+    
+    bool operator ==(LocalDateTime const& other) const {
+        return _value == other._value;
+    }
+    
+    bool operator !=(LocalDateTime const& other) const {
+        return _value != other._value;
+    }
+    
+    bool operator <(LocalDateTime const& other) const {
+        return _value < other._value;
+    }
+    
+    bool operator >(LocalDateTime const& other) const {
+        return _value > other._value;
+    }
+    
+    bool operator <=(LocalDateTime const& other) const {
+        return _value <= other._value;
+    }
+    
+    bool operator >=(LocalDateTime const& other) const {
+        return _value >= other._value;
+    }
+    
+    friend std::ostream& operator<<(std::ostream& out, const LocalDateTime& obj);
+    
 private:
     
     uint64_t _value;

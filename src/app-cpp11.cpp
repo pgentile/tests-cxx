@@ -13,6 +13,8 @@
 #include <functional>
 
 #include "util/Optional.hpp"
+#include "date/LocalDateTime.hpp"
+#include "date/LocalDateTimeRange.hpp"
 
 
 using namespace std;
@@ -483,9 +485,14 @@ int main(void) {
     // runTest("Test rvalues", &testrvalues::test);
     // runTest("Test containers", &testcontainers::test);
     // runTest("Test threads", &testthreads::test);
-    runTest("Test align", &testalign::test);
+    // runTest("Test align", &testalign::test);
     // runTest("Test templates", &testtemplates::test);
     // runTest("Test misc", &testmisc::test);
     // runTest("Test allocators", &testallocators::test);
+    
+    date::LocalDateTime dateTime(2012, 6, 7, 8, 20, 44);
+    cout << "dateTime = " << dateTime << endl;
+    cout << "range    = " << date::LocalDateTimeRange(dateTime) << endl;
+    
     return 0;
 }
