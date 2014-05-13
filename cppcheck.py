@@ -66,7 +66,7 @@ def list_source_files():
     for basedir, dirnames, filenames in os.walk('.'):
         for filename in filenames:
             basename, ext = os.path.splitext(filename)
-            ext = ext.lstrip('.')
+            ext = ext.lstrip('.').lower()
             if ext in ('c', 'h', 'cpp', 'hpp'):
                 yield os.path.join(basedir, filename)
 
