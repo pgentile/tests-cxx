@@ -9,8 +9,7 @@ using namespace std;
 
 namespace date {
 
-LocalDateTime::LocalDateTime(uint64_t value):
-        _value(value)
+LocalDateTime::LocalDateTime(uint64_t value): _value(value)
 {
 }
 

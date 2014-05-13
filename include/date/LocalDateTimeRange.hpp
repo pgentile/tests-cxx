@@ -42,7 +42,7 @@ public:
     }
     
     bool isClosed() const {
-        return (bool) _end;
+        return static_cast<bool>(_end);
     }
     
     bool contains(LocalDateTime const& date) const;
