@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <iostream>
+#include <functional>
 #include <boost/numeric/conversion/cast.hpp>
 
 #include "LocalDate.hpp"
@@ -57,6 +58,10 @@ public:
         return Time(boost::numeric_cast<uint32_t>(_value % 1000000UL));
     }
     
+    uint64_t numRepr() const {
+        return _value;
+    }
+    
     bool operator ==(LocalDateTime const& other) const {
         return _value == other._value;
     }
@@ -88,6 +93,20 @@ private:
     uint64_t _value;
 
 };
+
+}
+
+
+namespace std {
+    
+    template<>
+    struct hash<date::LocalDateTime> {
+
+        size_t operator()(date::LocalDateTime const& date) {
+            return date.numRepr();
+        }
+
+    };
 
 }
 

@@ -33,5 +33,5 @@ ostream& operator<<(ostream& out, const LocalDate& obj)
         << '-' << setw(2) << setfill('0') << obj.day();
     return out;
 }
-
+    
 }

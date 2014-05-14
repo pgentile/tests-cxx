@@ -18,7 +18,7 @@ public:
     
     AnonymousSemaphore(AnonymousSemaphore&& src);
     
-    ~AnonymousSemaphore();
+    virtual ~AnonymousSemaphore();
     
     AnonymousSemaphore& operator =(AnonymousSemaphore const&) = delete;
     

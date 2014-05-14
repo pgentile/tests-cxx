@@ -7,6 +7,7 @@
 #include <type_traits>
 #include <cassert>
 #include <utility>
+#include <functional>
 
 #include "util/exceptionsafe.hpp"
 

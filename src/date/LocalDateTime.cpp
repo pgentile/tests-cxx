@@ -15,7 +15,7 @@ LocalDateTime::LocalDateTime(uint64_t value): _value(value)
 
 
 LocalDateTime::LocalDateTime(LocalDate const& date, Time const& time):
-    _value(date._value * 1000000UL + time._value)
+    _value(date.numRepr() * 1000000UL + time.numRepr())
 {
 }
 

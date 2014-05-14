@@ -4,6 +4,7 @@
 #include "boost/optional.hpp"
 
 #include <iostream>
+#include <functional>
 #include "util/Optional.hpp"
 #include "date/LocalDateTime.hpp"
 

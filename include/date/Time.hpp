@@ -3,12 +3,10 @@
 
 #include <cstdint>
 #include <iostream>
+#include <functional>
 
 
 namespace date {
-    
-class LocalDateTime;
-
 
 class Time final
 {
@@ -31,6 +29,10 @@ public:
     
     uint32_t second() const {
         return _value % 100U;
+    }
+    
+    uint32_t numRepr() const {
+        return _value;
     }
     
     bool operator ==(Time const& other) const {
@@ -57,15 +59,25 @@ public:
         return _value >= other._value;
     }
     
-    friend std::ostream& operator<<(std::ostream& out, const Time& obj);
-    
-    friend LocalDateTime;
-    
 private:
     
     uint32_t _value;
 
 };
+
+}
+
+
+namespace std {
+    
+    template<>
+    struct hash<date::Time> {
+
+        size_t operator()(date::Time const& date) {
+            return date.numRepr();
+        }
+
+    };
 
 }
 
