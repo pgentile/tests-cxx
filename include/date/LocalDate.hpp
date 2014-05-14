@@ -6,6 +6,9 @@
 
 
 namespace date {
+    
+class LocalDateTime;
+
 
 class LocalDate final
 {
@@ -54,6 +57,8 @@ public:
     
     friend std::ostream& operator<<(std::ostream& out, const LocalDate& obj);
     
+    friend LocalDateTime;
+
 private:
     
     uint32_t _value;

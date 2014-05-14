@@ -5,6 +5,9 @@
 #include <iostream>
 #include <boost/numeric/conversion/cast.hpp>
 
+#include "LocalDate.hpp"
+#include "Time.hpp"
+
 
 namespace date {
 
@@ -14,6 +17,8 @@ class LocalDateTime final
 public:
     
     explicit LocalDateTime(uint64_t value);
+    
+    LocalDateTime(LocalDate const& date, Time const& time);
     
     LocalDateTime(uint32_t year, uint32_t month, uint32_t day, uint32_t hour, uint32_t minute, uint32_t second);
     
@@ -39,6 +44,14 @@ public:
     
     uint32_t second() const {
         return boost::numeric_cast<uint32_t>(_value % 100UL);
+    }
+    
+    LocalDate date() const {
+        return LocalDate(boost::numeric_cast<uint32_t>(_value / 1000000UL));
+    }
+    
+    Time time() const {
+        return Time(boost::numeric_cast<uint32_t>(_value % 1000000UL));
     }
     
     bool operator ==(LocalDateTime const& other) const {
