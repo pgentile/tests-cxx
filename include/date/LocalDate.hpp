@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <iostream>
 
+#include "Month.hpp"
+
 
 namespace date {
     
@@ -19,12 +21,14 @@ public:
     
     LocalDate(uint32_t year, uint32_t month, uint32_t day);
     
+    LocalDate(uint32_t year, Month month, uint32_t day);
+    
     uint32_t year() const {
         return _value / 10000U;
     }
     
-    uint32_t month() const {
-        return (_value / 100U) % 100U;
+    Month month() const {
+        return static_cast<Month>((_value / 100U) % 100U);
     }
     
     uint32_t day() const {

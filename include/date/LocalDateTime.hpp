@@ -7,6 +7,7 @@
 
 #include "LocalDate.hpp"
 #include "Time.hpp"
+#include "Month.hpp"
 
 
 namespace date {
@@ -22,12 +23,14 @@ public:
     
     LocalDateTime(uint32_t year, uint32_t month, uint32_t day, uint32_t hour, uint32_t minute, uint32_t second);
     
+    LocalDateTime(uint32_t year, Month month, uint32_t day, uint32_t hour, uint32_t minute, uint32_t second);
+    
     uint32_t year() const {
         return boost::numeric_cast<uint32_t>(_value / 10000000000UL);
     }
     
-    uint32_t month() const {
-        return boost::numeric_cast<uint32_t>((_value / 100000000UL) % 100UL);
+    Month month() const {
+        return boost::numeric_cast<Month>((_value / 100000000UL) % 100UL);
     }
     
     uint32_t day() const {
