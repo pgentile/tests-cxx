@@ -9,6 +9,10 @@ using namespace std;
 
 namespace date {
 
+
+Time const Time::MIDNIGHT(0);
+
+
 Time::Time(uint32_t value): _value(value)
 {
 }

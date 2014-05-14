@@ -15,6 +15,8 @@ class Time final
     
 public:
     
+    static Time const MIDNIGHT;
+    
     explicit Time(uint32_t value);
     
     Time(uint32_t hour, uint32_t minute, uint32_t second);
