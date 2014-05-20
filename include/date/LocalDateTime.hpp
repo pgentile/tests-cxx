@@ -58,7 +58,7 @@ public:
         return Time(boost::numeric_cast<uint32_t>(_value % 1000000UL));
     }
     
-    uint64_t numRepr() const {
+    explicit operator uint64_t() const {
         return _value;
     }
     
@@ -103,7 +103,7 @@ namespace std {
     struct hash<date::LocalDateTime> {
 
         size_t operator()(date::LocalDateTime const& date) {
-            return date.numRepr();
+            return static_cast<uint64_t>(date);
         }
 
     };

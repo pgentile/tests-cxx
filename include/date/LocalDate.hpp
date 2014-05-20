@@ -34,7 +34,7 @@ public:
         return _value % 100U;
     }
     
-    uint32_t numRepr() const {
+    explicit operator uint32_t() const {
         return _value;
     }
     
@@ -79,7 +79,7 @@ namespace std {
     struct hash<date::LocalDate> {
 
         size_t operator()(date::LocalDate const& date) {
-            return date.numRepr();
+            return static_cast<uint32_t>(date);
         }
 
     };
