@@ -470,6 +470,32 @@ namespace testallocators {
 }
 
 
+// Tests programmation fonctionnelle
+
+namespace testfunctional {
+    
+    void moveFunction() {
+        typedef function<void(string const&)> F;
+        
+        F showName1 = [](string const& name) { cout << "Mon nom est " << name << endl; };
+        F showName2;
+        
+        cout << "Etat showName1 : " << static_cast<bool>(showName1) << endl;
+        cout << "Etat showName2 : " << static_cast<bool>(showName2) << endl;
+        
+        showName2 = std::move(showName1);
+        
+        cout << "Etat showName1 : " << static_cast<bool>(showName1) << endl;
+        cout << "Etat showName2 : " << static_cast<bool>(showName2) << endl;
+    }
+    
+    void test() {
+        moveFunction();
+    }
+    
+}
+
+
 template<typename F>
 void runTest(char const* title, F const& func) {
     cout << separator('=') << endl;
@@ -490,10 +516,11 @@ int main(void) {
     // runTest("Test templates", &testtemplates::test);
     // runTest("Test misc", &testmisc::test);
     // runTest("Test allocators", &testallocators::test);
+    runTest("Test programmation fonctionnelle", &testfunctional::test);
     
-    cout << "dateTime = " << date::LocalDateTime(2013, 6, 7, 8, 20, 44) << endl;
-    cout << "date     = " << date::LocalDate(2014, 6, 7) << endl;
-    cout << "range    = " << date::LocalDateTimeRange(date::LocalDateTime(2012, 6, 7, 8, 20, 44)) << endl;
+    // cout << "dateTime = " << date::LocalDateTime(2013, 6, 7, 8, 20, 44) << endl;
+    // cout << "date     = " << date::LocalDate(2014, 6, 7) << endl;
+    // cout << "range    = " << date::LocalDateTimeRange(date::LocalDateTime(2012, 6, 7, 8, 20, 44)) << endl;
     
     return 0;
 }

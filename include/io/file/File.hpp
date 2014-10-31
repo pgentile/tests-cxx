@@ -20,6 +20,8 @@ public:
 
     static File open(char const* name, char const* mode, size_t bufferSize = DEFAULT_BUFFER_SIZE);
 
+    static File open(std::string const& name, char const* mode, size_t bufferSize = DEFAULT_BUFFER_SIZE);
+
     File(File const&) = delete;
 
     File(File&& src);

@@ -25,6 +25,10 @@ File File::open(char const* name, char const* mode, size_t bufferSize) {
     return file;
 }
 
+File File::open(string const& name, char const* mode, size_t bufferSize) {
+    return open(name.c_str(), mode, bufferSize);
+}
+
 File::File(FILE* file, string&& name, size_t bufferSize):
     _file(file),
     _name(move(name)),

@@ -65,6 +65,13 @@ namespace util
         void dismiss() {
             _cleaner = nullptr;
         }
+        
+        void execute() {
+            if (_cleaner) {
+                std::function<void()> cleaner(std::move(_cleaner));
+                cleaner();
+            }
+        }
 
     private:
         
