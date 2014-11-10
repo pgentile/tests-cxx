@@ -62,16 +62,11 @@ solution "TestCPP"
     includedirs {
         SOURCE_DIR,
         "include",
-        "/opt/local/include"
     }
     
     flags { "ExtraWarnings", "FatalWarnings", "Symbols", "EnableSSE", "EnableSSE2" }
     buildoptions { "-std=c++11", "-fPIC", "-pthread" }
-    linkoptions { "-pthread" }
-    
-    libdirs {
-        "/opt/local/lib"
-    }
+    linkoptions { "-lpthread" }
     
     configuration "Debug"
     

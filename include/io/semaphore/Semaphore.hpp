@@ -16,8 +16,6 @@ public:
 
     virtual ~Semaphore();
 
-    int getValue();
-    
     void post();
     
     void wait();

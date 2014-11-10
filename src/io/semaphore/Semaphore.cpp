@@ -17,14 +17,6 @@ Semaphore::~Semaphore() {
     
 }
 
-int Semaphore::getValue() {
-    int value = 0;
-    if (sem_getvalue(pt(), &value) != 0) {
-        throwSystemError();
-    }
-    return value;
-}
-
 void Semaphore::post() {
     if (sem_post(pt()) != 0) {
         throwSystemError();

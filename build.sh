@@ -12,15 +12,6 @@ error()
 
 # Number of parallel process
 
-if [[ -z "$PARALLEL" ]]
-then
-    # Nombre de cores sur MacOS
-    if [[ -x /usr/sbin/system_profiler ]]
-    then
-        PARALLEL=$(/usr/sbin/system_profiler -detailLevel full SPHardwareDataType | awk '/Total Number Of Cores/ { print $NF }')
-    fi
-fi
-
 [[ -z "$PARALLEL" ]] && PARALLEL=1
 
 # Generate Makefiles

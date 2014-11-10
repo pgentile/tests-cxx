@@ -38,7 +38,7 @@ namespace memmapped {
         src._end = nullptr;
     }
 
-    MemMapped::~MemMapped() {
+    MemMapped::~MemMapped() noexcept {
         EXCEPTION_SAFE_BEGIN();
         if (_start != nullptr) {
             if (munmap(_start, _length) == -1) {

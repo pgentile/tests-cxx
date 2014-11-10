@@ -58,14 +58,14 @@ namespace util
 				}
 				catch (...) {
                     _exception = std::current_exception();
-					delete _instance;
-					_instance = nullptr;
+					_deleteInstance();
 				}
 			}
 			
 			static void _deleteInstance()
 			{
-				delete _instance;
+				T* target = _instance.exchange(nullptr);
+				delete target;
 			}
 			
 			static std::once_flag _onceFlag;

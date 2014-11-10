@@ -20,7 +20,7 @@ namespace threading
 		_checkRC(result);
 	}
 	
-	ReadWriteLock::~ReadWriteLock()
+	ReadWriteLock::~ReadWriteLock() noexcept
 	{
 		EXCEPTION_SAFE_BEGIN();
 		int result = pthread_rwlock_destroy(&_lock);
@@ -64,7 +64,7 @@ namespace threading
 		_lock.lockRead();
 	}
 	
-	ReadWriteLock::ReadLock::~ReadLock()
+	ReadWriteLock::ReadLock::~ReadLock() noexcept
 	{
 		EXCEPTION_SAFE_BEGIN();
 		_lock.unlock();
@@ -76,7 +76,7 @@ namespace threading
 		_lock.lockWrite();
 	}
 	
-	ReadWriteLock::WriteLock::~WriteLock()
+	ReadWriteLock::WriteLock::~WriteLock() noexcept
 	{
 		EXCEPTION_SAFE_BEGIN();
 		_lock.unlock();

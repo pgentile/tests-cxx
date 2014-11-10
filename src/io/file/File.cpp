@@ -56,7 +56,7 @@ File::File(File&& src):
     src._closed = true;
 }
 
-File::~File() {
+File::~File() noexcept {
     EXCEPTION_SAFE_BEGIN();
     if (!_closed) {
         close();

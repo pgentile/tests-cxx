@@ -16,7 +16,9 @@ namespace log
 		
 		Log();
 		
+        Log(Log &&) = default;
         Log(Log const&) = delete;
+        Log& operator =(Log &&) = default;
         Log& operator =(Log const&) = delete;
 		
 		template<typename T>
